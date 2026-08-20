@@ -140,18 +140,32 @@ Creación de Caso
 Comentanos tu caso y obtén un seguimiento mediante número de caso.
 </p>
 
-<form method="POST" action="{{ url('/cases/suicide') }}">
+@if(session('success'))
+    <div class="alert success">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if($errors->any())
+    <div class="alert error">
+        @foreach($errors->all() as $error)
+            <p>{{ $error }}</p>
+        @endforeach
+    </div>
+@endif
+
+<form method="POST" action="{{ route('cases.suicide') }}">
     @csrf
 
-<textarea
-name="description"
-placeholder="Describe tu situación">
-</textarea>
+    <textarea
+        name="description"
+        placeholder="Describe tu situación"
+        required
+        minlength="10">{{ old('description') }}</textarea>
 
-<button type="submit">
-Crear Caso
-</button>
-
+    <button type="submit">
+        Crear Caso
+    </button>
 </form>
 
 </div>

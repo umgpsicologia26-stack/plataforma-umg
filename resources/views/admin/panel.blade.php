@@ -71,8 +71,20 @@
                     </a>
 
                 </li>
+<!-- NOTIFICACIONES -->
+<li>
+    <a href="{{ url('/admin/notifications') }}">
 
+        <i class="fas fa-bell"></i>
 
+        <span>Notificaciones</span>
+
+        @if($unreadNotifications > 0)
+            <span class="notification-dot"></span>
+        @endif
+
+    </a>
+</li>
 
                 <!-- MODERADORES -->
 
@@ -220,43 +232,6 @@
 
 
             </div>
-
-
-
-            <!-- =================================================
-                NOTIFICACIONES
-            ================================================== -->
-
-            @if(isset($notifications) && $notifications->count())
-
-                <div class="notifications">
-
-
-                    <h3>
-
-                        <i class="fas fa-bell"></i>
-
-                        Notificaciones
-
-                    </h3>
-
-
-                    @foreach($notifications as $notification)
-
-                        <div class="notification">
-
-                            {{ $notification->message }}
-
-                        </div>
-
-                    @endforeach
-
-
-                </div>
-
-            @endif
-
-
 
             <!-- =================================================
                 GESTIÓN DE CASOS

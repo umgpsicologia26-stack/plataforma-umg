@@ -4,23 +4,55 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
 class MustChangePassword
 {
-    public function handle(Request $request, Closure $next)
-    {
+    /**
+     * Handle an incoming request.
+     */
+    public function handle(
+        Request $request,
+        Closure $next
+    ): Response {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Verificar usuario autenticado
+        |--------------------------------------------------------------------------
+        */
+
         if (!Auth::check()) {
-            return redirect('/login');
+            return $next($request);
         }
 
         $user = Auth::user();
 
-        if (
-            $user->role === 'MODERATOR' &&
-            $user->must_change_password
-        ) {
-            return redirect()->route('password.change');
+        /*
+        |--------------------------------------------------------------------------
+        | Permitir acceder al cambio de contraseña
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->is('change-password')) {
+            return $next($request);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Verificar si debe cambiar la contraseña
+        |--------------------------------------------------------------------------
+        */
+
+        if ($user->must_change_password) {
+
+            return redirect()
+                ->route('password.change')
+                ->with(
+                    'warning',
+                    'Debes cambiar tu contraseña antes de continuar.'
+                );
         }
 
         return $next($request);

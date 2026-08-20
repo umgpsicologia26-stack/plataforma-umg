@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'admin.verified' => \App\Http\Middleware\AdminVerified::class,
             'must.change.password' => \App\Http\Middleware\MustChangePassword::class,
+            'maintenance' => \App\Http\Middleware\MaintenanceMode::class,
             ]);
 
     })

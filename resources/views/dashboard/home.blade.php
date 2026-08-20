@@ -438,13 +438,11 @@ SERVICIOS
         Botón de Pánico
     </a>
 
-    <a href="/cases">
-        <i class="fas fa-folder-open"></i>
-        Seguimiento de Casos
-    </a>
-
+        <a href="/cases">
+    <i class="fas fa-folder-open"></i>
+    Seguimiento de Casos
+</a>
 </div>
-
 
 <div class="nav-right">
 
@@ -549,6 +547,7 @@ SERVICIOS
     </p>
 </div>
 </section>
+
 <section class="services-section">
 <h2 class="services-title">
     Herramientas de Apoyo

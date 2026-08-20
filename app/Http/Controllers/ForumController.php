@@ -13,14 +13,58 @@ class ForumController extends Controller
     |--------------------------------------------------------------------------
     | MOSTRAR FORO
     |--------------------------------------------------------------------------
+    |
+    | USUARIO:
+    | Solo puede ver publicaciones visibles.
+    |
+    | MODERADOR / ADMIN:
+    | Pueden ver publicaciones visibles y ocultas para poder moderarlas.
+    |
     */
 
     public function index()
     {
-        $messages = ForumMessage::with('user')
-            ->where('visibility_status', 'VISIBLE')
-            ->orderBy('created_at', 'asc')
-            ->get();
+        $user = Auth::user();
+
+        $query = ForumMessage::with('user')
+            ->orderBy('created_at', 'asc');
+
+        /*
+        |--------------------------------------------------------------------------
+        | USUARIO NORMAL
+        |--------------------------------------------------------------------------
+        |
+        | Los usuarios solamente pueden visualizar mensajes visibles.
+        |
+        */
+
+        if (
+            !$user ||
+            !in_array(
+                $user->role,
+                ['ADMIN', 'MODERATOR']
+            )
+        ) {
+            $query->where(
+                'visibility_status',
+                'VISIBLE'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | ADMINISTRADOR / MODERADOR
+        |--------------------------------------------------------------------------
+        |
+        | No agregamos where de visibility_status.
+        | De esta manera pueden ver:
+        |
+        | VISIBLE
+        | HIDDEN
+        |
+        */
+
+        $messages = $query->get();
 
         return view(
             'forum.index',
@@ -67,7 +111,6 @@ class ForumController extends Controller
             'user_uuid' => $user->uuid,
 
             /*
-             * Ya no utilizamos categorías.
              * Se conserva GENERAL para no romper
              * una posible columna existente en BD.
              */
@@ -84,6 +127,9 @@ class ForumController extends Controller
 
             'ai_flagged' => false,
 
+            /*
+             * Todo mensaje nuevo comienza visible.
+             */
             'visibility_status' => 'VISIBLE'
 
         ]);
@@ -109,6 +155,12 @@ class ForumController extends Controller
     {
         $user = Auth::user();
 
+        /*
+        |--------------------------------------------------------------------------
+        | VERIFICAR PERMISOS
+        |--------------------------------------------------------------------------
+        */
+
         if (
             !$user ||
             !in_array(
@@ -121,8 +173,20 @@ class ForumController extends Controller
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | BUSCAR MENSAJE
+        |--------------------------------------------------------------------------
+        */
+
         $message = ForumMessage::findOrFail($uuid);
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | OCULTAR MENSAJE
+        |--------------------------------------------------------------------------
+        */
 
         $message->visibility_status = 'HIDDEN';
 
@@ -149,6 +213,12 @@ class ForumController extends Controller
     {
         $user = Auth::user();
 
+        /*
+        |--------------------------------------------------------------------------
+        | VERIFICAR PERMISOS
+        |--------------------------------------------------------------------------
+        */
+
         if (
             !$user ||
             !in_array(
@@ -161,8 +231,20 @@ class ForumController extends Controller
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | BUSCAR MENSAJE
+        |--------------------------------------------------------------------------
+        */
+
         $message = ForumMessage::findOrFail($uuid);
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESTAURAR MENSAJE
+        |--------------------------------------------------------------------------
+        */
 
         $message->visibility_status = 'VISIBLE';
 

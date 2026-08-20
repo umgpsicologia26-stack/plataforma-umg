@@ -39,11 +39,10 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($user->role === 'MODERATOR') {
+    if ($user->role === 'MODERATOR') {
 
-            return view('dashboard.home');
-        }
-
+    return redirect()->route('moderator.dashboard');
+}
 
         /*
         |--------------------------------------------------------------------------

@@ -1,295 +1,1032 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
 
-<title>Reportes</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Reportes | UMG</title>
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<style>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
 
-body{
-    background:#0f172a;
-    color:white;
-    font-family:Poppins,sans-serif;
-    padding:30px;
-}
+    <style>
 
-.dashboard{
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    display:grid;
 
-    grid-template-columns:
-    repeat(auto-fit,minmax(250px,1fr));
+        body {
 
-    gap:20px;
-}
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
 
-.card{
+            background:
+                linear-gradient(
+                    135deg,
+                    #eef4ff,
+                    #f8fbff
+                );
 
-    background:#1e293b;
+            min-height: 100vh;
 
-    padding:25px;
+            color: #1f2937;
 
-    border-radius:20px;
+        }
 
-    box-shadow:
-    0 5px 20px rgba(0,0,0,.3);
 
-}
+        /* =========================================
+           CONTENEDOR
+        ========================================= */
 
-.card h2{
+        .container {
 
-    margin:0;
+            width: 100%;
 
-    font-size:18px;
+            max-width: 1200px;
 
-    color:#cbd5e1;
-}
+            margin: auto;
 
-.number{
+            padding: 35px 20px 50px;
 
-    font-size:40px;
+        }
 
-    font-weight:bold;
 
-    margin-top:10px;
-}
+        /* =========================================
+           BOTÓN VOLVER
+        ========================================= */
 
-.chart-container{
+        .back-button {
 
-    background:#1e293b;
+            display: inline-flex;
 
-    margin-top:25px;
+            align-items: center;
 
-    padding:20px;
+            gap: 9px;
 
-    border-radius:20px;
-}
+            text-decoration: none;
 
-.filter-box{
+            color: #374151;
 
-    background:#1e293b;
+            background: #ffffff;
 
-    padding:20px;
+            padding: 11px 18px;
 
-    border-radius:20px;
+            border-radius: 10px;
 
-    margin-bottom:20px;
-}
+            border: 1px solid #e5e7eb;
 
-button{
+            font-size: 14px;
 
-    background:#2563eb;
+            font-weight: 600;
 
-    border:none;
+            margin-bottom: 20px;
 
-    color:white;
+            box-shadow:
+                0 3px 10px rgba(0,0,0,0.05);
 
-    padding:12px 20px;
+            transition: all .2s ease;
 
-    border-radius:10px;
+        }
 
-    cursor:pointer;
-}
 
-button:hover{
-    background:#1d4ed8;
-}
+        .back-button:hover {
 
-.back-btn{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
-    color:white;
-    text-decoration:none;
-    margin-bottom:25px;
-    background:#1e293b;
-    padding:12px 20px;
-    border-radius:12px;
-}
+            background: #f3f4f6;
 
-.export-buttons{
-    margin-top:20px;
-    display:flex;
-    gap:15px;
-}
+            transform: translateX(-2px);
 
-.export-btn{
+        }
 
-    background:#2563eb;
 
-    color:white;
+        /* =========================================
+           ENCABEZADO
+        ========================================= */
 
-    text-decoration:none;
+        .page-header {
 
-    padding:12px 20px;
+            background: #ffffff;
 
-    border-radius:10px;
+            border-radius: 18px;
 
-    font-weight:600;
+            padding: 25px 30px;
 
-    display:inline-block;
+            margin-bottom: 20px;
 
-    transition:.3s;
-}
+            box-shadow:
+                0 8px 25px rgba(0,0,0,0.07);
 
-.export-btn:hover{
+            border: 1px solid #e8edf5;
 
-    background:#1d4ed8;
+        }
 
-    transform:translateY(-2px);
 
-    text-decoration:none;
-}
+        .title {
 
-.back-btn:hover{
-    background:#2a3d63;
-    transform:translateY(-2px);
-}
+            display: flex;
 
-.back-btn i{
-    font-size:14px;
-}
+            align-items: center;
 
-.date-input{
-    background:#334155;
-    color:#fff;
+            gap: 12px;
 
-    border:none;
+            font-size: 25px;
 
-    padding:12px 15px;
+            font-weight: 700;
 
-    border-radius:10px;
+            color: #1f2937;
 
-    margin-right:10px;
-}
+        }
 
-.date-input::-webkit-calendar-picker-indicator{
-    filter:brightness(0) invert(1);
-    cursor:pointer;
-}
 
-</style>
+        .title i {
+
+            color: #2563eb;
+
+        }
+
+
+        .subtitle {
+
+            margin-top: 7px;
+
+            color: #6b7280;
+
+            font-size: 14px;
+
+        }
+
+
+        /* =========================================
+           FILTRO
+        ========================================= */
+
+        .filter-card {
+
+            background: #ffffff;
+
+            border-radius: 18px;
+
+            padding: 25px 30px;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 8px 25px rgba(0,0,0,0.07);
+
+            border: 1px solid #e8edf5;
+
+        }
+
+
+        .section-title {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            font-size: 17px;
+
+            font-weight: 700;
+
+            margin-bottom: 18px;
+
+            color: #1f2937;
+
+        }
+
+
+        .section-title i {
+
+            color: #2563eb;
+
+        }
+
+
+        .filter-form {
+
+            display: flex;
+
+            align-items: flex-end;
+
+            gap: 15px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .field {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 6px;
+
+        }
+
+
+        .field label {
+
+            font-size: 12px;
+
+            color: #6b7280;
+
+            font-weight: 600;
+
+        }
+
+
+        .date-input {
+
+            background: #f8fafc;
+
+            color: #374151;
+
+            border: 1px solid #e5e7eb;
+
+            padding: 11px 13px;
+
+            border-radius: 10px;
+
+            outline: none;
+
+        }
+
+
+        .date-input:focus {
+
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 3px rgba(37,99,235,.10);
+
+        }
+
+
+        .filter-btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            background: #2563eb;
+
+            color: white;
+
+            border: none;
+
+            padding: 11px 18px;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            font-weight: 600;
+
+            transition: all .2s ease;
+
+        }
+
+
+        .filter-btn:hover {
+
+            background: #1d4ed8;
+
+            transform: translateY(-1px);
+
+        }
+
+
+        /* =========================================
+           ESTADÍSTICAS
+        ========================================= */
+
+        .dashboard {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(210px, 1fr)
+                );
+
+            gap: 18px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .stat-card {
+
+            background: #ffffff;
+
+            border-radius: 18px;
+
+            padding: 23px;
+
+            border: 1px solid #e8edf5;
+
+            box-shadow:
+                0 8px 25px rgba(0,0,0,0.07);
+
+            transition: all .2s ease;
+
+        }
+
+
+        .stat-card:hover {
+
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 12px 30px rgba(0,0,0,.09);
+
+        }
+
+
+        .stat-top {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .stat-icon {
+
+            width: 43px;
+
+            height: 43px;
+
+            border-radius: 12px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background: #eff6ff;
+
+            color: #2563eb;
+
+        }
+
+
+        .stat-title {
+
+            font-size: 13px;
+
+            color: #6b7280;
+
+            font-weight: 600;
+
+        }
+
+
+        .number {
+
+            font-size: 32px;
+
+            font-weight: 700;
+
+            color: #1f2937;
+
+        }
+
+
+        /* =========================================
+           GRÁFICA
+        ========================================= */
+
+        .chart-card {
+
+            background: #ffffff;
+
+            border-radius: 18px;
+
+            padding: 28px;
+
+            margin-bottom: 20px;
+
+            border: 1px solid #e8edf5;
+
+            box-shadow:
+                0 8px 25px rgba(0,0,0,0.07);
+
+        }
+
+
+        .chart-wrapper {
+
+            position: relative;
+
+            height: 350px;
+
+        }
+
+
+        /* =========================================
+           EXPORTACIONES
+        ========================================= */
+
+        .export-card {
+
+            background: #ffffff;
+
+            border-radius: 18px;
+
+            padding: 25px 30px;
+
+            border: 1px solid #e8edf5;
+
+            box-shadow:
+                0 8px 25px rgba(0,0,0,0.07);
+
+        }
+
+
+        .export-buttons {
+
+            display: flex;
+
+            gap: 12px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .export-btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            text-decoration: none;
+
+            padding: 11px 18px;
+
+            border-radius: 10px;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            transition: all .2s ease;
+
+        }
+
+
+        .pdf-btn {
+
+            background: #fef2f2;
+
+            color: #dc2626;
+
+            border: 1px solid #fecaca;
+
+        }
+
+
+        .pdf-btn:hover {
+
+            background: #dc2626;
+
+            color: white;
+
+            transform: translateY(-1px);
+
+        }
+
+
+        .excel-btn {
+
+            background: #ecfdf5;
+
+            color: #15803d;
+
+            border: 1px solid #bbf7d0;
+
+        }
+
+
+        .excel-btn:hover {
+
+            background: #16a34a;
+
+            color: white;
+
+            transform: translateY(-1px);
+
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media (max-width: 650px) {
+
+            .container {
+
+                padding:
+                    20px 14px 40px;
+
+            }
+
+
+            .page-header,
+            .filter-card,
+            .chart-card,
+            .export-card {
+
+                padding: 22px 18px;
+
+            }
+
+
+            .title {
+
+                font-size: 21px;
+
+            }
+
+
+            .filter-form {
+
+                flex-direction: column;
+
+                align-items: stretch;
+
+            }
+
+
+            .date-input,
+            .filter-btn {
+
+                width: 100%;
+
+            }
+
+
+            .chart-wrapper {
+
+                height: 280px;
+
+            }
+
+        }
+
+    </style>
 
 </head>
+
+
 <body>
+
+
 <div class="container">
 
-<a href="/admin-panel" class="back-btn">
-    <i class="fas fa-arrow-left"></i>
-    Regresar
-</a>
 
-<div class="card">
+    <!-- =========================================
+         VOLVER
+    ========================================== -->
 
-<h1>📊 Reportes Administrativos</h1>
+    <a
+        href="/admin-panel"
+        class="back-button"
+    >
 
-<div class="filter-box">
+        <i class="fas fa-arrow-left"></i>
 
-<form>
+        Volver al panel
 
-<input type="date" class="date-input">
+    </a>
 
-<input type="date" class="date-input">
 
-<button>
-Filtrar
-</button>
+    <!-- =========================================
+         ENCABEZADO
+    ========================================== -->
 
-</form>
+    <div class="page-header">
+
+        <div class="title">
+
+            <i class="fas fa-chart-line"></i>
+
+            Reportes Administrativos
+
+        </div>
+
+
+        <div class="subtitle">
+
+            Consulta las estadísticas y genera reportes
+            de los casos registrados en UMG.
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+        FILTRO
+    ========================================== -->
+
+    <div class="filter-card">
+
+        <div class="section-title">
+
+            <i class="fas fa-filter"></i>
+
+            Filtrar por fecha
+
+        </div>
+
+
+        <form
+            class="filter-form"
+            method="GET"
+        >
+
+            <div class="field">
+
+                <label>
+                    Fecha inicial
+                </label>
+
+                <input
+                    type="date"
+                    name="from"
+                    class="date-input"
+                    value="{{ request('from') }}"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Fecha final
+                </label>
+
+                <input
+                    type="date"
+                    name="to"
+                    class="date-input"
+                    value="{{ request('to') }}"
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="filter-btn"
+            >
+
+                <i class="fas fa-filter"></i>
+
+                Filtrar
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- =========================================
+         ESTADÍSTICAS
+    ========================================== -->
+
+    <div class="dashboard">
+
+
+        <!-- ABIERTOS -->
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-title">
+                    Casos abiertos
+                </span>
+
+                <div class="stat-icon">
+
+                    <i class="fas fa-folder-open"></i>
+
+                </div>
+
+            </div>
+
+            <div class="number">
+                {{ $openCases }}
+            </div>
+
+        </div>
+
+
+        <!-- CERRADOS -->
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-title">
+                    Casos cerrados
+                </span>
+
+                <div class="stat-icon">
+
+                    <i class="fas fa-folder-closed"></i>
+
+                </div>
+
+            </div>
+
+            <div class="number">
+                {{ $closedCases }}
+            </div>
+
+        </div>
+
+
+        <!-- PENDIENTES -->
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-title">
+                    Pendientes de aprobación
+                </span>
+
+                <div class="stat-icon">
+
+                    <i class="fas fa-hourglass-half"></i>
+
+                </div>
+
+            </div>
+
+            <div class="number">
+                {{ $pendingCases }}
+            </div>
+
+        </div>
+
+
+        <!-- USUARIOS -->
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-title">
+                    Usuarios registrados
+                </span>
+
+                <div class="stat-icon">
+
+                    <i class="fas fa-users"></i>
+
+                </div>
+
+            </div>
+
+            <div class="number">
+                {{ $usersCount }}
+            </div>
+
+        </div>
+
+
+        <!-- MODERADORES -->
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-title">
+                    Moderadores activos
+                </span>
+
+                <div class="stat-icon">
+
+                    <i class="fas fa-user-shield"></i>
+
+                </div>
+
+            </div>
+
+            <div class="number">
+                {{ $moderatorsCount }}
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =========================================
+         GRÁFICA
+    ========================================== -->
+
+    <div class="chart-card">
+
+        <div class="section-title">
+
+            <i class="fas fa-chart-column"></i>
+
+            Casos registrados por mes
+
+        </div>
+
+
+        <div class="chart-wrapper">
+
+            <canvas id="lineChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         EXPORTACIONES
+    ========================================== -->
+
+    <div class="export-card">
+
+        <div class="section-title">
+
+            <i class="fas fa-file-export"></i>
+
+            Exportar reporte
+
+        </div>
+
+
+        <div class="export-buttons">
+
+
+            <a
+                href="/admin/reports/pdf"
+                class="export-btn pdf-btn"
+            >
+
+                <i class="fas fa-file-pdf"></i>
+
+                Exportar PDF
+
+            </a>
+
+
+            <a
+                href="/admin/reports/excel"
+                class="export-btn excel-btn"
+            >
+
+                <i class="fas fa-file-excel"></i>
+
+                Exportar Excel
+
+            </a>
+
+
+        </div>
+
+    </div>
+
 
 </div>
 
-<div class="dashboard">
-
-<div class="card">
-<h2>Casos Abiertos</h2>
-<div class="number">
-{{ $openCases }}
-</div>
-</div>
-
-<div class="card">
-<h2>Casos Cerrados</h2>
-<div class="number">
-{{ $closedCases }}
-</div>
-</div>
-
-<div class="card">
-<h2>Pendientes de Aprobación</h2>
-<div class="number">
-{{ $pendingCases }}
-</div>
-</div>
-
-<div class="card">
-<h2>Usuarios Registrados</h2>
-<div class="number">
-{{ $usersCount }}
-</div>
-</div>
-
-<div class="card">
-<h2>Moderadores Activos</h2>
-<div class="number">
-{{ $moderatorsCount }}
-</div>
-</div>
-
-</div>
-
-<div class="chart-container">
-
-<h2>Casos por Mes</h2>
-
-<canvas id="lineChart"></canvas>
-
-</div>
-
-<div class="export-buttons">
-
-<a href="/admin/reports/pdf" class="export-btn">
-    📄 Exportar PDF
-</a>
-
-<a href="/admin/reports/excel" class="export-btn">
-    📊 Exportar Excel
-</a>
-
-</div>
 
 <script>
 
 const lineChart =
 new Chart(
-document.getElementById('lineChart'),
-{
-type:'line',
-data:{
-labels:[
-'Ene','Feb','Mar',
-'Abr','May','Jun',
-'Jul','Ago','Sep',
-'Oct','Nov','Dic'
-],
-datasets:[{
-label:'Casos',
-data:@json($monthlyCases),
-fill:false,
-borderWidth:3
-}]
-}
-});
+    document.getElementById('lineChart'),
+    {
+
+        type: 'line',
+
+        data: {
+
+            labels: [
+
+                'Ene',
+                'Feb',
+                'Mar',
+                'Abr',
+                'May',
+                'Jun',
+                'Jul',
+                'Ago',
+                'Sep',
+                'Oct',
+                'Nov',
+                'Dic'
+
+            ],
+
+            datasets: [
+
+                {
+
+                    label: 'Casos',
+
+                    data:
+                        @json($monthlyCases),
+
+                    fill: false,
+
+                    borderWidth: 3,
+
+                    tension: 0.35,
+
+                    pointRadius: 4
+
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+
+                    display: true
+
+                }
+
+            },
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+
+                        precision: 0
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+);
 
 </script>
-</div>
+
+
 </body>
+
 </html>

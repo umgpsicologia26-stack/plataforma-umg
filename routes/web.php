@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\ModeratorController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ForumController;
@@ -78,23 +79,6 @@ Route::post(
     [UserController::class, 'resetPassword']
 );
 
-
-/*
-|--------------------------------------------------------------------------
-| CASOS PÚBLICOS
-|--------------------------------------------------------------------------
-*/
-
-Route::post(
-    '/cases/suicide',
-    [CaseController::class, 'createSuicideCase']
-);
-
-Route::post(
-    '/cases/abuse',
-    [CaseController::class, 'createAbuseCase']
-);
-
 /*
 |--------------------------------------------------------------------------
 | CAMBIO DE CONTRASEÑA
@@ -128,15 +112,67 @@ Route::middleware(['auth'])->group(function () {
 |
 | Requiere:
 | 1. Usuario autenticado
-| 2. Si es MODERATOR y debe cambiar contraseña,
-|    será enviado a /change-password
+| 2. Cambio de contraseña si corresponde
+| 3. Modo mantenimiento para usuarios no administradores
 |
 */
 
 Route::middleware([
     'auth',
-    'must.change.password'
+    'must.change.password',
+    'maintenance'
 ])->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | MODERADOR
+    |--------------------------------------------------------------------------
+    */
+
+    Route::middleware(['role:MODERATOR'])->group(function () {
+
+    Route::get(
+        '/moderator/dashboard',
+        [ModeratorController::class, 'dashboard']
+    )->name('moderator.dashboard');
+
+    Route::get(
+        '/moderator/cases',
+        [ModeratorController::class, 'cases']
+    )->name('moderator.cases');
+
+    Route::get(
+        '/moderator/case/{id}',
+        [ModeratorController::class, 'viewCase']
+    )->name('moderator.case');
+
+    Route::post(
+        '/moderator/case/{id}/comment',
+        [ModeratorController::class, 'saveComment']
+    )->name('moderator.case.comment');
+
+    Route::put(
+        '/moderator/case/{id}/status',
+        [ModeratorController::class, 'updateStatus']
+    )->name('moderator.case.status');
+
+});
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREACIÓN DE CASOS
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post(
+        '/cases/suicide',
+        [CaseController::class, 'createSuicideCase']
+    )->name('cases.suicide');
+
+    Route::post(
+        '/cases/abuse',
+        [CaseController::class, 'createAbuseCase']
+    )->name('cases.abuse');
 
 
     /*
@@ -146,9 +182,9 @@ Route::middleware([
     */
 
     Route::get(
-    '/dashboard',
-    [DashboardController::class, 'index']
-)->name('dashboard');
+        '/dashboard',
+        [DashboardController::class, 'index']
+    )->name('dashboard');
 
 
     /*
@@ -236,6 +272,7 @@ Route::middleware([
     );
 
 });
+
 /*
 |--------------------------------------------------------------------------
 | ACCESO ADMINISTRATIVO
@@ -307,6 +344,21 @@ Route::middleware([
             [AdminController::class, 'panel']
         );
 
+/*
+|--------------------------------------------------------------------------
+| NOTIFICACIONES
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/admin/notifications',
+    [AdminController::class, 'notifications']
+)->name('admin.notifications');
+
+Route::post(
+    '/admin/notifications/{id}/read',
+    [AdminController::class, 'markNotificationAsRead']
+)->name('admin.notifications.read');
 
         /*
         |--------------------------------------------------------------------------

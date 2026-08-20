@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
+
     /*
     |--------------------------------------------------------------------------
     | DASHBOARD ADMINISTRATIVO
@@ -315,6 +316,41 @@ class AdminController extends Controller
     }
 
     /*
+|--------------------------------------------------------------------------
+| NOTIFICACIONES
+|--------------------------------------------------------------------------
+*/
+
+public function notifications()
+{
+    $notifications = AdminNotification::latest()
+        ->get();
+
+    return view(
+        'admin.notifications',
+        compact('notifications')
+    );
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| MARCAR NOTIFICACIÓN COMO LEÍDA
+|--------------------------------------------------------------------------
+*/
+
+public function markNotificationAsRead($id)
+{
+    $notification = AdminNotification::findOrFail($id);
+
+    $notification->read = 1;
+
+    $notification->save();
+
+    return back();
+}
+
+    /*
     |--------------------------------------------------------------------------
     | MODERADORES
     |--------------------------------------------------------------------------
@@ -409,114 +445,74 @@ class AdminController extends Controller
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | EXPORTAR PDF
-    |--------------------------------------------------------------------------
-    */
+/*
+|--------------------------------------------------------------------------
+| EXPORTAR EXCEL
+|--------------------------------------------------------------------------
+*/
 
-    public function exportPdf()
-    {
-        $cases = CaseFile::with([
-            'user',
-            'moderator'
-        ])
-        ->latest()
-        ->get();
+public function exportExcel()
+{
+    $cases = CaseFile::with([
+        'user',
+        'moderator'
+    ])
+    ->latest()
+    ->get();
 
-        $pdf = Pdf::loadView(
-            'admin.report-pdf',
-            compact('cases')
+    return response()->streamDownload(function () use ($cases) {
+
+        $handle = fopen('php://output', 'w');
+
+        // Permite que Excel reconozca correctamente los caracteres UTF-8
+        fprintf(
+            $handle,
+            chr(0xEF) . chr(0xBB) . chr(0xBF)
         );
 
-        return $pdf->download(
-            'reporte_casos.pdf'
-        );
-    }
+        // ENCABEZADOS
+        fputcsv($handle, [
+            'Número de Caso',
+            'Tipo',
+            'Descripción',
+            'Estado',
+            'Usuario',
+            'Moderador',
+            'Fecha'
+        ]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | EXPORTAR CSV / EXCEL
-    |--------------------------------------------------------------------------
-    */
+        // DATOS
+        foreach ($cases as $case) {
 
-    public function exportExcel()
-    {
-        $fileName = 'reporte_casos.csv';
+            fputcsv($handle, [
+                $case->case_number,
 
-        $headers = [
-            'Content-Type' =>
-                'text/csv',
+                $case->type,
 
-            'Content-Disposition' =>
-                "attachment; filename=$fileName",
-        ];
+                $case->description,
 
-        $callback = function () {
+                $case->status,
 
-            $file = fopen(
-                'php://output',
-                'w'
-            );
+                $case->user
+                    ? $case->user->full_name
+                    : 'No asignado',
 
-            fputcsv(
-                $file,
-                [
-                    'Numero de Caso',
-                    'Tipo',
-                    'Descripcion',
-                    'Estado',
-                    'Usuario',
-                    'Moderador',
-                    'Fecha'
-                ]
-            );
+                $case->moderator
+                    ? $case->moderator->full_name
+                    : 'No asignado',
 
-            $cases = CaseFile::with([
-                'user',
-                'moderator'
-            ])
-            ->latest()
-            ->get();
+                $case->created_at
+                    ? $case->created_at->format('d/m/Y H:i')
+                    : ''
+            ]);
+        }
 
-            foreach ($cases as $case) {
+        fclose($handle);
 
-                fputcsv(
-                    $file,
-                    [
-
-                        $case->case_number,
-
-                        $case->type,
-
-                        $case->description,
-
-                        $case->status,
-
-                        $case->user
-                            ? $case->user->full_name
-                            : 'No asignado',
-
-                        $case->moderator
-                            ? $case->moderator->full_name
-                            : 'No asignado',
-
-                        $case->created_at
-
-                    ]
-                );
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream(
-            $callback,
-            200,
-            $headers
-        );
-    }
-
+    }, 'reporte_casos.csv', [
+        'Content-Type' => 'text/csv; charset=UTF-8',
+    ]);
+}
     /*
     |--------------------------------------------------------------------------
     | USUARIOS
@@ -628,21 +624,16 @@ class AdminController extends Controller
     public function configuration()
     {
         $settings = SystemSetting::firstOrCreate(
-            ['id' => 1],
-            [
-                'system_name' =>
-                    'VitaSafe',
-
-                'forum_enabled' =>
-                    true,
-
-                'panic_enabled' =>
-                    true,
-
-                'registration_enabled' =>
-                    true
-            ]
-        );
+    ['id' => 1],
+    [
+        'system_name' => 'UMG',
+        'forum_enabled' => true,
+        'panic_enabled' => true,
+        'registration_enabled' => true,
+        'case_creation_enabled' => true,
+        'maintenance_mode' => false
+    ]
+);
 
         return view(
             'admin.configuration',
@@ -656,38 +647,43 @@ class AdminController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function saveConfiguration(
-        Request $request
-    ) {
-        $settings = SystemSetting::first();
+   public function saveConfiguration(Request $request)
+{
+    $request->validate([
+        'system_name' => 'required|string|max:255',
+    ]);
 
-        $settings->update([
+    $settings = SystemSetting::first();
 
-            'system_name' =>
-                $request->system_name,
-
-            'forum_enabled' =>
-                $request->has(
-                    'forum_enabled'
-                ),
-
-            'panic_enabled' =>
-                $request->has(
-                    'panic_enabled'
-                ),
-
-            'registration_enabled' =>
-                $request->has(
-                    'registration_enabled'
-                )
-
-        ]);
-
-        return back()->with(
-            'success',
-            'Configuración actualizada'
-        );
+    if (!$settings) {
+        $settings = new SystemSetting();
+        $settings->id = 1;
     }
+
+    $settings->system_name = $request->system_name;
+
+    $settings->forum_enabled =
+        $request->has('forum_enabled');
+
+    $settings->panic_enabled =
+        $request->has('panic_enabled');
+
+    $settings->registration_enabled =
+        $request->has('registration_enabled');
+
+    $settings->case_creation_enabled =
+        $request->has('case_creation_enabled');
+
+    $settings->maintenance_mode =
+        $request->has('maintenance_mode');
+
+    $settings->save();
+
+    return back()->with(
+        'success',
+        'Configuración actualizada correctamente.'
+    );
+}
 
     /*
     |--------------------------------------------------------------------------
@@ -720,27 +716,26 @@ class AdminController extends Controller
     */
 
     public function panel()
-    {
-        $notifications =
-            AdminNotification::latest()
-                ->take(10)
-                ->get();
+{
+    $notifications = AdminNotification::orderBy(
+        'created_at',
+        'desc'
+    )->limit(10)
+    ->get();
 
-        $cases = CaseFile::with([
-            'user',
-            'moderator'
-        ])
-        ->latest()
+    $unreadNotifications = AdminNotification::where('read', 0)
+    ->count();
+
+    $cases = CaseFile::with('moderator')
+        ->orderBy('created_at', 'desc')
         ->get();
 
-        return view(
-            'admin.panel',
-            compact(
-                'notifications',
-                'cases'
-            )
-        );
-    }
+    return view('admin.panel', compact(
+        'notifications',
+        'unreadNotifications',
+        'cases'
+    ));
+}
 
     /*
     |--------------------------------------------------------------------------
@@ -845,54 +840,75 @@ class AdminController extends Controller
     */
 
     public function saveComment(
-        Request $request,
-        $id
-    ) {
-        $request->validate([
-            'comment' =>
-                'required|string',
+    Request $request,
+    $id
+) {
+    $request->validate([
+        'comment' => 'required|string',
 
-            'color' =>
-                'nullable|string|max:50'
-        ]);
+        'color' => 'nullable|string|max:50'
+    ]);
 
-        $case = CaseFile::findOrFail($id);
+    $case = CaseFile::findOrFail($id);
 
-        $user = Auth::user();
+    $user = Auth::user();
 
-        if (!$user) {
-
-            return back()->with(
-                'error',
-                'Debe iniciar sesión para agregar una observación.'
-            );
-        }
-
-        CaseComment::create([
-
-            'case_id' =>
-                $case->id,
-
-            'user_id' =>
-                $user->uuid,
-
-            'comment' =>
-                $request->comment,
-
-            'color' =>
-                $request->color
-
-        ]);
-
-        AdminNotification::create([
-            'message' =>
-                'Se agregó una observación al caso '
-                . $case->case_number
-        ]);
+    if (!$user) {
 
         return back()->with(
-            'success',
-            'Comentario agregado correctamente'
+            'error',
+            'Debe iniciar sesión para agregar una observación.'
         );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Solo el ADMINISTRADOR puede crear observaciones
+    |--------------------------------------------------------------------------
+    */
+
+    if ($user->role !== 'ADMIN') {
+
+        return back()->with(
+            'error',
+            'Solo el administrador puede agregar observaciones.'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Guardar observación
+    |--------------------------------------------------------------------------
+    */
+
+    CaseComment::create([
+
+        'case_id' => $case->id,
+
+        'user_id' => $user->uuid,
+
+        'type' => 'OBSERVACION',
+
+        'comment' => $request->comment,
+
+        'color' => $request->color
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notificar al moderador
+    |--------------------------------------------------------------------------
+    |
+    | IMPORTANTE:
+    | Aquí todavía no tenemos una tabla de notificaciones
+    | para moderadores. Por eso NO vamos a crear una
+    | AdminNotification, ya que esa tabla pertenece al ADMIN.
+    |
+    */
+
+    return back()->with(
+        'success',
+        'Observación agregada correctamente.'
+    );
+}   
 }

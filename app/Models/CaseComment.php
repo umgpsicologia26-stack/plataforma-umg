@@ -7,12 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class CaseComment extends Model
 {
     protected $fillable = [
-
         'case_id',
         'user_id',
+        'type',
         'comment',
         'color'
-
     ];
 
     public function caseFile()

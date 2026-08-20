@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserChange extends Model
 {
     protected $fillable = [
-        'user_id',
+        'user_uuid',
         'field_changed',
         'old_value',
         'new_value'
@@ -17,7 +17,7 @@ class UserChange extends Model
     {
         return $this->belongsTo(
             User::class,
-            'user_id',
+            'user_uuid',
             'uuid'
         );
     }

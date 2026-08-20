@@ -113,49 +113,4 @@ public function nicknameHistory()
             'uuid'
         );
     }
-
-// =========================
-// MOSTRAR CAMBIO DE CONTRASEÑA
-// =========================
-
-public function showChangePassword()
-{
-    return view('auth.change-password');
-}
-
-// =========================
-// CAMBIAR CONTRASEÑA
-// =========================
-public function changePassword(Request $request)
-{
-    $request->validate([
-        'password' => [
-            'required',
-            'string',
-            'min:8',
-            'confirmed'
-        ],
-    ]);
-
-    $user = Auth::user();
-
-    $user->password_hash = Hash::make(
-        $request->password
-    );
-
-    // Ya no debe obligarse al moderador
-    // a cambiar la contraseña.
-    $user->must_change_password = false;
-
-    $user->save();
-
-    $request->session()->regenerate();
-
-    return redirect()
-        ->route('dashboard')
-        ->with(
-            'success',
-            'Contraseña actualizada correctamente.'
-        );
-}
 }
