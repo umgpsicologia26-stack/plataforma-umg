@@ -19,9 +19,7 @@ use Illuminate\Validation\Rule;
 
 class UserController extends BaseController
 {
-    // =========================
-    // LISTAR
-    // =========================
+    //LISTAR//
     public function index()
     {
         $this->checkRole(['ADMIN', 'MODERATOR']);
@@ -31,9 +29,7 @@ class UserController extends BaseController
         return view('admin.users', compact('users'));
     }
 
-    // =========================
-    // CREAR
-    // =========================
+    //CREAR// 
     public function store(Request $request)
     {
         $this->checkRole(['ADMIN', 'MODERATOR']);
@@ -59,9 +55,7 @@ class UserController extends BaseController
         return back()->with('success', 'Usuario creado');
     }
 
-    // =========================
-    // UPDATE
-    // =========================
+    //UPDATE// 
     public function update(Request $request, $id)
     {
         $this->checkRole(['ADMIN', 'MODERATOR']);
@@ -125,9 +119,7 @@ class UserController extends BaseController
         return back()->with('success', 'Usuario actualizado');
     }
 
-    // =========================
-    // DELETE
-    // =========================
+    //DELETE// 
     public function destroy($id)
     {
         $this->checkRole(['ADMIN']);
@@ -137,9 +129,7 @@ class UserController extends BaseController
         return back()->with('success', 'Usuario eliminado');
     }
 
-    // =========================
-// ENVIAR CÓDIGO DE RECUPERACIÓN
-// =========================
+    //ENVIAR CÓDIGO DE RECUPERACIÓN// 
 public function sendResetCode(Request $request)
 {
     $request->validate([
@@ -223,9 +213,7 @@ public function sendResetCode(Request $request)
         );
 }
 
-// =========================
-// CAMBIAR CONTRASEÑA
-// =========================
+    //CAMBIAR CONTRASEÑA//
 public function resetPassword(Request $request)
 {
     $request->validate([
@@ -282,9 +270,7 @@ public function resetPassword(Request $request)
             );
     }
 
-    // ==========================================
-    // CÓDIGO VENCIDO
-    // ==========================================
+    // CÓDIGO VENCIDO//
 
     if (now()->greaterThanOrEqualTo($reset->expires_at)) {
 
@@ -301,10 +287,7 @@ public function resetPassword(Request $request)
         ->with('code_expired', true);
 }
 
-    // ==========================================
-    // CÓDIGO INCORRECTO
-    // ==========================================
-
+    // CÓDIGO INCORRECTO// 
     if (!Hash::check($request->code, $reset->code_hash)) {
 
         return back()
@@ -315,10 +298,7 @@ public function resetPassword(Request $request)
             );
     }
 
-    // ==========================================
-    // CAMBIAR CONTRASEÑA
-    // ==========================================
-
+    //CAMBIAR CONTRASEÑA//
     DB::transaction(function () use ($user, $reset, $request) {
 
         $user->password_hash = Hash::make(
@@ -354,18 +334,14 @@ public function resetPassword(Request $request)
         );
 }   
 
-// =========================
-// MOSTRAR CAMBIO DE CONTRASEÑA
-// =========================
+    //MOSTRAR CAMBIO DE CONTRASEÑA// 
 public function showChangePassword()
 {
     return view('auth.change-password');
 }
 
 
-// =========================
-// CAMBIAR CONTRASEÑA
-// =========================
+    //CAMBIAR CONTRASEÑA//
 public function changePassword(Request $request)
 {
     $request->validate([
@@ -393,11 +369,10 @@ public function changePassword(Request $request)
             'Contraseña actualizada correctamente.'
         );
 }
-/**
-     * Ocultar correo electrónico
-     */
-private function maskEmail($email)
-{
+
+    //Ocultar correo electrónico
+    private function maskEmail($email)
+    {
     $parts = explode('@', $email);
 
     if (count($parts) !== 2) {
@@ -409,12 +384,14 @@ private function maskEmail($email)
 
     if (strlen($name) <= 2) {
         $maskedName = substr($name, 0, 1) . '***';
-    } else {
+    } 
+    else 
+        {
         $maskedName =
             substr($name, 0, 2)
             . str_repeat('*', max(4, strlen($name) - 2));
     }
 
-    return $maskedName . '@' . $domain;
-}
+        return $maskedName . '@' . $domain;
+    }
 }

@@ -73,12 +73,8 @@ class ForumController extends Controller
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | CREAR MENSAJE
-    |--------------------------------------------------------------------------
-    */
-
+    //CREAR MENSAJE
+    
     public function create(Request $request)
     {
         $request->validate([
@@ -96,26 +92,15 @@ class ForumController extends Controller
 
         ]);
 
-
         $user = Auth::user();
-
-
         ForumMessage::create([
-
             'uuid' => (string) Str::uuid(),
 
-            /*
-             * SIEMPRE se guarda el UUID REAL
-             * del usuario.
-             */
+            //SIEMPRE se guarda el UUID REAL del usuario.
             'user_uuid' => $user->uuid,
 
-            /*
-             * Se conserva GENERAL para no romper
-             * una posible columna existente en BD.
-             */
+            //Se conserva GENERAL para no romper una posible columna existente en BD.
             'category' => 'GENERAL',
-
             'content' => $request->content,
 
             /*
@@ -124,16 +109,11 @@ class ForumController extends Controller
              */
             'is_anonymous' =>
                 $request->identity_type === 'nickname',
-
             'ai_flagged' => false,
 
-            /*
-             * Todo mensaje nuevo comienza visible.
-             */
+            //Todo mensaje nuevo comienza visible.
             'visibility_status' => 'VISIBLE'
-
         ]);
-
 
         return back()->with(
             'success',
@@ -155,12 +135,8 @@ class ForumController extends Controller
     {
         $user = Auth::user();
 
-        /*
-        |--------------------------------------------------------------------------
-        | VERIFICAR PERMISOS
-        |--------------------------------------------------------------------------
-        */
-
+        //VERIFICAR PERMISOS
+        
         if (
             !$user ||
             !in_array(
@@ -173,25 +149,12 @@ class ForumController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | BUSCAR MENSAJE
-        |--------------------------------------------------------------------------
-        */
-
+        //BUSCAR MENSAJE
         $message = ForumMessage::findOrFail($uuid);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | OCULTAR MENSAJE
-        |--------------------------------------------------------------------------
-        */
-
-        $message->visibility_status = 'HIDDEN';
-
-        $message->save();
-
+        //OCULTAR MENSAJE
+                $message->visibility_status = 'HIDDEN';
+                $message->save();
 
         return back()->with(
             'success',
@@ -213,12 +176,8 @@ class ForumController extends Controller
     {
         $user = Auth::user();
 
-        /*
-        |--------------------------------------------------------------------------
-        | VERIFICAR PERMISOS
-        |--------------------------------------------------------------------------
-        */
-
+        //VERIFICAR PERMISOS
+        
         if (
             !$user ||
             !in_array(
@@ -231,25 +190,13 @@ class ForumController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | BUSCAR MENSAJE
-        |--------------------------------------------------------------------------
-        */
-
-        $message = ForumMessage::findOrFail($uuid);
+        //BUSCAR MENSAJE
+                $message = ForumMessage::findOrFail($uuid);
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | RESTAURAR MENSAJE
-        |--------------------------------------------------------------------------
-        */
-
-        $message->visibility_status = 'VISIBLE';
-
-        $message->save();
-
+        //RESTAURAR MENSAJE
+                $message->visibility_status = 'VISIBLE';
+                $message->save();
 
         return back()->with(
             'success',

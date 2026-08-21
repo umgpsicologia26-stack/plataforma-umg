@@ -11,21 +11,16 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        /*
-        |--------------------------------------------------------------------------
-        | USUARIO NORMAL
-        |--------------------------------------------------------------------------
-        */
-
-        if ($user->role === 'USER') {
-
+        //USUARIO NORMAL
+                if ($user->role === 'USER') {
+    
             $cases = CaseFile::where(
                 'user_uuid',
                 $user->uuid
             )
             ->latest()
             ->get();
-
+    
             return view(
                 'dashboard.home',
                 compact('cases')
@@ -33,36 +28,22 @@ class DashboardController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | MODERADOR
-        |--------------------------------------------------------------------------
-        */
-
-    if ($user->role === 'MODERATOR') {
+    //MODERADOR
+        if ($user->role === 'MODERATOR') {
 
     return redirect()->route('moderator.dashboard');
 }
 
-        /*
-        |--------------------------------------------------------------------------
-        | PSICÓLOGO
-        |--------------------------------------------------------------------------
-        */
-
+        //PSICÓLOGO
+        
         if ($user->role === 'PSYCHOLOGIST') {
-
+    
             return redirect('/psychologist');
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | ADMINISTRADOR
-        |--------------------------------------------------------------------------
-        */
-
-        if ($user->role === 'ADMIN') {
+        //ADMINISTRADOR
+                if ($user->role === 'ADMIN') {
 
             $cases = CaseFile::where(
                 'user_uuid',
@@ -78,12 +59,8 @@ class DashboardController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | ROL NO RECONOCIDO
-        |--------------------------------------------------------------------------
-        */
-
+        //ROL NO RECONOCIDO
+        
         Auth::logout();
 
         return redirect('/login')

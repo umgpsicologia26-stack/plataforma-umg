@@ -14,7 +14,7 @@ class AdminSeeder extends Seeder
     User::updateOrCreate(
     ['email' => 'claudia.lopez@plataforma.com'],
     [
-        'uuid' => Str::uuid(), // OK pero ahora controlado
+        'uuid' => Str::uuid(), 
         'firebase_uid' => Str::uuid(),
 
         'first_name' => 'Claudia',

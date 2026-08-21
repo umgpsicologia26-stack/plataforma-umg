@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class MaintenanceMode
 {
-    /**
-     * Handle an incoming request.
-     */
+    //Handle an incoming request.
     public function handle(
         Request $request,
         Closure $next
@@ -20,40 +18,28 @@ class MaintenanceMode
 
         $settings = SystemSetting::first();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Si mantenimiento está desactivado
-        |--------------------------------------------------------------------------
-        */
-
-        if (
+        //Si mantenimiento está desactivado
+            if (
             !$settings ||
             !$settings->maintenance_mode
-        ) {
-
+        ) 
+        
+        {
             return $next($request);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | El administrador puede continuar
-        |--------------------------------------------------------------------------
-        */
-
+        //El administrador puede continuar
+        
         if (
             Auth::check() &&
             Auth::user()->role === 'ADMIN'
-        ) {
-
+        ) 
+        
+        {
             return $next($request);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Mostrar pantalla de mantenimiento
-        |--------------------------------------------------------------------------
-        */
-
+        //Mostrar pantalla de mantenimiento
         return response()->view('maintenance');
     }
 }

@@ -21,12 +21,7 @@ return new class extends Migration
                 ->after('case_id');
         });
 
-        /*
-        |--------------------------------------------------------------------------
-        | Igualar UUID con users.uuid
-        |--------------------------------------------------------------------------
-        */
-
+        //Igualar UUID con users.uuid
         DB::statement("
             ALTER TABLE admin_notifications
             MODIFY user_uuid CHAR(36)
@@ -34,7 +29,6 @@ return new class extends Migration
             COLLATE utf8mb4_0900_ai_ci
             NULL
         ");
-
         Schema::table('admin_notifications', function (Blueprint $table) {
 
             $table->foreign(
@@ -60,7 +54,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('admin_notifications', function (Blueprint $table) {
-
             $table->dropForeign(
                 'fk_admin_notifications_case'
             );

@@ -25,12 +25,7 @@ return new class extends Migration
         });
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | UUID PERFORMED_BY
-        |--------------------------------------------------------------------------
-        */
-
+        //UUID PERFORMED_BY
         DB::statement("
             ALTER TABLE audit_logs
             MODIFY performed_by CHAR(36)
@@ -39,13 +34,7 @@ return new class extends Migration
             NOT NULL
         ");
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | UUID TARGET_USER
-        |--------------------------------------------------------------------------
-        */
-
+        //UUID TARGET_USER
         DB::statement("
             ALTER TABLE audit_logs
             MODIFY target_user CHAR(36)
@@ -55,14 +44,8 @@ return new class extends Migration
         ");
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | VOLVER A CREAR RELACIONES
-        |--------------------------------------------------------------------------
-        */
-
+        //VOLVER A CREAR RELACIONES
         Schema::table('audit_logs', function (Blueprint $table) {
-
             $table->foreign(
                 'performed_by',
                 'fk_audit_logs_performed_by'
@@ -72,7 +55,6 @@ return new class extends Migration
             ->onDelete('restrict')
             ->onUpdate('cascade');
 
-
             $table->foreign(
                 'target_user',
                 'fk_audit_logs_target_user'
@@ -81,15 +63,12 @@ return new class extends Migration
             ->on('users')
             ->onDelete('restrict')
             ->onUpdate('cascade');
-
         });
     }
-
 
     public function down(): void
     {
         Schema::table('audit_logs', function (Blueprint $table) {
-
             $table->dropForeign(
                 'fk_audit_logs_performed_by'
             );
@@ -97,7 +76,6 @@ return new class extends Migration
             $table->dropForeign(
                 'fk_audit_logs_target_user'
             );
-
         });
     }
 };

@@ -7,11 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class ForumMessage extends Model
 {
     protected $table = 'mensajes_foro';
-
     protected $primaryKey = 'uuid';
-
     public $incrementing = false;
-
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -33,7 +30,7 @@ class ForumMessage extends Model
      * Usuario que creó el mensaje.
      *
      * mensajes_foro.user_uuid
-     *        ↓
+     *        
      * users.uuid
      */
     public function user()

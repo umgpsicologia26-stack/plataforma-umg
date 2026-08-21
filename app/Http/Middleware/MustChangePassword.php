@@ -9,43 +9,26 @@ use Illuminate\Support\Facades\Auth;
 
 class MustChangePassword
 {
-    /**
-     * Handle an incoming request.
-     */
+    //Handle an incoming request.
     public function handle(
         Request $request,
         Closure $next
     ): Response {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Verificar usuario autenticado
-        |--------------------------------------------------------------------------
-        */
-
-        if (!Auth::check()) {
+        //Verificar usuario autenticado
+                if (!Auth::check()) {
             return $next($request);
         }
 
         $user = Auth::user();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Permitir acceder al cambio de contraseña
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->is('change-password')) {
+        //Permitir acceder al cambio de contraseña
+                if ($request->is('change-password')) {
             return $next($request);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Verificar si debe cambiar la contraseña
-        |--------------------------------------------------------------------------
-        */
-
-        if ($user->must_change_password) {
+        //Verificar si debe cambiar la contraseña
+                if ($user->must_change_password) {
 
             return redirect()
                 ->route('password.change')

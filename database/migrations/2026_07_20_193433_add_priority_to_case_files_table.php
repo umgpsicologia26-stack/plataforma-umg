@@ -9,7 +9,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('case_files', function (Blueprint $table) {
-
             $table->enum(
                 'priority',
                 [
@@ -19,8 +18,7 @@ return new class extends Migration
                     'CRITICA'
                 ]
             )->default('MEDIA')
-             ->after('status');
-
+            ->after('status');
         });
     }
 

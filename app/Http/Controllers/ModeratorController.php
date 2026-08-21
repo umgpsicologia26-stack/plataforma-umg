@@ -14,18 +14,11 @@ class ModeratorController extends BaseController
         return view('moderator.dashboard');
     }
     
-    /*
-    |--------------------------------------------------------------------------
-    | LISTAR CASOS ASIGNADOS
-    |--------------------------------------------------------------------------
-    */
-
+    //LISTAR CASOS ASIGNADOS
     public function cases()
     {
         $this->checkRole(['MODERATOR']);
-
         $moderatorUuid = Auth::user()->uuid;
-
         $cases = CaseFile::where(
                 'moderator_uuid',
                 $moderatorUuid
@@ -44,16 +37,11 @@ class ModeratorController extends BaseController
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | VER CASO INDIVIDUAL
-    |--------------------------------------------------------------------------
-    */
+    //VER CASO INDIVIDUAL
 
     public function viewCase($id)
     {
         $this->checkRole(['MODERATOR']);
-
         $moderatorUuid = Auth::user()->uuid;
 
         /*
@@ -84,18 +72,15 @@ class ModeratorController extends BaseController
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | AGREGAR OBSERVACIÓN / CORRECCIÓN
-    |--------------------------------------------------------------------------
-    */
-
+    //AGREGAR OBSERVACIÓN / CORRECCIÓN
+    
     public function saveComment(
         Request $request,
         $id
-    ) {
+    ) 
+    
+    {
         $this->checkRole(['MODERATOR']);
-
         $request->validate([
             'type' => [
                 'required',
@@ -109,30 +94,18 @@ class ModeratorController extends BaseController
                 'max:5000'
             ]
         ]);
-
         $moderatorUuid = Auth::user()->uuid;
 
-        /*
-        |--------------------------------------------------------------------------
-        | Verificar que el caso pertenece al moderador
-        |--------------------------------------------------------------------------
-        */
-
-        $case = CaseFile::where('id', $id)
+        //Verificar que el caso pertenece al moderador
+                $case = CaseFile::where('id', $id)
             ->where(
                 'moderator_uuid',
                 $moderatorUuid
             )
             ->firstOrFail();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Guardar seguimiento
-        |--------------------------------------------------------------------------
-        */
-
-        CaseComment::create([
+        //Guardar seguimiento
+            CaseComment::create([
             'case_id' => $case->id,
             'user_id' => $moderatorUuid,
             'type' => $request->type,
@@ -140,17 +113,9 @@ class ModeratorController extends BaseController
             'color' => null
         ]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Cambiar automáticamente a seguimiento
-        |--------------------------------------------------------------------------
-        */
-
-        if ($case->status === 'ABIERTO') {
-
+        //Cambiar automáticamente a seguimiento
+                if ($case->status === 'ABIERTO') {
             $case->status = 'En seguimiento';
-
             $case->save();
         }
 
@@ -161,19 +126,14 @@ class ModeratorController extends BaseController
         );
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | ACTUALIZAR ESTADO
-    |--------------------------------------------------------------------------
-    */
-
+    //ACTUALIZAR ESTADO
     public function updateStatus(
         Request $request,
         $id
-    ) {
+    ) 
+    
+    {
         $this->checkRole(['MODERATOR']);
-
         $request->validate([
             'status' => [
                 'required',
@@ -182,7 +142,6 @@ class ModeratorController extends BaseController
         ]);
 
         $moderatorUuid = Auth::user()->uuid;
-
         $case = CaseFile::where('id', $id)
             ->where(
                 'moderator_uuid',
@@ -190,13 +149,11 @@ class ModeratorController extends BaseController
             )
             ->firstOrFail();
 
-
         $case->update([
             'status' => $request->status
         ]);
 
-
-        return back()->with(
+            return back()->with(
             'success',
             'Estado del caso actualizado correctamente.'
         );

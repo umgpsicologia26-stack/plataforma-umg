@@ -7,13 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class NicknameHistory extends Model
 {
     protected $table = 'nickname_history';
-
     protected $primaryKey = 'uuid';
-
     public $incrementing = false;
-
     protected $keyType = 'string';
-
     public $timestamps = false;
 
     protected $fillable = [
@@ -28,9 +24,7 @@ class NicknameHistory extends Model
         'changed_at' => 'datetime',
     ];
 
-    /**
-     * Usuario al que pertenece este nickname.
-     */
+    //Usuario al que pertenece este nickname.
     public function user()
     {
         return $this->belongsTo(

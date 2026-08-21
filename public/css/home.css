@@ -1,6 +1,4 @@
-/* ==========================================================================
-WELCOME / HOME 
-========================================================================== */
+    /*WELCOME / HOME*/
 body.home-body {
     display: block;
     min-height: auto;
@@ -9,9 +7,7 @@ body.home-body {
     background: #f4f5f7;
 }
 
-/* ==========================================================================
-HERO 
-========================================================================== */
+    /*HERO*/
 .home-hero {
     background: linear-gradient(
         135deg,
@@ -114,9 +110,7 @@ HERO
     color: white;
 }
 
-/* ==========================================================================
-SECCIONES GENERALES
-========================================================================== */
+    /*SECCIONES GENERALES*/
 .home-section {
     padding: 80px 40px;
     max-width: 1200px;
@@ -152,10 +146,7 @@ SECCIONES GENERALES
     font-size: 1rem;
 }
 
-/* ==========================================================================
-CARDS (mismo glass que .main-card pero sobre fondo claro)
-========================================================================== */
-
+    /*CARDS*/
 .glass-card {
     background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(16px);
@@ -190,16 +181,14 @@ CARDS (mismo glass que .main-card pero sobre fondo claro)
     font-weight: 600;
 }
 
-/* Grid de servicios / proyectos */
+    /*Grid de servicios / proyectos*/
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 25px;
 }
 
-/* ==========================================================================
-PROYECTOS 
-   ========================================================================== */
+    /*PROYECTOS*/
 .project-tile {
     position: relative;
     border-radius: 24px;
@@ -233,9 +222,7 @@ PROYECTOS
     margin: 0;
 }
 
-/* ==========================================================================
-ABOUT / PROGRESO
-========================================================================== */
+    /*ABOUT / PROGRESO*/
 .about-img-glass {
     border-radius: 30px;
     box-shadow: 0 20px 45px rgba(15, 23, 42, 0.15);
@@ -267,9 +254,7 @@ ABOUT / PROGRESO
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
 }
 
-/* ==========================================================================
-CONTACTO 
-========================================================================== */
+    /*CONTACTO*/
 .contact-section .input-field input,
 .contact-section .input-field textarea {
     width: 100%;
@@ -327,9 +312,7 @@ CONTACTO
     color: #111827;
 }
 
-/* ==========================================================================
-FOOTER
-========================================================================== */
+    /*FOOTER*/
 .home-footer {
     background: #111827;
     color: #cbd5e1;
@@ -347,9 +330,7 @@ FOOTER
     text-decoration: underline;
 }
 
-/* ==========================================================================
-RESPONSIVE
-========================================================================= */
+    /*RESPONSIVE*/
 @media (max-width: 768px) {
     .home-hero {
         padding: 60px 20px;
@@ -366,9 +347,7 @@ RESPONSIVE
     }
 }
 
-/* ==========================================================================
-BOTON LOGIN
-========================================================================= */
+    /*BOTON LOGIN*/
 .login-btn{
     display:inline-flex;
     align-items:center;
@@ -383,7 +362,6 @@ BOTON LOGIN
         #4f46e5,
         #7c3aed
     );
-
     color:#fff;
     text-decoration:none;
     font-size:17px;
@@ -409,7 +387,6 @@ BOTON LOGIN
         rgba(255,255,255,.35),
         transparent
     );
-
     transition:.7s;
 }
 
@@ -427,10 +404,7 @@ BOTON LOGIN
     transform:scale(.98);
 }
 
-/* =========================================================
-TARJETA DE TALLERES CLICKEABLE
-========================================================= */
-
+    /*TARJETA DE TALLERES CLICKEABLE*/
 .project-clickable {
     cursor: pointer;
     position: relative;
@@ -452,10 +426,7 @@ TARJETA DE TALLERES CLICKEABLE
     color: #ffffff;
 }
 
-/* =========================================================
-MODAL DE TALLERES
-========================================================= */
-
+    /*MODAL DE TALLERES*/
 .talleres-modal {
     position: fixed;
     inset: 0;
@@ -476,7 +447,6 @@ MODAL DE TALLERES
     overflow-y: auto;
 }
 
-
 .talleres-modal.active {
     opacity: 1;
     visibility: visible;
@@ -486,10 +456,7 @@ body.modal-open {
     overflow: hidden;
 }
 
-/* =========================================================
-CONTENIDO DEL MODAL
-========================================================= */
-
+    /*CONTENIDO DEL MODAL*/
 .talleres-modal-content {
     position: relative;
     width: min(1050px, 100%);
@@ -504,15 +471,11 @@ CONTENIDO DEL MODAL
     transition: transform .3s ease;
 }
 
-
 .talleres-modal.active .talleres-modal-content {
     transform: translateY(0) scale(1);
 }
 
-/* =========================================================
-BOTÓN CERRAR
-========================================================= */
-
+    /*BOTÓN CERRAR*/
 .talleres-modal-close {
     position: absolute;
     top: 18px;
@@ -540,10 +503,7 @@ BOTÓN CERRAR
     transform: rotate(90deg);
 }
 
-/* =========================================================
-ENCABEZADO
-========================================================= */
-
+    /*ENCABEZADO*/
 .talleres-modal-header {
     text-align: center;
     padding: 5px 45px 30px;
@@ -566,10 +526,7 @@ ENCABEZADO
     line-height: 1.7;
 }
 
-/* =========================================================
-SECCIONES DE MULTIMEDIA
-========================================================= */
-
+    /*SECCIONES DE MULTIMEDIA*/
 .talleres-media-section {
     margin-top: 25px;
 }
@@ -583,10 +540,7 @@ SECCIONES DE MULTIMEDIA
     font-size: 20px;
 }
 
-/* =========================================================
-GALERÍA DE IMÁGENES
-========================================================= */
-
+    /*GALERÍA DE IMÁGENES*/
 .talleres-gallery {
     display: grid;
     grid-template-columns:
@@ -615,10 +569,7 @@ GALERÍA DE IMÁGENES
     transform: scale(1.07);
 }
 
-/* =========================================================
-VIDEOS
-========================================================= */
-
+    /*VIDEOS*/
 .talleres-videos {
     width: 100%;
     display: flex;
@@ -654,10 +605,7 @@ VIDEOS
     border-radius: 14px;
 }
 
-/* =========================================================
-VISOR DE IMAGEN GRANDE
-========================================================= */
-
+    /*VISOR DE IMAGEN GRANDE*/
 .imagen-taller-modal {
     position: fixed;
     inset: 0;
@@ -707,10 +655,7 @@ VISOR DE IMAGEN GRANDE
     background: rgba(255,255,255,.3);
 }
 
-/* =========================================================
-RESPONSIVE
-========================================================= */
-
+    /*RESPONSIVE*/
 @media (max-width: 800px) {
     .talleres-modal {
         padding: 12px;
@@ -752,10 +697,7 @@ RESPONSIVE
     }
 }
 
-/* =========================================================
-SERVICIOS
-========================================================= */
-
+    /*SERVICIOS*/
 .service-image-container {
     position: relative;
     width: 100%;
@@ -764,7 +706,7 @@ SERVICIOS
     background: #f1f3f7;
 }
 
-/* Imagen */
+    /*Imagen*/
 .service-image {
     width: 100%;
     height: 100%;
@@ -772,7 +714,7 @@ SERVICIOS
     object-fit: cover;
 }
 
-/* Mensaje si la imagen no carga */
+    /*Mensaje si la imagen no carga*/
 .service-image-error {
     position: absolute;
     inset: 0;
@@ -789,17 +731,17 @@ SERVICIOS
     font-size: 35px;
 }
 
-/* Se muestra cuando falla la imagen */
+    /*Se muestra cuando falla la imagen*/
 .service-image-container.image-error .service-image-error {
     display: flex;
 }
 
-/* Ocultar cualquier texto innecesario */
+    /*Ocultar cualquier texto innecesario*/
 .glass-card-body p {
     display: none;
 }
 
-/* Imagen cuando la tarjeta no tiene archivos */
+    /*Imagen cuando la tarjeta no tiene archivos*/
 .service-no-image {
     width: 100%;
     height: 230px;
@@ -811,13 +753,10 @@ SERVICIOS
     font-size: 35px;
 }
 
-
-/* Contenido */
-
+    /*Contenido*/
 .glass-card-body {
     padding: 20px;
 }
-
 
 .glass-card-body h4 {
     margin: 0;
@@ -825,9 +764,7 @@ SERVICIOS
     color: #14213d;
 }
 
-
-/* Cantidad de imágenes */
-
+    /*Cantidad de imágenes*/
 .image-count {
     display: inline-flex;
     align-items: center;
@@ -837,13 +774,9 @@ SERVICIOS
     color: #667085;
 }
 
-/* =========================================================
-GALERÍA DE ACTIVIDADES
-MISMO DISEÑO VISUAL QUE TALLERES
-========================================================= */
+    /*GALERÍA DE ACTIVIDADES*/
 
-/* ---------- AJUSTE GENERAL ---------- */
-
+    /*AJUSTE GENERAL*/
 #gallery,
 #gallery *,
 #modalGaleria,
@@ -854,10 +787,7 @@ MISMO DISEÑO VISUAL QUE TALLERES
 }
 
 
-/* =========================================================
-GALERÍA DE ACTIVIDADES
-========================================================= */
-
+    /*GALERÍA DE ACTIVIDADES*/
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -880,8 +810,7 @@ GALERÍA DE ACTIVIDADES
     display: block;
 }
 
-/* Encabezado */
-
+    /*Encabezado*/
 #gallery .section-heading {
     width: 100%;
     max-width: 650px;
@@ -904,10 +833,7 @@ GALERÍA DE ACTIVIDADES
     margin: 0 auto;
 }
 
-/* =========================================================
-TARJETA PRINCIPAL DE GALERÍA
-   ========================================================= */
-
+    /*TARJETA PRINCIPAL DE GALERÍA*/
 .gallery-project-card {
     position: relative;
     width: 100%;
@@ -928,10 +854,7 @@ TARJETA PRINCIPAL DE GALERÍA
         0 20px 50px rgba(15, 23, 42, .18);
 }
 
-/* =========================================================
-IMAGEN DE TARJETA
-========================================================= */
-
+    /*IMAGEN DE TARJETA*/
 .gallery-project-card img {
     display: block;
     width: 100%;
@@ -945,10 +868,7 @@ IMAGEN DE TARJETA
     transform: scale(1.06);
 }
 
-/* =========================================================
-OVERLAY
-========================================================= */
-
+    /*OVERLAY*/
 .gallery-project-card .project-overlay {
     position: absolute;
     inset: 0;
@@ -981,10 +901,7 @@ OVERLAY
     font-weight: 600;
 }
 
-/* =========================================================
-MODAL PRINCIPAL
-========================================================= */
-
+    /*MODAL PRINCIPAL*/
 #modalGaleria {
     position: fixed;
     inset: 0;
@@ -1009,11 +926,7 @@ MODAL PRINCIPAL
     visibility: visible;
 }
 
-
-/* =========================================================
-CONTENIDO DEL MODAL
-========================================================= */
-
+    /*CONTENIDO DEL MODAL*/
 #modalGaleria .talleres-modal-content {
     position: relative;
     width: 100%;
@@ -1040,10 +953,7 @@ CONTENIDO DEL MODAL
         scale(1);
 }
 
-/* =========================================================
-BOTÓN CERRAR MODAL
-========================================================= */
-
+    /*BOTÓN CERRAR MODAL*/
 #modalGaleria .talleres-modal-close {
     position: absolute;
     top: 18px;
@@ -1074,10 +984,7 @@ BOTÓN CERRAR MODAL
     transform: rotate(90deg);
 }
 
-/* =========================================================
-ENCABEZADO DEL MODAL
-========================================================= */
-
+    /*ENCABEZADO DEL MODAL*/
 #modalGaleria .talleres-modal-header {
     width: 100%;
     padding:
@@ -1098,10 +1005,7 @@ ENCABEZADO DEL MODAL
     color: #6366f1;
 }
 
-/* =========================================================
-SECCIONES DE MULTIMEDIA
-========================================================= */
-
+    /*SECCIONES DE MULTIMEDIA*/
 #modalGaleria .talleres-media-section {
     width: 100%;
     margin-top: 25px;
@@ -1121,10 +1025,7 @@ SECCIONES DE MULTIMEDIA
     color: #6366f1;
 }
 
-/* =========================================================
-GALERÍA DE IMÁGENES
-========================================================= */
-
+    /*GALERÍA DE IMÁGENES*/
 #modalGaleria .talleres-gallery {
     display: grid;
     grid-template-columns:
@@ -1133,10 +1034,7 @@ GALERÍA DE IMÁGENES
     width: 100%;
 }
 
-/* =========================================================
-IMAGEN INDIVIDUAL
-========================================================= */
-
+    /*IMAGEN INDIVIDUAL*/
 #modalGaleria.taller-gallery-item {
     overflow: hidden;
     border-radius: 15px;
@@ -1158,10 +1056,7 @@ IMAGEN INDIVIDUAL
     transform: scale(1.07);
 }
 
-/* =========================================================
-VIDEOS - TAMAÑO NORMAL Y SIN BORDES NEGROS
-========================================================= */
-
+    /*VIDEOS - TAMAÑO NORMAL Y SIN BORDES NEGROS*/
 .talleres-videos {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1191,10 +1086,7 @@ VIDEOS - TAMAÑO NORMAL Y SIN BORDES NEGROS
     background: transparent;
 }
 
-/* =========================================================
-MATERIAL EDUCATIVO
-========================================================= */
-
+/*MATERIAL EDUCATIVO*/
 .material-video-section .taller-video-item {
     width: 100%;
     display: flex;
@@ -1217,10 +1109,7 @@ MATERIAL EDUCATIVO
     border-radius: 14px;
 }
 
-/* =========================================================
-CELULAR
-========================================================= */
-
+    /*CELULAR*/
 @media (max-width: 768px) {
     .taller-video-item video,
     .material-video-section .taller-video-item video {
@@ -1230,13 +1119,9 @@ CELULAR
         max-height: none;
         object-fit: contain;
     }
-
 }
 
-/* =========================================================
-VISOR DE IMAGEN
-   ========================================================= */
-
+    /*VISOR DE IMAGEN*/
 #imagenGaleriaModal {
     position: fixed;
     inset: 0;
@@ -1261,10 +1146,7 @@ VISOR DE IMAGEN
     visibility: visible;
 }
 
-/* =========================================================
-IMAGEN AMPLIADA
-========================================================= */
-
+    /*IMAGEN AMPLIADA*/
 #imagenGaleriaModal img {
     display: block;
     width: auto;
@@ -1277,10 +1159,7 @@ IMAGEN AMPLIADA
         0 15px 50px rgba(0, 0, 0, .5);
 }
 
-/* =========================================================
-BOTÓN CERRAR VISOR
-========================================================= */
-
+    /*BOTÓN CERRAR VISOR*/
 #imagenGaleriaModal .imagen-taller-close {
     position: absolute;
     top: 20px;
@@ -1309,10 +1188,7 @@ BOTÓN CERRAR VISOR
     transform: rotate(90deg);
 }
 
-/* =========================================================
-TABLET
-========================================================= */
-
+    /*TABLET*/
 @media (max-width: 800px) {
     #gallery {
         padding: 60px 20px;
@@ -1366,10 +1242,7 @@ TABLET
     }
 }
 
-/* =========================================================
-CELULARES
-========================================================= */
-
+    /*CELULARES*/
 @media (max-width: 800px) {
     #modalGaleria .talleres-videos {
         grid-template-columns: 1fr;
@@ -1387,8 +1260,7 @@ CELULARES
     }
 }
 
-/* ---------- MODAL ---------- */
-
+    /*MODAL*/
     #modalGaleria {
         padding: 8px;
     }
@@ -1429,8 +1301,7 @@ CELULARES
     }
 
 
-/* ---------- IMÁGENES ---------- */
-
+    /*IMÁGENES*/
     #modalGaleria .talleres-gallery {
         grid-template-columns: 1fr;
 
@@ -1442,9 +1313,7 @@ CELULARES
         border-radius: 12px;
     }
 
-
-/* ---------- VIDEOS ---------- */
-
+    /*VIDEOS*/
     #modalGaleria .talleres-videos {
         grid-template-columns: 1fr;
         gap: 12px;
@@ -1458,8 +1327,7 @@ CELULARES
         max-height: 300px;
     }
 
-/* ---------- VISOR ---------- */
-
+    /*VISOR*/
     #imagenGaleriaModal {
         padding: 15px;
     }
@@ -1478,12 +1346,8 @@ CELULARES
         font-size: 26px;
     }
 
-/* =========================================================
-CELULARES MUY PEQUEÑOS
-========================================================= */
-
+    /*CELULARES MUY PEQUEÑOS*/
 @media (max-width: 360px) {
-
     #gallery {
         padding-left: 10px;
         padding-right: 10px;
@@ -1509,11 +1373,8 @@ CELULARES MUY PEQUEÑOS
     }
 }
 
-/* =========================================================
-AJUSTE DEFINITIVO - GALERÍA DE ACTIVIDADES
-========================================================= */
-
-/* Contenedor de las miniaturas dentro del modal */
+    /*AJUSTE DEFINITIVO - GALERÍA DE ACTIVIDADES*/
+    /*Contenedor de las miniaturas dentro del modal*/
 #modalGaleria .talleres-gallery {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1521,7 +1382,7 @@ AJUSTE DEFINITIVO - GALERÍA DE ACTIVIDADES
     width: 100%;
 }
 
-/* Cada imagen */
+    /*Cada imagen*/
 #modalGaleria .taller-gallery-item {
     width: 100% !important;
     height: 190px !important;
@@ -1533,7 +1394,7 @@ AJUSTE DEFINITIVO - GALERÍA DE ACTIVIDADES
     background: #f1f3f7;
 }
 
-/* Imagen */
+    /*Imagen*/
 #modalGaleria .taller-gallery-item img {
     width: 100% !important;
     height: 190px !important;
@@ -1544,10 +1405,7 @@ AJUSTE DEFINITIVO - GALERÍA DE ACTIVIDADES
     border-radius: 15px;
 }
 
-/* =========================================================
-MATERIAL EDUCATIVO - PDF CLICKEABLE
-========================================================= */
-
+    /*MATERIAL EDUCATIVO - PDF CLICKEABLE*/
 .material-pdf-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1596,11 +1454,9 @@ MATERIAL EDUCATIVO - PDF CLICKEABLE
         grid-template-columns: 1fr;
     }
 }
-/* =========================================================
-MATERIAL EDUCATIVO
-ABRIR PDF 
-   ========================================================= */
 
+    /*MATERIAL EDUCATIVO
+    ABRIR PDF*/
 #modalMaterial {
     overflow: hidden !important;
 }
@@ -1610,15 +1466,12 @@ ABRIR PDF
     overflow: hidden !important;
 }
 
-/* Contenido normal de Material */
+    /*Contenido normal de Material*/
 #modalMaterial .material-pdf-grid {
     display: grid;
 }
 
-/* =========================================================
-VISOR PDF - TAMAÑO NORMAL
-========================================================= */
-
+    /*VISOR PDF - TAMAÑO NORMAL*/
 .pdf-material-viewer {
     display: none;
     position: absolute;
@@ -1634,8 +1487,7 @@ VISOR PDF - TAMAÑO NORMAL
     display: flex;
 }
 
-/* BOTÓN VOLVER */
-
+    /* BOTÓN VOLVER */
 .pdf-material-close {
     display: flex;
     align-items: center;
@@ -1657,8 +1509,7 @@ VISOR PDF - TAMAÑO NORMAL
     background: #e5e7eb;
 }
 
-/* PDF */
-
+    /*PDF*/
 #pdfMaterialFrame {
     display: block;
     width: 100%;
@@ -1668,9 +1519,7 @@ VISOR PDF - TAMAÑO NORMAL
     background: #fff;
 }
 
-
-/* CONTENEDOR DEL MODAL */
-
+    /*CONTENEDOR DEL MODAL*/
 #modalMaterial .talleres-modal-content {
     position: relative;
     width: min(1100px, 95vw);
@@ -1681,11 +1530,7 @@ VISOR PDF - TAMAÑO NORMAL
     padding: 0;
 }
 
-
-/* =========================================================
-CUANDO EL PDF ESTÁ ABIERTO
-========================================================= */
-
+    /*CUANDO EL PDF ESTÁ ABIERTO*/
 #modalMaterial .pdf-material-viewer {
     width: 100%;
     height: 100%;
@@ -1703,10 +1548,7 @@ CUANDO EL PDF ESTÁ ABIERTO
     min-height: 0;
 }
 
-/* =========================================================
-AJUSTE DEL MODAL DE MATERIAL EDUCATIVO
-========================================================= */
-
+    /*AJUSTE DEL MODAL DE MATERIAL EDUCATIVO*/
 #modalMaterial .talleres-modal-content {
     width: min(900px, 92vw);
     max-width: 900px;
@@ -1716,26 +1558,19 @@ AJUSTE DEL MODAL DE MATERIAL EDUCATIVO
     box-sizing: border-box;
 }
 
-/* =========================================================
-ENCABEZADO DEL MATERIAL
-========================================================= */
-
+    /*ENCABEZADO DEL MATERIAL*/
 #modalMaterial .talleres-modal-header {
     padding: 5px 10px 15px;
 }
 
-/* =========================================================
-SECCIONES DOCUMENTOS Y VIDEOS
-========================================================= */
-
+    /*SECCIONES DOCUMENTOS Y VIDEOS*/
 #modalMaterial .talleres-media-section {
     margin: 20px 10px;
     padding: 18px 20px;
     box-sizing: border-box;
 }
 
-/* TÍTULOS "DOCUMENTOS" Y "VIDEOS" */
-
+    /*TÍTULOS "DOCUMENTOS" Y "VIDEOS"*/
 #modalMaterial .talleres-media-section h3 {
     margin: 0 0 18px 0;
     padding: 0;
@@ -1744,18 +1579,12 @@ SECCIONES DOCUMENTOS Y VIDEOS
     gap: 10px;
 }
 
-/* =========================================================
-TARJETAS DE PDF
-========================================================= */
-
+    /*TARJETAS DE PDF*/
 #modalMaterial .material-pdf-grid {
     padding: 5px 0;
 }
 
-/* =========================================================
-VISOR PDF
-========================================================= */
-
+    /*VISOR PDF*/
 #modalMaterial .pdf-material-viewer {
     width: 100%;
     height: 100%;
@@ -1763,16 +1592,12 @@ VISOR PDF
     box-sizing: border-box;
 }
 
-
-/* BOTÓN VOLVER */
-
+    /*BOTÓN VOLVER*/
 #modalMaterial .pdf-material-close {
     margin: 0 0 12px 0;
 }
 
-
-/* PDF */
-
+    /*PDF*/
 #modalMaterial #pdfMaterialFrame {
     width: 100%;
     height: calc(100% - 55px);
@@ -1780,18 +1605,14 @@ VISOR PDF
     border: none;
 }
 
-/* =========================================================
-BOTÓN VOLVER DEL VISOR PDF
-========================================================= */
-
+    /*BOTÓN VOLVER DEL VISOR PDF*/
 #modalMaterial .pdf-material-viewer {
     padding: 18px 20px 20px 20px;
     box-sizing: border-box;
 }
 
 
-/* Botón Volver */
-
+    /*Botón Volver*/
 #modalMaterial .pdf-material-close {
     margin: 0 0 15px 0;
     padding: 10px 16px;
@@ -1802,9 +1623,7 @@ BOTÓN VOLVER DEL VISOR PDF
     width: fit-content;
 }
 
-
-/* PDF */
-
+    /*PDF*/
 #modalMaterial #pdfMaterialFrame {
     width: 100%;
     height: calc(100% - 60px);

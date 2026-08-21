@@ -6,20 +6,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    //Run the migrations.
     public function up()
 {
     Schema::create('admin_notifications', function (Blueprint $table) {
-
         $table->id();
-
         $table->string('message');
-
         $table->boolean('read')
             ->default(false);
-
         $table->timestamps();
     });
 }

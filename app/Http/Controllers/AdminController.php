@@ -16,11 +16,7 @@ use Illuminate\Support\Facades\Auth;
 class AdminController extends Controller
 {
 
-    /*
-    |--------------------------------------------------------------------------
-    | DASHBOARD ADMINISTRATIVO
-    |--------------------------------------------------------------------------
-    */
+//DASHBOARD ADMINISTRATIVO
 
     public function dashboard()
     {
@@ -39,11 +35,7 @@ class AdminController extends Controller
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | LISTADO DE CASOS
-    |--------------------------------------------------------------------------
-    */
+    //LISTADO DE CASOS
 
     public function cases()
     {
@@ -60,12 +52,8 @@ class AdminController extends Controller
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | VER CASO
-    |--------------------------------------------------------------------------
-    */
-
+    //VER CASO
+    
     public function viewCase($id)
     {
         $case = CaseFile::with([
@@ -92,12 +80,8 @@ class AdminController extends Controller
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CREAR MODERADOR
-    |--------------------------------------------------------------------------
-    */
-
+    //CREAR MODERADOR
+    
     public function createModerator(Request $request)
     {
         $request->validate([
@@ -143,11 +127,7 @@ class AdminController extends Controller
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ELIMINAR MODERADOR
-    |--------------------------------------------------------------------------
-    */
+    //ELIMINAR MODERADOR
 
     public function deleteModerator($id)
     {
@@ -164,12 +144,8 @@ class AdminController extends Controller
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | RESTAURAR MODERADOR
-    |--------------------------------------------------------------------------
-    */
-
+    //RESTAURAR MODERADOR
+    
     public function restoreModerator($id)
     {
         $moderator = User::withTrashed()
@@ -191,12 +167,8 @@ class AdminController extends Controller
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ACTUALIZAR CASO
-    |--------------------------------------------------------------------------
-    */
-
+    //ACTUALIZAR CASO
+    
     public function updateCase(
         Request $request,
         $id
@@ -224,20 +196,13 @@ class AdminController extends Controller
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | VERIFICAR ADMINISTRADOR
-    |--------------------------------------------------------------------------
-    */
-
+    //VERIFICAR ADMINISTRADOR
+    
     public function verifyAdmin(Request $request)
     {
-        /*
-        |----------------------------------------------------------------------
-        | Verificar sesión
-        |----------------------------------------------------------------------
-        */
 
+        //Verificar sesión
+        
         if (!Auth::check()) {
             return redirect('/login')
                 ->with(
@@ -246,19 +211,12 @@ class AdminController extends Controller
                 );
         }
 
-        /*
-        |----------------------------------------------------------------------
-        | Obtener usuario autenticado
-        |----------------------------------------------------------------------
-        */
+        //Obtener usuario autenticado
 
         $user = Auth::user();
 
-        /*
-        |----------------------------------------------------------------------
-        | Verificar que sea ADMIN
-        |----------------------------------------------------------------------
-        */
+        //Verificar que sea ADMIN
+        
 
         if ($user->role !== 'ADMIN') {
             return redirect('/dashboard')
@@ -268,22 +226,14 @@ class AdminController extends Controller
                 );
         }
 
-        /*
-        |----------------------------------------------------------------------
-        | Validar contraseña
-        |----------------------------------------------------------------------
-        */
+        //Validar contraseña
 
         $request->validate([
             'password' => 'required|string'
         ]);
 
-        /*
-        |----------------------------------------------------------------------
-        | Comparar contraseña con password_hash
-        |----------------------------------------------------------------------
-        */
-
+        //Comparar contraseña con password_hash
+        
         if (!Hash::check(
             $request->password,
             $user->password_hash
@@ -295,31 +245,19 @@ class AdminController extends Controller
             );
         }
 
-        /*
-        |----------------------------------------------------------------------
-        | Marcar acceso administrativo como verificado
-        |----------------------------------------------------------------------
-        */
+        // Marcar acceso administrativo como verificado
 
         session([
     'admin_verified' => true,
     'admin_verified_user' => $user->uuid,
 ]);
 
-        /*
-        |----------------------------------------------------------------------
-        | Entrar al panel
-        |----------------------------------------------------------------------
-        */
+        //Entrar al panel
 
         return redirect('/admin-panel');
     }
 
-    /*
-|--------------------------------------------------------------------------
-| NOTIFICACIONES
-|--------------------------------------------------------------------------
-*/
+    //NOTIFICACIONES
 
 public function notifications()
 {
@@ -332,29 +270,17 @@ public function notifications()
     );
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| MARCAR NOTIFICACIÓN COMO LEÍDA
-|--------------------------------------------------------------------------
-*/
+    //MARCAR NOTIFICACIÓN COMO LEÍDA
 
 public function markNotificationAsRead($id)
 {
     $notification = AdminNotification::findOrFail($id);
-
     $notification->read = 1;
-
     $notification->save();
-
     return back();
 }
 
-    /*
-    |--------------------------------------------------------------------------
-    | MODERADORES
-    |--------------------------------------------------------------------------
-    */
+    //MODERADORES
 
     public function moderators()
     {
@@ -371,12 +297,8 @@ public function markNotificationAsRead($id)
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | REPORTES
-    |--------------------------------------------------------------------------
-    */
-
+    //REPORTES
+    
     public function reports()
     {
         $openCases = CaseFile::where(
@@ -394,11 +316,7 @@ public function markNotificationAsRead($id)
             'PENDIENTE_APROBACION'
         )->count();
 
-        /*
-        |----------------------------------------------------------------------
-        | USUARIOS
-        |----------------------------------------------------------------------
-        */
+        //USUARIOS
 
         $usersCount = User::where(
             'role',
@@ -415,16 +333,10 @@ public function markNotificationAsRead($id)
         )
         ->count();
 
-        /*
-        |----------------------------------------------------------------------
-        | CASOS POR MES
-        |----------------------------------------------------------------------
-        */
-
+    //CASOS POR MES
+        
         $monthlyCases = [];
-
         for ($month = 1; $month <= 12; $month++) {
-
             $monthlyCases[] =
                 CaseFile::whereMonth(
                     'created_at',
@@ -445,32 +357,26 @@ public function markNotificationAsRead($id)
         );
     }
 
-/*
-|--------------------------------------------------------------------------
-| EXPORTAR EXCEL
-|--------------------------------------------------------------------------
-*/
+    //EXPORTAR EXCEL
 
-public function exportExcel()
-{
-    $cases = CaseFile::with([
+    public function exportExcel()
+    {
+        $cases = CaseFile::with([
         'user',
         'moderator'
     ])
     ->latest()
     ->get();
-
     return response()->streamDownload(function () use ($cases) {
-
         $handle = fopen('php://output', 'w');
 
-        // Permite que Excel reconozca correctamente los caracteres UTF-8
+    //Permite que Excel reconozca correctamente los caracteres UTF-8
         fprintf(
             $handle,
             chr(0xEF) . chr(0xBB) . chr(0xBF)
         );
 
-        // ENCABEZADOS
+    //ENCABEZADOS
         fputcsv($handle, [
             'Número de Caso',
             'Tipo',
@@ -481,18 +387,14 @@ public function exportExcel()
             'Fecha'
         ]);
 
-        // DATOS
-        foreach ($cases as $case) {
+    //DATOS
 
+        foreach ($cases as $case) {
             fputcsv($handle, [
                 $case->case_number,
-
                 $case->type,
-
                 $case->description,
-
                 $case->status,
-
                 $case->user
                     ? $case->user->full_name
                     : 'No asignado',
@@ -506,19 +408,13 @@ public function exportExcel()
                     : ''
             ]);
         }
-
         fclose($handle);
-
     }, 'reporte_casos.csv', [
         'Content-Type' => 'text/csv; charset=UTF-8',
     ]);
 }
-    /*
-    |--------------------------------------------------------------------------
-    | USUARIOS
-    |--------------------------------------------------------------------------
-    */
-
+    //USUARIOS
+    
     public function users()
     {
         $users = User::where(
@@ -534,18 +430,12 @@ public function exportExcel()
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ACTIVAR USUARIO
-    |--------------------------------------------------------------------------
-    */
-
+    //ACTIVAR USUARIO
+    
     public function activateUser($id)
     {
         $user = User::findOrFail($id);
-
         $user->status = 'ACTIVE';
-
         $user->save();
 
         return back()->with(
@@ -554,18 +444,12 @@ public function exportExcel()
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | SUSPENDER USUARIO
-    |--------------------------------------------------------------------------
-    */
-
+    //SUSPENDER USUARIO
+    
     public function suspendUser($id)
     {
         $user = User::findOrFail($id);
-
         $user->status = 'BLOCKED';
-
         $user->save();
 
         return back()->with(
@@ -574,16 +458,11 @@ public function exportExcel()
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ELIMINAR USUARIO
-    |--------------------------------------------------------------------------
-    */
-
+    //ELIMINAR USUARIO
+    
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
-
         $user->delete();
 
         return back()->with(
@@ -592,21 +471,14 @@ public function exportExcel()
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | RESTAURAR USUARIO
-    |--------------------------------------------------------------------------
-    */
+    //RESTAURAR USUARIO
 
     public function restoreUser($id)
     {
         $user = User::withTrashed()
             ->findOrFail($id);
-
         $user->restore();
-
         $user->status = 'ACTIVE';
-
         $user->save();
 
         return back()->with(
@@ -615,12 +487,8 @@ public function exportExcel()
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CONFIGURACIÓN
-    |--------------------------------------------------------------------------
-    */
-
+    //CONFIGURACIÓN
+    
     public function configuration()
     {
         $settings = SystemSetting::firstOrCreate(
@@ -641,42 +509,31 @@ public function exportExcel()
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | GUARDAR CONFIGURACIÓN
-    |--------------------------------------------------------------------------
-    */
+    //GUARDAR CONFIGURACIÓN
 
-   public function saveConfiguration(Request $request)
-{
-    $request->validate([
+    public function saveConfiguration(Request $request)
+    {
+        $request->validate([
         'system_name' => 'required|string|max:255',
     ]);
 
     $settings = SystemSetting::first();
-
     if (!$settings) {
         $settings = new SystemSetting();
         $settings->id = 1;
     }
 
     $settings->system_name = $request->system_name;
-
     $settings->forum_enabled =
         $request->has('forum_enabled');
-
     $settings->panic_enabled =
         $request->has('panic_enabled');
-
     $settings->registration_enabled =
         $request->has('registration_enabled');
-
     $settings->case_creation_enabled =
         $request->has('case_creation_enabled');
-
     $settings->maintenance_mode =
         $request->has('maintenance_mode');
-
     $settings->save();
 
     return back()->with(
@@ -685,16 +542,11 @@ public function exportExcel()
     );
 }
 
-    /*
-    |--------------------------------------------------------------------------
-    | GENERAR NICKNAME ANÓNIMO
-    |--------------------------------------------------------------------------
-    */
-
+    //GENERAR NICKNAME ANÓNIMO
+    
     private function generateUniqueCode()
     {
         do {
-
             $code = strtoupper(
                 Str::random(8)
             );
@@ -709,15 +561,11 @@ public function exportExcel()
         return $code;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | PANEL ADMINISTRATIVO
-    |--------------------------------------------------------------------------
-    */
+    //PANEL ADMINISTRATIVO
 
     public function panel()
-{
-    $notifications = AdminNotification::orderBy(
+    {
+        $notifications = AdminNotification::orderBy(
         'created_at',
         'desc'
     )->limit(10)
@@ -737,12 +585,8 @@ public function exportExcel()
     ));
 }
 
-    /*
-    |--------------------------------------------------------------------------
-    | EDITAR CASO
-    |--------------------------------------------------------------------------
-    */
-
+    //EDITAR CASO
+    
     public function editCase($id)
     {
         $case = CaseFile::with([
@@ -756,16 +600,11 @@ public function exportExcel()
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ELIMINAR CASO
-    |--------------------------------------------------------------------------
-    */
-
+    //ELIMINAR CASO
+    
     public function deleteCase($id)
     {
         $case = CaseFile::findOrFail($id);
-
         $case->delete();
 
         return redirect(
@@ -776,20 +615,13 @@ public function exportExcel()
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | APROBAR CASO
-    |--------------------------------------------------------------------------
-    */
-
+    //APROBAR CASO
+    
     public function approveCase($id)
     {
         $case = CaseFile::findOrFail($id);
-
         $case->status = 'CERRADO';
-
         $case->admin_approved = true;
-
         $case->save();
 
         AdminNotification::create([
@@ -805,19 +637,13 @@ public function exportExcel()
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | FINALIZAR CASO
-    |--------------------------------------------------------------------------
-    */
-
+    //FINALIZAR CASO
+    
     public function finishCase($id)
     {
         $case = CaseFile::findOrFail($id);
-
         $case->status =
             'PENDIENTE_APROBACION';
-
         $case->save();
 
         AdminNotification::create([
@@ -833,79 +659,50 @@ public function exportExcel()
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | AGREGAR COMENTARIO A CASO
-    |--------------------------------------------------------------------------
-    */
-
+    //AGREGAR COMENTARIO A CASO
+    
     public function saveComment(
     Request $request,
     $id
-) {
+    )
+    
+    {
     $request->validate([
         'comment' => 'required|string',
-
         'color' => 'nullable|string|max:50'
     ]);
 
     $case = CaseFile::findOrFail($id);
-
     $user = Auth::user();
 
     if (!$user) {
-
         return back()->with(
             'error',
             'Debe iniciar sesión para agregar una observación.'
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Solo el ADMINISTRADOR puede crear observaciones
-    |--------------------------------------------------------------------------
-    */
-
+    //Solo el ADMINISTRADOR puede crear observaciones
+    
     if ($user->role !== 'ADMIN') {
-
         return back()->with(
             'error',
             'Solo el administrador puede agregar observaciones.'
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Guardar observación
-    |--------------------------------------------------------------------------
-    */
-
+    //Guardar observación
+    
     CaseComment::create([
-
         'case_id' => $case->id,
-
         'user_id' => $user->uuid,
-
         'type' => 'OBSERVACION',
-
         'comment' => $request->comment,
-
         'color' => $request->color
     ]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Notificar al moderador
-    |--------------------------------------------------------------------------
-    |
-    | IMPORTANTE:
-    | Aquí todavía no tenemos una tabla de notificaciones
-    | para moderadores. Por eso NO vamos a crear una
-    | AdminNotification, ya que esa tabla pertenece al ADMIN.
-    |
-    */
-
+    //Notificar al moderador
+    
     return back()->with(
         'success',
         'Observación agregada correctamente.'

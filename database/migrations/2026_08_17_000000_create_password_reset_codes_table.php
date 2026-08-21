@@ -8,8 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Permite usar esta migración aunque la tabla ya haya sido creada
-        // manualmente en MySQL durante el desarrollo.
+        // Permite usar esta migración aunque la tabla ya haya sido creada manualmente en MySQL durante el desarrollo.
         if (Schema::hasTable('password_reset_codes')) {
             return;
         }

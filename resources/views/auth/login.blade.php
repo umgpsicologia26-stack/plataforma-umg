@@ -12,26 +12,31 @@
             </head>
                 <body>
                         <div class="main-card">
-    <!-- IZQUIERDA -->
+
+                        <!-- IZQUIERDA -->
                 <div class="form-side">
                     <div id="loginContainer">
                         <div class="back-home">
-    <a href="/">
+
+                        <a href="/">
         <i class="fas fa-arrow-left"></i>
         Regresar
     </a>
+
 </div>
                     <h1>Iniciar Sesión</h1>
                     @if(session('success'))
     <div class="alert-success">
         {{ session('success') }}
     </div>
-@endif
+
+    @endif
 @if(session('error'))
     <div class="alert-error">
         {{ session('error') }}
     </div>
-@endif
+
+    @endif
             <form method="POST"
                 action="/login">
                 @csrf
@@ -40,7 +45,8 @@
                     <input type="email"
                         name="email"
                         required>
-                                    </div>
+
+                    </div>
                 <div class="input-field">
                     <label>Contraseña</label>
                     <input type="password"
@@ -52,15 +58,18 @@
                         class="signup-btn">
                     Iniciar Sesión
                 </button>
-            <div class="forgot-password">
+
+                <div class="forgot-password">
         <a href="/forgot-password">
             ¿Olvidaste tu contraseña?
         </a>
+
         @if(session('showRecovery'))
 <div class="recovery-options">
     <a href="/forgot-password-email">
         📧 Recuperar por Correo
     </a>
+
     <a href="/forgot-password-phone">
         📱 Recuperar por Celular
     </a>
@@ -74,6 +83,7 @@
             <div class="divider">
                 <span>o continuar con</span>
             </div>
+
             <!-- GOOGLE -->
             <button type="button"
                     class="google-btn"
@@ -81,6 +91,7 @@
                 <i class="fab fa-google"></i>
                 Continuar con Google
             </button>
+
             <!-- CREAR CUENTA -->
                 <button type="button"
                     class="create-email-btn"
@@ -89,18 +100,22 @@
                 Crear una cuenta
             </button>
         </div>
+
         <!-- REGISTRO -->
         <div class="register-form"
             id="registerForm">
+
             <!-- FLECHA -->
             <div class="back-arrow"
                 onclick="backToLogin()">
                 <i class="fas fa-arrow-left"></i>
             </div>
+
             <h1>Crear Cuenta</h1>
             <form method="POST"
                 action="/register">
                 @csrf
+
                 <div class="input-field">
                     <label>Nombre</label>
                     <input type="text"
@@ -108,12 +123,12 @@
                         required>
                     
                 </div>
+
                 <div class="input-field">
                     <label>Apellido</label>
                     <input type="text"
                         name="last_name"
-                        required>
-                    
+                        required>                    
                 </div>
 
                 <div class="input-field">
@@ -124,44 +139,46 @@
                 maxlength="80"
                 required
                 placeholder="Elige tu nickname">
-
                 <small>
     Este nickname podrá utilizarse de forma anónima en el foro.
 </small>
         </div>
-        
                 <div class="input-field">
                     <label>Fecha Nacimiento</label>
                     <input type="date"
                         name="birth_date"
                         required>
                 </div>
+
                 <div class="input-field">
                     <label>Celular</label>
                     <input type="text"
                         name="phone"
-                        required>
-                    
+                        required>                   
                 </div>
+
                 <div class="input-field">
                     <label>Correo</label>
                     <input type="email"
                         name="email"
                         required>
-                                </div>
+                </div>
+
                 <div class="input-field">
                     <label>Contraseña</label>
                     <input type="password"
                         name="password"
                         required>
-                                    </div>
-            <button type="submit"
+                </div>
+
+                <button type="submit"
                         class="signup-btn">
                     Registrarme
                 </button>
             </form>
         </div>
     </div>
+
     <!-- DERECHA -->
     <div class="image-side">
         <div class="logo-container">
@@ -174,6 +191,7 @@
             </P>
     </div>
     </div>
+
     <!-- FIREBASE -->
         <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
         <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -187,9 +205,8 @@
     appId: "TU_APP_ID"
 };
 firebase.initializeApp(firebaseConfig);
-/* =========================
-GOOGLE LOGIN
-========================= */
+
+    /*GOOGLE LOGIN*/
 async function googleLogin(){
     const provider =
         new firebase.auth.GoogleAuthProvider();
@@ -206,9 +223,8 @@ async function googleLogin(){
         alert(error.message);
     }
 }
-/* =========================
-MOSTRAR REGISTRO
-========================= */
+
+    /*MOSTRAR REGISTRO*/
 function toggleRegisterForm(){
     const login =
         document.getElementById(
@@ -221,9 +237,7 @@ function toggleRegisterForm(){
     login.style.display = 'none';
     register.style.display = 'block';
 }
-/* =========================
-REGRESAR LOGIN
-========================= */
+    /*REGRESAR LOGIN*/
 function backToLogin(){
     const register =
         document.getElementById(

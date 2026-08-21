@@ -14,7 +14,6 @@ class User extends Authenticatable
     protected $keyType = 'string';
     
     protected $fillable = [
-        
         'uuid',
         'firebase_uid',
         'first_name',
@@ -49,10 +48,12 @@ class User extends Authenticatable
     {
         return $this->first_name . ' ' . $this->last_name;
     }
-public function getAuthIdentifierName()
+
+    public function getAuthIdentifierName()
 {
     return 'uuid';
 }
+
     //CAST ROLE EN MAYÚSCULA CONSISTENTE
     public function getRoleAttribute($value)
     {
@@ -69,7 +70,7 @@ public function getAuthIdentifierName()
     );
 }
 
-public function nicknameHistory()
+    public function nicknameHistory()
 {
     return $this->hasMany(
         NicknameHistory::class,
@@ -78,15 +79,7 @@ public function nicknameHistory()
     );
 }
 
-/*
-    |--------------------------------------------------------------------------
-    | CASOS CREADOS POR EL USUARIO
-    |--------------------------------------------------------------------------
-    |
-    | case_files.user_uuid → users.uuid
-    |
-    */
-
+    //CASOS CREADOS POR EL USUARIO
     public function cases()
     {
         return $this->hasMany(
@@ -96,15 +89,7 @@ public function nicknameHistory()
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CASOS ASIGNADOS COMO MODERADOR
-    |--------------------------------------------------------------------------
-    |
-    | case_files.moderator_uuid → users.uuid
-    |
-    */
-
+    //CASOS ASIGNADOS COMO MODERADOR
     public function moderatedCases()
     {
         return $this->hasMany(

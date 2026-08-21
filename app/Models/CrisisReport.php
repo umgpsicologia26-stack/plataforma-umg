@@ -7,11 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class CrisisReport extends Model
 {
     protected $table = 'crisis_reports';
-
     protected $primaryKey = 'uuid';
-
     public $incrementing = false;
-
     protected $keyType = 'string';
 
     protected $fillable = [

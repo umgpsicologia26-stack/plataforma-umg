@@ -10,16 +10,11 @@ use App\Models\SystemSetting;
 
 class CaseController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | CREAR CASO DE SUICIDIO
-    |--------------------------------------------------------------------------
-    */
-
+    //CREAR CASO DE SUICIDIO
+    
     public function createSuicideCase(Request $request)
     {
         $settings = SystemSetting::first();
-
         if (!$settings || !$settings->case_creation_enabled) {
 
             return back()->with(
@@ -33,20 +28,13 @@ class CaseController extends Controller
         ]);
 
         $moderator = $this->assignModerator();
-
         $case = CaseFile::create([
             'case_number' => $this->generateCaseNumber(),
-
             'type' => 'SUICIDIO',
-
             'description' => $request->description,
-
             'user_uuid' => Auth::user()->uuid,
-
             'moderator_uuid' => $moderator?->uuid,
-
             'status' => 'ABIERTO',
-
             'admin_approved' => false
         ]);
 
@@ -60,11 +48,7 @@ class CaseController extends Controller
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | CREAR CASO DE ABUSO SEXUAL
-    |--------------------------------------------------------------------------
-    */
+    //CREAR CASO DE ABUSO SEXUAL
 
     public function createAbuseCase(Request $request)
     {
@@ -83,20 +67,13 @@ class CaseController extends Controller
         ]);
 
         $moderator = $this->assignModerator();
-
         $case = CaseFile::create([
             'case_number' => $this->generateCaseNumber(),
-
             'type' => 'ABUSO_SEXUAL',
-
             'description' => $request->description,
-
             'user_uuid' => Auth::user()->uuid,
-
             'moderator_uuid' => $moderator?->uuid,
-
             'status' => 'ABIERTO',
-
             'admin_approved' => false
         ]);
 
@@ -110,11 +87,7 @@ class CaseController extends Controller
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | ASIGNACIÓN AUTOMÁTICA DE MODERADOR
-    |--------------------------------------------------------------------------
-    */
+    //ASIGNACIÓN AUTOMÁTICA DE MODERADOR
 
     private function assignModerator()
     {
@@ -144,11 +117,7 @@ class CaseController extends Controller
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | GENERAR NÚMERO DE CASO
-    |--------------------------------------------------------------------------
-    */
+    //GENERAR NÚMERO DE CASO
 
     private function generateCaseNumber()
     {

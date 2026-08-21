@@ -3,12 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Actualiza tu contraseña</title>
 
     <style>
@@ -119,8 +114,7 @@
 
     <form
         method="POST"
-        action="{{ route('password.update') }}"
-    >
+        action="{{ route('password.update') }}">
 
         @csrf
 
@@ -134,8 +128,7 @@
             name="password"
             required
             minlength="8"
-            autocomplete="new-password"
-        >
+            autocomplete="new-password">
 
         <label for="password_confirmation">
             Confirmar contraseña
@@ -147,8 +140,7 @@
             name="password_confirmation"
             required
             minlength="8"
-            autocomplete="new-password"
-        >
+            autocomplete="new-password">
 
         <button type="submit">
             Actualizar contraseña

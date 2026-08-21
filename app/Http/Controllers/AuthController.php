@@ -11,23 +11,15 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | MOSTRAR LOGIN
-    |--------------------------------------------------------------------------
-    */
-
+    //MOSTRAR LOGIN
+    
     public function showLogin()
     {
         return view('auth.login');
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | REGISTRO PÚBLICO
-    |--------------------------------------------------------------------------
-    */
+    //REGISTRO PÚBLICO
 
     public function register(Request $request)
     {
@@ -88,23 +80,16 @@ class AuthController extends Controller
 
             /*
              * Identificador interno.
-             *
              * Actualmente no se está utilizando Firebase
              * para el registro mediante correo.
              */
             'firebase_uid' => (string) Str::uuid(),
-
             'first_name' => $request->first_name,
-
             'last_name' => $request->last_name,
-
             'birth_date' => $request->birth_date,
-
             'email' => $request->email,
-
             'anonymous_nickname' =>
                 $request->anonymous_nickname,
-
             'provider' => 'EMAIL',
 
             /*
@@ -112,7 +97,6 @@ class AuthController extends Controller
              */
             'password_hash' =>
                 Hash::make($request->password),
-
             'phone' => $request->phone,
 
             /*
@@ -156,7 +140,6 @@ public function login(Request $request)
     /*
      * Clave utilizada para controlar
      * intentos fallidos.
-     *
      * Se combina email + IP.
      */
     $key = Str::lower(
@@ -166,7 +149,6 @@ public function login(Request $request)
 
     /*
      * Máximo 3 intentos.
-     *
      * El bloqueo dura 5 minutos.
      */
     if (RateLimiter::tooManyAttempts($key, 3)) {
@@ -183,26 +165,23 @@ public function login(Request $request)
     }
 
 
-    /*
-     * Buscar usuario
-     */
+    //Buscar usuario
     $user = User::where(
         'email',
         $request->email
     )->first();
 
 
-    /*
-     * Verificar credenciales
-     */
+    //Verificar credenciales
     if (
         !$user ||
         !Hash::check(
             $request->password,
             $user->password_hash
         )
-    ) {
-
+    ) 
+    
+    {
         RateLimiter::hit(
             $key,
             300
@@ -219,10 +198,8 @@ public function login(Request $request)
     }
 
 
-    /*
-     * Verificar estado de la cuenta
-     */
-    if ($user->status !== 'ACTIVE') {
+    //Verificar estado de la cuenta
+        if ($user->status !== 'ACTIVE') {
 
         return back()->with(
             'error',
@@ -231,11 +208,8 @@ public function login(Request $request)
     }
 
 
-    /*
-     * Login correcto
-     */
+    //Login correcto
     RateLimiter::clear($key);
-
     Auth::login($user);
 
 
@@ -258,7 +232,6 @@ public function login(Request $request)
 
     /*
      * MODERADOR NUEVO
-     *
      * Si el administrador creó esta cuenta
      * y todavía no ha cambiado la contraseña,
      * debe hacerlo antes de continuar.
@@ -266,54 +239,39 @@ public function login(Request $request)
     if (
         $user->role === 'MODERATOR' &&
         $user->must_change_password
-    ) {
+    ) 
 
+    {
         return redirect('/change-password');
     }
 
 
-    /*
-     * Usuario normal, psicólogo o administrador.
-     */
-    return redirect('/dashboard');
+    //Usuario normal, psicólogo o administrador.
+        return redirect('/dashboard');
 }
-    /*
-    |--------------------------------------------------------------------------
-    | LOGOUT
-    |--------------------------------------------------------------------------
-    */
+    //LOGOUT
 
     public function logout(Request $request)
     {
-        /*
-         * Eliminar la verificación administrativa.
-         */
-        $request->session()->forget(
+        //Eliminar la verificación administrativa.
+                $request->session()->forget(
             'admin_verified'
         );
 
 
-        /*
-         * Cerrar sesión Laravel.
-         */
-        Auth::logout();
+        //Cerrar sesión Laravel.
+                Auth::logout();
 
 
-        /*
-         * Invalidar completamente la sesión.
-         */
-        $request->session()->invalidate();
+        //Invalidar completamente la sesión.
+                $request->session()->invalidate();
 
 
-        /*
-         * Generar nuevo token CSRF.
-         */
-        $request->session()->regenerateToken();
+        //Generar nuevo token CSRF.
+                $request->session()->regenerateToken();
 
 
-        /*
-         * Regresar al login.
-         */
-        return redirect('/login');
+        //Regresar al login.
+                return redirect('/login');
     }
 }

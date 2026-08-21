@@ -6,16 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    //Run the migrations
     public function up()
 {
     Schema::table('case_files', function (Blueprint $table) {
-
         $table->boolean('admin_approved')
             ->default(false);
-
     });
 }
 };
