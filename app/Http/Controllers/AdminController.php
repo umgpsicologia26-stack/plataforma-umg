@@ -357,46 +357,19 @@ public function markNotificationAsRead($id)
         );
     }
 
-    //EXPORTAR PDF
-    public function exportPdf()
+    // EXPORTAR PDF
+public function exportPdf()
 {
-    $this->checkRole(['ADMIN']);
-
-    $users = User::count();
-
-    $cases = CaseFile::count();
-
-    $openCases = CaseFile::where(
-        'status',
-        'ABIERTO'
-    )->count();
-
-    $inProcessCases = CaseFile::where(
-        'status',
-        'EN_PROCESO'
-    )->count();
-
-    $closedCases = CaseFile::where(
-        'status',
-        'CERRADO'
-    )->count();
-
-    $data = [
-        'users' => $users,
-        'cases' => $cases,
-        'openCases' => $openCases,
-        'inProcessCases' => $inProcessCases,
-        'closedCases' => $closedCases,
-    ];
+    $cases = CaseFile::with('moderator')
+        ->orderBy('created_at', 'desc')
+        ->get();
 
     $pdf = Pdf::loadView(
         'admin.reports-pdf',
-        $data
+        compact('cases')
     );
 
-    return $pdf->download(
-        'reporte-vitasafe.pdf'
-    );
+    return $pdf->download('reporte-UMG.pdf');
 }
 
     //EXPORTAR EXCEL
