@@ -141,7 +141,7 @@ Route::middleware([
 
 });
 
-    /*REACIÓN DE CASOS*/
+    /*RELACIÓN DE CASOS*/
 
     Route::post(
         '/cases/suicide',
