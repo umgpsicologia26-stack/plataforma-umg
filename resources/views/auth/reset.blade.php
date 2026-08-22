@@ -134,7 +134,7 @@
     </main>
 
 
-    {{--MODAL CÓDIGO VENCIDO}}
+    {{--MODAL CÓDIGO VENCIDO--}}
     @if(session('code_expired'))
         <div class="modal-overlay">
             <div class="modal-box">
