@@ -357,6 +357,48 @@ public function markNotificationAsRead($id)
         );
     }
 
+    //EXPORTAR PDF
+    public function exportPdf()
+{
+    $this->checkRole(['ADMIN']);
+
+    $users = User::count();
+
+    $cases = CaseFile::count();
+
+    $openCases = CaseFile::where(
+        'status',
+        'ABIERTO'
+    )->count();
+
+    $inProcessCases = CaseFile::where(
+        'status',
+        'EN_PROCESO'
+    )->count();
+
+    $closedCases = CaseFile::where(
+        'status',
+        'CERRADO'
+    )->count();
+
+    $data = [
+        'users' => $users,
+        'cases' => $cases,
+        'openCases' => $openCases,
+        'inProcessCases' => $inProcessCases,
+        'closedCases' => $closedCases,
+    ];
+
+    $pdf = Pdf::loadView(
+        'admin.reports-pdf',
+        $data
+    );
+
+    return $pdf->download(
+        'reporte-vitasafe.pdf'
+    );
+}
+
     //EXPORTAR EXCEL
 
     public function exportExcel()
