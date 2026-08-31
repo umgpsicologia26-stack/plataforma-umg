@@ -117,7 +117,7 @@ class AdminController extends Controller
             'anonymous_nickname' =>
                 $this->generateUniqueCode(),
 
-            'status' => 'ACTIVE',
+            'status' => 'ACTIVO',
             'must_change_password' => true,
         ]);
 
@@ -157,7 +157,7 @@ class AdminController extends Controller
 
         $moderator->restore();
 
-        $moderator->status = 'ACTIVE';
+        $moderator->status = 'ACTIVO';
 
         $moderator->save();
 
@@ -329,7 +329,7 @@ public function markNotificationAsRead($id)
         )
         ->where(
             'status',
-            'ACTIVE'
+            'ACTIVO'
         )
         ->count();
 
@@ -450,7 +450,7 @@ public function exportPdf()
     public function activateUser($id)
     {
         $user = User::findOrFail($id);
-        $user->status = 'ACTIVE';
+        $user->status = 'ACTIVO';
         $user->save();
 
         return back()->with(
@@ -493,7 +493,7 @@ public function exportPdf()
         $user = User::withTrashed()
             ->findOrFail($id);
         $user->restore();
-        $user->status = 'ACTIVE';
+        $user->status = 'ACTIVO';
         $user->save();
 
         return back()->with(

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Http\Controllers\ModeratorController;
 class CaseFile extends Model
 {
     protected $table = 'case_files';
@@ -13,10 +13,9 @@ class CaseFile extends Model
         'case_number',
         'type',
         'description',
-
         'user_uuid',
         'moderator_uuid',
-
+        'priority',
         'status',
         'admin_approved'
 

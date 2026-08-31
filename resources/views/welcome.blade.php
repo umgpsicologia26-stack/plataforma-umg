@@ -435,7 +435,7 @@ function abrirModalServicio(index)
 
     if (!modal) return;
 
-    modal.classList.add('active');
+    modal.classList.add('activo');
 
     modal.setAttribute(
         'aria-hidden',
@@ -455,7 +455,7 @@ function cerrarModalServicio(index)
 
     if (!modal) return;
 
-    modal.classList.remove('active');
+    modal.classList.remove('activo');
 
     modal.setAttribute(
         'aria-hidden',
@@ -513,7 +513,7 @@ function abrirImagenServicio(src)
 
     imagen.src = src;
 
-    modal.classList.add('active');
+    modal.classList.add('activo');
 }
 
 
@@ -531,7 +531,7 @@ function cerrarImagenServicio()
 
     if (!modal) return;
 
-    modal.classList.remove('active');
+    modal.classList.remove('activo');
 
     if (imagen)
     {
@@ -556,7 +556,7 @@ document.addEventListener(
 
         if (
             visor &&
-            visor.classList.contains('active')
+            visor.classList.contains('activo')
         )
         {
 
@@ -573,7 +573,7 @@ document.addEventListener(
             {
 
                 if (
-                    modal.classList.contains('active')
+                    modal.classList.contains('activo')
                 )
                 {
 
@@ -1097,14 +1097,14 @@ document.addEventListener(
         /* Cerrar cualquier otro modal abierto */
 
         document
-            .querySelectorAll('.talleres-modal.active')
+            .querySelectorAll('.talleres-modal.activo')
             .forEach(function (otroModal) {
                 if (otroModal.id !== id) {
                     cerrarModalProyecto(otroModal.id);
                 }
             });
 
-        modal.classList.add('active');
+        modal.classList.add('activo');
         modal.setAttribute(
             'aria-hidden',
             'false'
@@ -1145,7 +1145,7 @@ document.addEventListener(
 
 
         modal.classList.remove(
-            'active'
+            'activo'
         );
 
         modal.setAttribute(
@@ -1158,7 +1158,7 @@ document.addEventListener(
 
         const quedaOtroModal =
             document.querySelector(
-                '.talleres-modal.active'
+                '.talleres-modal.activo'
             );
 
 
@@ -1207,7 +1207,7 @@ document.addEventListener(
 
 
         visor.classList.add(
-            'active'
+            'activo'
         );
 
         visor.setAttribute(
@@ -1240,7 +1240,7 @@ document.addEventListener(
 
         if (visor) {
             visor.classList.remove(
-                'active'
+                'activo'
             );
 
             visor.setAttribute(
@@ -1284,7 +1284,7 @@ document.addEventListener(
 
         imagen.src = src;
         modal.classList.add(
-            'active'
+            'activo'
         );
     };
 
@@ -1311,7 +1311,7 @@ document.addEventListener(
 
 
         modal.classList.remove(
-            'active'
+            'activo'
         );
 
 
@@ -1370,7 +1370,7 @@ document.addEventListener(
             if (
                 imagenModal &&
                 imagenModal.classList.contains(
-                    'active'
+                    'activo'
                 )
             ) {
 
@@ -1389,7 +1389,7 @@ document.addEventListener(
             if (
                 pdfViewer &&
                 pdfViewer.classList.contains(
-                    'active'
+                    'activo'
                 )
             ) {
 
@@ -1402,7 +1402,7 @@ document.addEventListener(
 
             document
                 .querySelectorAll(
-                    '.talleres-modal.active'
+                    '.talleres-modal.activo'
                 )
                 .forEach(function (modal) {
 
@@ -1760,7 +1760,7 @@ function abrirModalGaleria()
     const modal = document.getElementById('modalGaleria');
     if (!modal) return;
 
-    modal.classList.add('active');
+    modal.classList.add('activo');
     modal.setAttribute(
         'aria-hidden',
         'false'
@@ -1781,7 +1781,7 @@ function cerrarModalGaleria()
         video.currentTime = 0;
     });
 
-    modal.classList.remove('active');
+    modal.classList.remove('activo');
     modal.setAttribute(
         'aria-hidden',
         'true'
@@ -1801,7 +1801,7 @@ function abrirImagenGaleria(src)
 
     if (!modal || !imagen) return;
         imagen.src = src;
-        modal.classList.add('active');
+        modal.classList.add('activo');
 }
 
 
@@ -1814,7 +1814,7 @@ function cerrarImagenGaleria()
         document.getElementById('imagenGaleriaGrande');
 
     if (!modal) return;
-        modal.classList.remove('active');
+        modal.classList.remove('activo');
 
     if (imagen) {
         imagen.src = '';
@@ -1846,7 +1846,7 @@ document.addEventListener('keydown', function(event)
 
     if (
         imagen &&
-        imagen.classList.contains('active')
+        imagen.classList.contains('activo')
     ) {
 
         cerrarImagenGaleria();
@@ -1859,7 +1859,7 @@ document.addEventListener('keydown', function(event)
 
     if (
         galeria &&
-        galeria.classList.contains('active')
+        galeria.classList.contains('activo')
     ) {
 
         cerrarModalGaleria();

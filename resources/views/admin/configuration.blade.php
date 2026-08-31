@@ -7,7 +7,7 @@
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0">
-    <title>Configuración | VitaSafe</title>
+    <title>Configuración | UMG</title>
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -518,7 +518,7 @@
                                 </strong>
 
                                 <span>
-                                    Permite crear nuevas cuentas en VitaSafe.
+                                    Permite crear nuevas cuentas en UMG.
                                 </span>
                             </div>
                         </div>

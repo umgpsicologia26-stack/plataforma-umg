@@ -49,7 +49,7 @@ class UserController extends BaseController
             'anonymous_nickname' => 'User' . rand(1000,9999),
             'password_hash' => bcrypt('12345678'),
             'role' => 'USER',
-            'status' => 'ACTIVE'
+            'status' => 'ACTIVO'
         ]);
 
         return back()->with('success', 'Usuario creado');
@@ -157,7 +157,7 @@ public function sendResetCode(Request $request)
     )->first();
 
     // No revela si el correo existe.
-    if (!$user || $user->status !== 'ACTIVE') {
+    if (!$user || $user->status !== 'ACTIVO') {
         return back()->with(
             'success',
             'Si existe una cuenta asociada al correo indicado, recibirás un código de recuperación.'
@@ -238,7 +238,7 @@ public function resetPassword(Request $request)
 
     $user = User::find($uuid);
 
-    if (!$user || $user->status !== 'ACTIVE') {
+    if (!$user || $user->status !== 'ACTIVO') {
 
         session()->forget([
             'reset_user_uuid',

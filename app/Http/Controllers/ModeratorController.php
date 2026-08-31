@@ -4,14 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\CaseFile;
 use App\Models\CaseComment;
-use App\Models\ChatConversation;
-use App\Models\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ModeratorController extends BaseController
 {
-    /* DASHBOARD */
+    /*
+    |--------------------------------------------------------------------------
+    | DASHBOARD DEL MODERADOR
+    |--------------------------------------------------------------------------
+    */
 
     public function dashboard()
     {
@@ -19,77 +22,57 @@ class ModeratorController extends BaseController
 
         $moderatorUuid = Auth::user()->uuid;
 
-
-        /* CONVERSACIONES ASIGNADAS */
-
-        $conversations = ChatConversation::where(
+        $totalCases = CaseFile::where(
             'moderator_uuid',
             $moderatorUuid
-        )->get();
+        )->count();
 
+        $openCases = CaseFile::where(
+            'moderator_uuid',
+            $moderatorUuid
+        )
+            ->where('status', 'Abierto')
+            ->count();
 
-        /*
-        |--------------------------------------------------------------------------
-        | MENSAJES NUEVOS
-        |--------------------------------------------------------------------------
-        |
-        | Se consideran nuevos únicamente los mensajes enviados
-        | por el USUARIO después de la última lectura del moderador.
-        |
-        */
+        $followUpCases = CaseFile::where(
+            'moderator_uuid',
+            $moderatorUuid
+        )
+            ->where('status', 'En seguimiento')
+            ->count();
 
-        $newMessagesCount = 0;
+        $closedCases = CaseFile::where(
+            'moderator_uuid',
+            $moderatorUuid
+        )
+            ->where('status', 'Cerrado')
+            ->count();
 
-        $newConversationsCount = 0;
-
-
-        foreach ($conversations as $conversation) {
-
-            $query = ChatMessage::where(
-                'conversation_id',
-                $conversation->id
-            )
-            ->where(
-                'sender_type',
-                'USER'
-            );
-
-
-            if ($conversation->moderator_last_read_at) {
-
-                $query->where(
-                    'created_at',
-                    '>',
-                    $conversation->moderator_last_read_at
-                );
-
-            }
-
-
-            $count = $query->count();
-
-
-            if ($count > 0) {
-
-                $newMessagesCount += $count;
-
-                $newConversationsCount++;
-
-            }
-        }
-
+        $criticalCases = CaseFile::where(
+            'moderator_uuid',
+            $moderatorUuid
+        )
+            ->where('priority', 'Critica')
+            ->count();
 
         return view(
             'moderator.dashboard',
             compact(
-                'newMessagesCount',
-                'newConversationsCount'
+                'totalCases',
+                'openCases',
+                'followUpCases',
+                'closedCases',
+                'criticalCases'
             )
         );
     }
 
 
-    /* LISTAR CASOS ASIGNADOS */
+    /*
+    |--------------------------------------------------------------------------
+    | LISTAR CASOS DEL MODERADOR
+    |--------------------------------------------------------------------------
+    */
 
     public function cases()
     {
@@ -97,16 +80,16 @@ class ModeratorController extends BaseController
 
         $moderatorUuid = Auth::user()->uuid;
 
-        $cases = CaseFile::where(
-            'moderator_uuid',
-            $moderatorUuid
-        )
-        ->with([
+        $cases = CaseFile::with([
             'user',
-            'comments.user'
+            'moderator'
         ])
-        ->latest()
-        ->get();
+            ->where(
+                'moderator_uuid',
+                $moderatorUuid
+            )
+            ->orderByDesc('created_at')
+            ->get();
 
         return view(
             'moderator.cases',
@@ -115,7 +98,19 @@ class ModeratorController extends BaseController
     }
 
 
-    /* VER CASO INDIVIDUAL */
+    /*
+    |--------------------------------------------------------------------------
+    | VER DETALLE DE UN CASO
+    |--------------------------------------------------------------------------
+    |
+    | IMPORTANTE:
+    | El detalle utiliza la MISMA vista:
+    |
+    | moderator.cases
+    |
+    | No se utiliza moderator.case
+    |
+    */
 
     public function viewCase($id)
     {
@@ -123,101 +118,184 @@ class ModeratorController extends BaseController
 
         $moderatorUuid = Auth::user()->uuid;
 
-        $case = CaseFile::where(
-            'id',
-            $id
-        )
-        ->where(
-            'moderator_uuid',
-            $moderatorUuid
-        )
-        ->with([
+        $case = CaseFile::with([
             'user',
             'moderator',
             'comments.user'
         ])
-        ->firstOrFail();
+            ->where('id', $id)
+            ->where(
+                'moderator_uuid',
+                $moderatorUuid
+            )
+            ->firstOrFail();
 
         return view(
-            'moderator.view-case',
+            'moderator.cases',
             compact('case')
         );
     }
 
 
-    /* AGREGAR OBSERVACIÓN / CORRECCIÓN */
+    /*
+    |--------------------------------------------------------------------------
+    | ACTUALIZAR CASO
+    |--------------------------------------------------------------------------
+    |
+    | Permite modificar:
+    |
+    | - Estado
+    | - Prioridad
+    | - Comentario de seguimiento
+    |
+    */
 
-    public function saveComment(Request $request, $id)
-{
-    $this->checkRole(['MODERATOR']);
+    public function updateCase(
+        Request $request,
+        $id
+    ) {
+        $this->checkRole(['MODERATOR']);
 
-    $request->validate([
-        'comment' => [
-            'required',
-            'string',
-            'min:3',
-            'max:5000'
-        ]
-    ]);
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDACIÓN
+        |--------------------------------------------------------------------------
+        */
 
-    $moderatorUuid = Auth::user()->uuid;
+        $request->validate([
+            'status' => [
+                'required',
+                'in:Abierto,En seguimiento,Cerrado'
+            ],
 
-    // Verificar que el caso pertenece al moderador
-    $case = CaseFile::where('id', $id)
-        ->where('moderator_uuid', $moderatorUuid)
-        ->firstOrFail();
+            'priority' => [
+                'required',
+                'in:Baja,Media,Alta,Critica'
+            ],
 
-    // Guardar comentario del moderador
-    CaseComment::create([
-        'case_id' => $case->id,
-        'user_id' => $moderatorUuid,
-        'type' => 'SEGUIMIENTO',
-        'comment' => $request->comment,
-        'color' => null
-    ]);
+            'comment' => [
+                'nullable',
+                'string',
+                'max:5000'
+            ],
+        ]);
 
-    // Cambiar automáticamente el estado a "En seguimiento"
-    if ($case->status === 'En seguimiento') {
-        $case->status = 'Cerrado';
-        $case->save();
+
+        $moderatorUuid = Auth::user()->uuid;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BUSCAR CASO
+        |--------------------------------------------------------------------------
+        |
+        | El moderador solamente puede modificar casos
+        | que estén asignados a él.
+        |
+        */
+
+        $case = CaseFile::where(
+            'id',
+            $id
+        )
+            ->where(
+                'moderator_uuid',
+                $moderatorUuid
+            )
+            ->firstOrFail();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TRANSACCIÓN
+        |--------------------------------------------------------------------------
+        */
+
+        DB::transaction(function () use (
+            $request,
+            $case,
+            $moderatorUuid
+        ) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | ACTUALIZAR ESTADO
+            |--------------------------------------------------------------------------
+            */
+
+            $case->status = $request->status;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ACTUALIZAR PRIORIDAD
+            |--------------------------------------------------------------------------
+            */
+
+            $case->priority = $request->priority;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | GUARDAR CASO
+            |--------------------------------------------------------------------------
+            */
+
+            $case->save();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | GUARDAR COMENTARIO
+            |--------------------------------------------------------------------------
+            |
+            | La tabla case_comments utiliza:
+            |
+            | user_id
+            |
+            | y acepta:
+            |
+            | OBSERVACION
+            | CORRECCION
+            | SEGUIMIENTO
+            |
+            */
+
+            if ($request->filled('comment')) {
+
+                CaseComment::create([
+                    'case_id' => $case->id,
+                    'user_id' => $moderatorUuid,
+                    'comment' => $request->comment,
+                    'type' => 'SEGUIMIENTO',
+                ]);
+            }
+        });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REGRESAR AL DETALLE
+        |--------------------------------------------------------------------------
+        */
+
+        return redirect()
+            ->route(
+                'moderator.case',
+                ['id' => $case->id]
+            )
+            ->with(
+                'success',
+                'Los cambios del caso fueron guardados correctamente.'
+            );
     }
 
-    return back()->with(
-        'success',
-        'Comentario de seguimiento guardado correctamente.'
-    );
-}
 
-    /* ACTUALIZAR ESTADO */
-
-    public function updateStatus(Request $request, $id)
-{
-    $this->checkRole(['MODERATOR']);
-
-    $request->validate([
-        'status' => [
-            'required',
-            'in:EN SEGUIMIENTO, CERRADO'
-        ]
-    ]);
-
-    $moderatorUuid = Auth::user()->uuid;
-
-    $case = CaseFile::where('id', $id)
-        ->where('moderator_uuid', $moderatorUuid)
-        ->firstOrFail();
-
-    $case->update([
-        'status' => $request->status
-    ]);
-
-    return back()->with(
-        'success',
-        'Estado del caso actualizado correctamente.'
-    );
-}
-
-    /* LISTAR CONVERSACIONES DEL MODERADOR */
+    /*
+    |--------------------------------------------------------------------------
+    | LISTAR CHATS
+    |--------------------------------------------------------------------------
+    */
 
     public function chats()
     {
@@ -226,63 +304,27 @@ class ModeratorController extends BaseController
         $moderatorUuid = Auth::user()->uuid;
 
 
-        $conversations = ChatConversation::where(
-            'moderator_uuid',
-            $moderatorUuid
-        )
-        ->with([
-            'user',
-            'messages' => function ($query) {
-
-                $query->orderBy(
-                    'created_at',
-                    'asc'
-                );
-
-            }
-        ])
-        ->latest()
-        ->get();
-
-
-        /* CALCULAR MENSAJES NUEVOS */
-
-        foreach ($conversations as $conversation) {
-
-            $query = $conversation->messages
-                ->where(
-                    'sender_type',
-                    'USER'
-                );
-
-
-            if ($conversation->moderator_last_read_at) {
-
-                $query = $query->filter(function ($message) use ($conversation) {
-
-                    return $message->created_at
-                        ->gt(
-                            $conversation->moderator_last_read_at
-                        );
-
-                });
-
-            }
-
-
-            $conversation->new_messages_count =
-                $query->count();
-        }
+        $chats = DB::table('chats')
+            ->where(
+                'moderator_uuid',
+                $moderatorUuid
+            )
+            ->orderByDesc('updated_at')
+            ->get();
 
 
         return view(
             'moderator.chats',
-            compact('conversations')
+            compact('chats')
         );
     }
 
 
-    /* VER CONVERSACIÓN INDIVIDUAL */
+    /*
+    |--------------------------------------------------------------------------
+    | VER CHAT
+    |--------------------------------------------------------------------------
+    */
 
     public function viewChat($id)
     {
@@ -291,126 +333,225 @@ class ModeratorController extends BaseController
         $moderatorUuid = Auth::user()->uuid;
 
 
-        /* SEGURIDAD */
+        /*
+        |--------------------------------------------------------------------------
+        | BUSCAR CHAT
+        |--------------------------------------------------------------------------
+        */
 
-        $conversation = ChatConversation::where(
-            'id',
-            $id
-        )
-        ->where(
-            'moderator_uuid',
-            $moderatorUuid
-        )
-        ->firstOrFail();
-
-
-        /* MARCAR COMO LEÍDA */
-
-        $conversation->moderator_last_read_at = now();
-
-        $conversation->save();
+        $chat = DB::table('chats')
+            ->where(
+                'id',
+                $id
+            )
+            ->where(
+                'moderator_uuid',
+                $moderatorUuid
+            )
+            ->first();
 
 
-        /* CARGAR MENSAJES */
+        if (!$chat) {
+            abort(404);
+        }
 
-        $conversation->load([
 
-            'user',
+        /*
+        |--------------------------------------------------------------------------
+        | OBTENER MENSAJES
+        |--------------------------------------------------------------------------
+        */
 
-            'messages' => function ($query) {
-
-                $query->orderBy(
-                    'created_at',
-                    'asc'
-                );
-
-            }
-
-        ]);
+        $messages = DB::table('chat_messages')
+            ->where(
+                'chat_id',
+                $id
+            )
+            ->orderBy(
+                'created_at',
+                'asc'
+            )
+            ->get();
 
 
         return view(
-            'moderator.view-chat',
-            compact('conversation')
+            'moderator.chat',
+            compact(
+                'chat',
+                'messages'
+            )
         );
     }
 
 
-    /* ENVIAR MENSAJE DEL MODERADOR */
+    /*
+    |--------------------------------------------------------------------------
+    | ENVIAR MENSAJE DEL MODERADOR
+    |--------------------------------------------------------------------------
+    */
 
-public function sendChatMessage(
-    Request $request,
-    $id
-) {
-    $this->checkRole(['MODERATOR']);
-
-    $request->validate([
-        'message' => [
-            'required',
-            'string',
-            'min:1',
-            'max:2000'
-        ]
-    ]);
-
-    $moderatorUuid = Auth::user()->uuid;
-
-    /* VERIFICAR CONVERSACIÓN */
-
-    $conversation = ChatConversation::where(
-        'id',
+    public function sendChatMessage(
+        Request $request,
         $id
-    )
-    ->where(
-        'moderator_uuid',
-        $moderatorUuid
-    )
-    ->firstOrFail();
+    ) {
+        $this->checkRole(['MODERATOR']);
 
 
-    /* GUARDAR MENSAJE */
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDAR MENSAJE
+        |--------------------------------------------------------------------------
+        */
 
-    ChatMessage::create([
-
-        'conversation_id' => $conversation->id,
-
-        'sender_uuid' => $moderatorUuid,
-
-        'sender_type' => 'MODERATOR',
-
-        'message' => trim(
-            $request->message
-        ),
-
-    ]);
+        $request->validate([
+            'message' => [
+                'required',
+                'string',
+                'max:5000'
+            ],
+        ]);
 
 
-    /* ACTUALIZAR FECHA DE LA CONVERSACIÓN */
-
-    $conversation->touch();
+        $moderatorUuid = Auth::user()->uuid;
 
 
-    /* ACTIVAR CONVERSACIÓN */
+        /*
+        |--------------------------------------------------------------------------
+        | VERIFICAR CHAT
+        |--------------------------------------------------------------------------
+        */
 
-    if ($conversation->status === 'ESPERANDO') {
+        $chat = DB::table('chats')
+            ->where(
+                'id',
+                $id
+            )
+            ->where(
+                'moderator_uuid',
+                $moderatorUuid
+            )
+            ->first();
 
-        $conversation->status = 'ACTIVO';
 
-        $conversation->save();
+        if (!$chat) {
+            abort(404);
+        }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | NO ENVIAR MENSAJES A CHAT CERRADO
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            isset($chat->status) &&
+            strtoupper($chat->status) === 'CERRADO'
+        ) {
+
+            return back()->with(
+                'error',
+                'Esta conversación se encuentra cerrada.'
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GUARDAR MENSAJE
+        |--------------------------------------------------------------------------
+        */
+
+        DB::table('chat_messages')->insert([
+            'chat_id' => $id,
+            'sender_uuid' => $moderatorUuid,
+            'message' => $request->message,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACTUALIZAR CHAT
+        |--------------------------------------------------------------------------
+        */
+
+        DB::table('chats')
+            ->where(
+                'id',
+                $id
+            )
+            ->update([
+                'updated_at' => now(),
+            ]);
+
+
+        return back()->with(
+            'success',
+            'Mensaje enviado correctamente.'
+        );
     }
 
 
-    /* ACTUALIZAR ÚLTIMA LECTURA DEL MODERADOR */
+    /*
+    |--------------------------------------------------------------------------
+    | CERRAR CHAT
+    |--------------------------------------------------------------------------
+    */
 
-    $conversation->moderator_last_read_at = now();
+    public function closeChat($id)
+    {
+        $this->checkRole(['MODERATOR']);
 
-    $conversation->save();
+        $moderatorUuid = Auth::user()->uuid;
 
 
-    return back()->with(
-        'success',
-        'Mensaje enviado correctamente.'
-    );
+        /*
+        |--------------------------------------------------------------------------
+        | VERIFICAR CHAT
+        |--------------------------------------------------------------------------
+        */
+
+        $chat = DB::table('chats')
+            ->where(
+                'id',
+                $id
+            )
+            ->where(
+                'moderator_uuid',
+                $moderatorUuid
+            )
+            ->first();
+
+
+        if (!$chat) {
+            abort(404);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CERRAR CONVERSACIÓN
+        |--------------------------------------------------------------------------
+        */
+
+        DB::table('chats')
+            ->where(
+                'id',
+                $id
+            )
+            ->update([
+                'status' => 'CERRADO',
+                'updated_at' => now(),
+            ]);
+
+
+        return redirect()
+            ->route('moderator.chats')
+            ->with(
+                'success',
+                'La conversación fue cerrada correctamente.'
+            );
+    }
 }
-    }

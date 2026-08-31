@@ -33,9 +33,6 @@ class ForumController extends Controller
         |--------------------------------------------------------------------------
         | USUARIO NORMAL
         |--------------------------------------------------------------------------
-        |
-        | Los usuarios solamente pueden visualizar mensajes visibles.
-        |
         */
 
         if (
@@ -56,8 +53,8 @@ class ForumController extends Controller
         | ADMINISTRADOR / MODERADOR
         |--------------------------------------------------------------------------
         |
-        | No agregamos where de visibility_status.
-        | De esta manera pueden ver:
+        | No agregamos ningún filtro adicional.
+        | Pueden visualizar:
         |
         | VISIBLE
         | HIDDEN
@@ -73,12 +70,21 @@ class ForumController extends Controller
     }
 
 
-    //CREAR MENSAJE
-    
+    /*
+    |--------------------------------------------------------------------------
+    | CREAR MENSAJE
+    |--------------------------------------------------------------------------
+    */
+
     public function create(Request $request)
     {
-        $request->validate([
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDACIÓN
+        |--------------------------------------------------------------------------
+        */
 
+        $request->validate([
             'content' => [
                 'required',
                 'string',
@@ -89,31 +95,112 @@ class ForumController extends Controller
                 'required',
                 'in:name,nickname'
             ]
-
         ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | USUARIO AUTENTICADO
+        |--------------------------------------------------------------------------
+        */
 
         $user = Auth::user();
+
+
+        if (!$user) {
+            abort(401);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CREAR PUBLICACIÓN
+        |--------------------------------------------------------------------------
+        */
+
         ForumMessage::create([
-            'uuid' => (string) Str::uuid(),
-
-            //SIEMPRE se guarda el UUID REAL del usuario.
-            'user_uuid' => $user->uuid,
-
-            //Se conserva GENERAL para no romper una posible columna existente en BD.
-            'category' => 'GENERAL',
-            'content' => $request->content,
 
             /*
-             * nickname = anónimo
-             * name = nombre real
-             */
+            |------------------------------------------------------------------
+            | UUID DE LA PUBLICACIÓN
+            |------------------------------------------------------------------
+            */
+
+            'uuid' => (string) Str::uuid(),
+
+
+            /*
+            |------------------------------------------------------------------
+            | UUID REAL DEL USUARIO
+            |------------------------------------------------------------------
+            */
+
+            'user_uuid' => $user->uuid,
+
+
+            /*
+            |------------------------------------------------------------------
+            | CATEGORÍA
+            |------------------------------------------------------------------
+            */
+
+            'category' => 'GENERAL',
+
+
+            /*
+            |------------------------------------------------------------------
+            | CONTENIDO
+            |------------------------------------------------------------------
+            |
+            | Usamos input() para obtener correctamente el valor enviado
+            | por el formulario.
+            |
+            */
+
+            'content' => $request->input('content'),
+
+
+            /*
+            |------------------------------------------------------------------
+            | IDENTIDAD
+            |------------------------------------------------------------------
+            |
+            | nickname = publicación anónima
+            | name     = nombre real
+            |
+            */
+
             'is_anonymous' =>
-                $request->identity_type === 'nickname',
+                $request->input('identity_type') === 'nickname',
+
+
+            /*
+            |------------------------------------------------------------------
+            | IA
+            |------------------------------------------------------------------
+            */
+
             'ai_flagged' => false,
 
-            //Todo mensaje nuevo comienza visible.
+
+            /*
+            |------------------------------------------------------------------
+            | VISIBILIDAD
+            |------------------------------------------------------------------
+            |
+            | Toda publicación nueva comienza visible.
+            |
+            */
+
             'visibility_status' => 'VISIBLE'
         ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REGRESAR AL FORO
+        |--------------------------------------------------------------------------
+        */
 
         return back()->with(
             'success',
@@ -135,26 +222,62 @@ class ForumController extends Controller
     {
         $user = Auth::user();
 
-        //VERIFICAR PERMISOS
-        
+
+        /*
+        |--------------------------------------------------------------------------
+        | VERIFICAR AUTENTICACIÓN
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$user) {
+            abort(401);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VERIFICAR PERMISOS
+        |--------------------------------------------------------------------------
+        */
+
         if (
-            !$user ||
             !in_array(
                 $user->role,
                 ['ADMIN', 'MODERATOR']
             )
         ) {
-
             abort(403);
         }
 
 
-        //BUSCAR MENSAJE
-        $message = ForumMessage::findOrFail($uuid);
+        /*
+        |--------------------------------------------------------------------------
+        | BUSCAR PUBLICACIÓN POR UUID
+        |--------------------------------------------------------------------------
+        */
 
-        //OCULTAR MENSAJE
-                $message->visibility_status = 'HIDDEN';
-                $message->save();
+        $message = ForumMessage::where(
+            'uuid',
+            $uuid
+        )->firstOrFail();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | OCULTAR MENSAJE
+        |--------------------------------------------------------------------------
+        */
+
+        $message->visibility_status = 'HIDDEN';
+
+        $message->save();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REGRESAR
+        |--------------------------------------------------------------------------
+        */
 
         return back()->with(
             'success',
@@ -176,31 +299,66 @@ class ForumController extends Controller
     {
         $user = Auth::user();
 
-        //VERIFICAR PERMISOS
-        
+
+        /*
+        |--------------------------------------------------------------------------
+        | VERIFICAR AUTENTICACIÓN
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$user) {
+            abort(401);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VERIFICAR PERMISOS
+        |--------------------------------------------------------------------------
+        */
+
         if (
-            !$user ||
             !in_array(
                 $user->role,
                 ['ADMIN', 'MODERATOR']
             )
         ) {
-
             abort(403);
         }
 
 
-        //BUSCAR MENSAJE
-                $message = ForumMessage::findOrFail($uuid);
+        /*
+        |--------------------------------------------------------------------------
+        | BUSCAR PUBLICACIÓN POR UUID
+        |--------------------------------------------------------------------------
+        */
+
+        $message = ForumMessage::where(
+            'uuid',
+            $uuid
+        )->firstOrFail();
 
 
-        //RESTAURAR MENSAJE
-                $message->visibility_status = 'VISIBLE';
-                $message->save();
+        /*
+        |--------------------------------------------------------------------------
+        | RESTAURAR MENSAJE
+        |--------------------------------------------------------------------------
+        */
+
+        $message->visibility_status = 'VISIBLE';
+
+        $message->save();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REGRESAR
+        |--------------------------------------------------------------------------
+        */
 
         return back()->with(
             'success',
-            'El mensaje fue restaurado.'
+            'El mensaje fue restaurado correctamente.'
         );
     }
 }

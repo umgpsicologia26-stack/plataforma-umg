@@ -105,7 +105,7 @@ class AuthController extends Controller
              */
             'role' => 'USER',
 
-            'status' => 'ACTIVE',
+            'status' => 'Activo',
 
         ]);
 
@@ -199,7 +199,7 @@ public function login(Request $request)
 
 
     //Verificar estado de la cuenta
-        if ($user->status !== 'ACTIVE') {
+        if ($user->status !== 'Activo') {
 
         return back()->with(
             'error',

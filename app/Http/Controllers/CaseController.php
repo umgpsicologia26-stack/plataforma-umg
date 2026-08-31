@@ -30,11 +30,11 @@ class CaseController extends Controller
         $moderator = $this->assignModerator();
         $case = CaseFile::create([
             'case_number' => $this->generateCaseNumber(),
-            'type' => 'SUICIDIO',
+            'type' => 'Suicidio',
             'description' => $request->description,
             'user_uuid' => Auth::user()->uuid,
             'moderator_uuid' => $moderator?->uuid,
-            'status' => 'ABIERTO',
+            'status' => 'Abierto',
             'admin_approved' => false
         ]);
 
@@ -69,11 +69,11 @@ class CaseController extends Controller
         $moderator = $this->assignModerator();
         $case = CaseFile::create([
             'case_number' => $this->generateCaseNumber(),
-            'type' => 'ABUSO_SEXUAL',
+            'type' => 'Abuso sexual',
             'description' => $request->description,
             'user_uuid' => Auth::user()->uuid,
             'moderator_uuid' => $moderator?->uuid,
-            'status' => 'ABIERTO',
+            'status' => 'Abierto',
             'admin_approved' => false
         ]);
 
@@ -97,7 +97,7 @@ class CaseController extends Controller
             )
             ->where(
                 'status',
-                'ACTIVE'
+                'Activo'
             )
             ->get()
             ->sortBy(function ($moderator) {
@@ -108,7 +108,7 @@ class CaseController extends Controller
                 )
                 ->where(
                     'status',
-                    'ABIERTO'
+                    'Abierto'
                 )
                 ->count();
 
@@ -130,4 +130,71 @@ class CaseController extends Controller
             STR_PAD_LEFT
         );
     }
+    
+    // VER SEGUIMIENTO DE CASO
+
+public function tracking(Request $request)
+{
+    $user = Auth::user();
+
+    $case = null;
+
+    if ($request->filled('anonymous_nickname') && $request->filled('case_number')) {
+
+        // Verificar que el nombre de usuario pertenece
+        // al usuario actualmente autenticado
+        $userMatches = User::where(
+            'uuid',
+            $user->uuid
+        )
+        ->where(
+            'anonymous_nickname',
+            $request->anonymous_nickname
+        )
+        ->exists();
+
+        if (!$userMatches) {
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'El nombre de usuario no corresponde con tu cuenta.'
+                );
+        }
+
+        // Buscar el caso por número y UUID del usuario
+        $case = CaseFile::where(
+            'case_number',
+            $request->case_number
+        )
+        ->where(
+            'user_uuid',
+            $user->uuid
+        )
+        ->with([
+            'comments' => function ($query) {
+                $query->with('user')
+                    ->orderBy('created_at', 'asc');
+            },
+            'moderator'
+        ])
+        ->first();
+
+        if (!$case) {
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'No se encontró un caso con los datos proporcionados.'
+                );
+        }
+    }
+
+    return view(
+        'cases',
+        compact('case')
+    );
+}
 }

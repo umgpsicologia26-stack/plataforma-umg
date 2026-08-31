@@ -101,7 +101,7 @@
 
     <p class="description">
         Por seguridad, debes actualizar tu contraseña
-        antes de continuar utilizando VitaSafe.
+        antes de continuar utilizando UMG.
     </p>
 
     @if ($errors->any())

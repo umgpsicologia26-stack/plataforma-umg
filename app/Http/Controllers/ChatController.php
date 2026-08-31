@@ -373,66 +373,88 @@ class ChatController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | RESPUESTA DEL BOT
+        | ¿EL MODERADOR YA TOMÓ LA CONVERSACIÓN?
         |--------------------------------------------------------------------------
+        |
+        | Cuando el moderador envía su primer mensaje, la conversación
+        | pasa a estado ACTIVO (ver ModeratorController@sendChatMessage).
+        |
+        | A partir de ese momento, el bot ya NO debe responder:
+        | la atención queda 100% a cargo del moderador humano,
+        | hasta que él cierre la conversación (CERRADO).
+        |
         */
 
-        if ($requestHuman) {
+        $moderatorHandling =
+            $conversation->status === 'ACTIVO';
 
-            if (!empty(
-                $conversation->moderator_uuid
-            )) {
+        $botMessage = null;
 
-                $botText =
-                    "Claro. He registrado tu solicitud para hablar con una persona. "
-                    . "Un moderador podrá revisar la conversación y brindarte orientación. "
-                    . "Por favor, permanece en este chat.";
+        if (!$moderatorHandling) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | RESPUESTA DEL BOT
+            |--------------------------------------------------------------------------
+            */
+
+            if ($requestHuman) {
+
+                if (!empty(
+                    $conversation->moderator_uuid
+                )) {
+
+                    $botText =
+                        "Claro. He registrado tu solicitud para hablar con una persona. "
+                        . "Un moderador podrá revisar la conversación y brindarte orientación. "
+                        . "Por favor, permanece en este chat.";
+
+                } else {
+
+                    $botText =
+                        "He registrado tu solicitud para hablar con una persona. "
+                        . "En este momento no hay un moderador disponible, "
+                        . "pero tu conversación ha quedado en espera de atención.";
+                }
 
             } else {
 
                 $botText =
-                    "He registrado tu solicitud para hablar con una persona. "
-                    . "En este momento no hay un moderador disponible, "
-                    . "pero tu conversación ha quedado en espera de atención.";
+                    $this->generateBotResponse(
+                        $messageText
+                    );
             }
 
-        } else {
+            /*
+            |--------------------------------------------------------------------------
+            | GUARDAR RESPUESTA DEL BOT
+            |--------------------------------------------------------------------------
+            */
 
-            $botText =
-                $this->generateBotResponse(
-                    $messageText
-                );
+            $botMessage = ChatMessage::create([
+
+                'conversation_id' =>
+                    $conversation->id,
+
+                'sender_uuid' =>
+                    null,
+
+                'sender_type' =>
+                    'BOT',
+
+                'message' =>
+                    $botText,
+
+            ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | ACTUALIZAR CONVERSACIÓN
+            |--------------------------------------------------------------------------
+            */
+
+            $conversation->touch();
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | GUARDAR RESPUESTA DEL BOT
-        |--------------------------------------------------------------------------
-        */
-
-        $botMessage = ChatMessage::create([
-
-            'conversation_id' =>
-                $conversation->id,
-
-            'sender_uuid' =>
-                null,
-
-            'sender_type' =>
-                'BOT',
-
-            'message' =>
-                $botText,
-
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | ACTUALIZAR CONVERSACIÓN
-        |--------------------------------------------------------------------------
-        */
-
-        $conversation->touch();
 
         /*
         |--------------------------------------------------------------------------
@@ -477,28 +499,34 @@ class ChatController extends Controller
 
             ],
 
-            'bot_message' => [
+            'bot_message' =>
+                $botMessage
+                    ? [
 
-                'id' =>
-                    $botMessage->id,
+                        'id' =>
+                            $botMessage->id,
 
-                'sender_type' =>
-                    'BOT',
+                        'sender_type' =>
+                            'BOT',
 
-                'message' =>
-                    $botMessage->message,
+                        'message' =>
+                            $botMessage->message,
 
-                'time' =>
-                    $botMessage
-                        ->created_at
-                        ->format('H:i'),
+                        'time' =>
+                            $botMessage
+                                ->created_at
+                                ->format('H:i'),
 
-            ],
+                    ]
+                    : null,
 
             'moderator_assigned' =>
                 !empty(
                     $conversation->moderator_uuid
                 ),
+
+            'moderator_handling' =>
+                $moderatorHandling,
 
         ]);
     }
@@ -538,7 +566,7 @@ class ChatController extends Controller
         )
         ->where(
             'status',
-            'ACTIVE'
+            'ACTIVO'
         )
         ->orderBy(
             'created_at',

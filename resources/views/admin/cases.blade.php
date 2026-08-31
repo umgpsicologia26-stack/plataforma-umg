@@ -455,15 +455,15 @@
     <!-- TEMA -->
     <td>
         <span class="topic">
-                @if($case->type === 'SUICIDIO')
+                @if($case->topic === 'Suicidio')
             <i class="fas fa-heart-pulse"></i>
                 Suicidio
-                @elseif($case->type === 'ABUSO_SEXUAL')
+                @elseif($case->topic === 'Abuso sexual')
             <i class="fas fa-shield-heart"></i>
                 Abuso sexual
                     @else
             <i class="fas fa-folder"></i>
-                {{ $case->type }}
+                {{ $case->topic }}
                     @endif
         </span>
     </td>

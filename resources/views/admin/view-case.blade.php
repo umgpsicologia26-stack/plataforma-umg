@@ -6,7 +6,7 @@
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0">
-    <title>Detalle del Caso | VitaSafe</title>
+    <title>Detalle del Caso | UMG</title>
 
     <link
         rel="stylesheet"

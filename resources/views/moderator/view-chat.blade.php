@@ -55,6 +55,44 @@
             background: #475569;
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-chat-form {
+            margin: 0;
+        }
+
+        .close-chat-btn {
+            border: none;
+            background: #dc2626;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .close-chat-btn:hover {
+            background: #b91c1c;
+        }
+
+        .close-chat-btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .closed-notice {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            padding: 6px 0;
+        }
+
         .chat-card {
             background: #1e293b;
             border: 1px solid #334155;
@@ -251,11 +289,35 @@
             Conversación #{{ $conversation->id }}
         </h1>
 
-        <a
-            href="{{ route('moderator.chats') }}"
-            class="back">
-            ← Volver a conversaciones
-        </a>
+        <div class="header-actions">
+
+            <a
+                href="{{ route('moderator.chats') }}"
+                class="back">
+                ← Volver a conversaciones
+            </a>
+
+            @if($conversation->status !== 'CERRADO')
+
+                <form
+                    action="{{ route('moderator.chat.close', $conversation->id) }}"
+                    method="POST"
+                    class="close-chat-form"
+                    onsubmit="return confirm('¿Seguro que deseas terminar este chat? El usuario tendrá que iniciar una conversación nueva si necesita ayuda otra vez.');">
+
+                    @csrf
+
+                    <button
+                        type="submit"
+                        class="close-chat-btn">
+                        Terminar chat
+                    </button>
+
+                </form>
+
+            @endif
+
+        </div>
 
     </div>
 
@@ -385,33 +447,43 @@
 
         <div class="message-form">
 
-            <form
-                action="{{ route(
-                    'moderator.chat.message',
-                    $conversation->id
-                ) }}"
-                method="POST">
+            @if($conversation->status === 'CERRADO')
 
-                @csrf
-
-                <div class="form-wrapper">
-
-                    <textarea
-                        name="message"
-                        placeholder="Escribe tu respuesta..."
-                        required
-                        maxlength="2000"
-                    ></textarea>
-
-                    <button
-                        type="submit"
-                        class="send">
-                        Enviar
-                    </button>
-
+                <div class="closed-notice">
+                    Este chat ya fue cerrado. No se pueden enviar más mensajes.
                 </div>
 
-            </form>
+            @else
+
+                <form
+                    action="{{ route(
+                        'moderator.chat.message',
+                        $conversation->id
+                    ) }}"
+                    method="POST">
+
+                    @csrf
+
+                    <div class="form-wrapper">
+
+                        <textarea
+                            name="message"
+                            placeholder="Escribe tu respuesta..."
+                            required
+                            maxlength="2000"
+                        ></textarea>
+
+                        <button
+                            type="submit"
+                            class="send">
+                            Enviar
+                        </button>
+
+                    </div>
+
+                </form>
+
+            @endif
 
         </div>
 
@@ -435,5 +507,4 @@
 </script>
 
 </body>
-
 </html>

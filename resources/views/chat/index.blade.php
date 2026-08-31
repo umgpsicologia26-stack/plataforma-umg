@@ -10,7 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>UMG Cerca - Orientación</title>
+    <title>UMG Xela - Orientación</title>
 
     <style>
 
@@ -610,7 +610,7 @@
             <div>
 
                 <h1>
-                    UMG Cerca
+                    UMG Xela
                 </h1>
 
                 <div class="subtitle">
@@ -679,7 +679,7 @@
 
                                 @case('BOT')
 
-                                    UMG Cerca
+                                    UMG Xela
 
                                     @break
 
@@ -691,7 +691,7 @@
 
                                 @default
 
-                                    UMG Cerca
+                                    UMG Xela
 
                             @endswitch
 
@@ -1132,7 +1132,7 @@ function renderMessages(
                 'bot';
 
             let senderName =
-                'UMG Cerca';
+                'UMG Xela';
 
 
             /*
