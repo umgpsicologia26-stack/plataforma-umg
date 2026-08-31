@@ -7,6 +7,8 @@ use App\Models\CaseComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class ModeratorController extends BaseController
 {
@@ -103,12 +105,7 @@ class ModeratorController extends BaseController
     | VER DETALLE DE UN CASO
     |--------------------------------------------------------------------------
     |
-    | IMPORTANTE:
-    | El detalle utiliza la MISMA vista:
-    |
-    | moderator.cases
-    |
-    | No se utiliza moderator.case
+    | Se mantiene la vista moderator.cases
     |
     */
 
@@ -123,7 +120,10 @@ class ModeratorController extends BaseController
             'moderator',
             'comments.user'
         ])
-            ->where('id', $id)
+            ->where(
+                'id',
+                $id
+            )
             ->where(
                 'moderator_uuid',
                 $moderatorUuid
@@ -141,13 +141,6 @@ class ModeratorController extends BaseController
     |--------------------------------------------------------------------------
     | ACTUALIZAR CASO
     |--------------------------------------------------------------------------
-    |
-    | Permite modificar:
-    |
-    | - Estado
-    | - Prioridad
-    | - Comentario de seguimiento
-    |
     */
 
     public function updateCase(
@@ -155,12 +148,6 @@ class ModeratorController extends BaseController
         $id
     ) {
         $this->checkRole(['MODERATOR']);
-
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDACIÓN
-        |--------------------------------------------------------------------------
-        */
 
         $request->validate([
             'status' => [
@@ -180,19 +167,7 @@ class ModeratorController extends BaseController
             ],
         ]);
 
-
         $moderatorUuid = Auth::user()->uuid;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | BUSCAR CASO
-        |--------------------------------------------------------------------------
-        |
-        | El moderador solamente puede modificar casos
-        | que estén asignados a él.
-        |
-        */
 
         $case = CaseFile::where(
             'id',
@@ -204,62 +179,16 @@ class ModeratorController extends BaseController
             )
             ->firstOrFail();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | TRANSACCIÓN
-        |--------------------------------------------------------------------------
-        */
-
         DB::transaction(function () use (
             $request,
             $case,
             $moderatorUuid
         ) {
 
-            /*
-            |--------------------------------------------------------------------------
-            | ACTUALIZAR ESTADO
-            |--------------------------------------------------------------------------
-            */
-
             $case->status = $request->status;
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ACTUALIZAR PRIORIDAD
-            |--------------------------------------------------------------------------
-            */
-
             $case->priority = $request->priority;
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | GUARDAR CASO
-            |--------------------------------------------------------------------------
-            */
-
             $case->save();
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | GUARDAR COMENTARIO
-            |--------------------------------------------------------------------------
-            |
-            | La tabla case_comments utiliza:
-            |
-            | user_id
-            |
-            | y acepta:
-            |
-            | OBSERVACION
-            | CORRECCION
-            | SEGUIMIENTO
-            |
-            */
 
             if ($request->filled('comment')) {
 
@@ -271,13 +200,6 @@ class ModeratorController extends BaseController
                 ]);
             }
         });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | REGRESAR AL DETALLE
-        |--------------------------------------------------------------------------
-        */
 
         return redirect()
             ->route(
@@ -293,7 +215,7 @@ class ModeratorController extends BaseController
 
     /*
     |--------------------------------------------------------------------------
-    | LISTAR CHATS
+    | LISTAR CONVERSACIONES
     |--------------------------------------------------------------------------
     */
 
@@ -303,8 +225,13 @@ class ModeratorController extends BaseController
 
         $moderatorUuid = Auth::user()->uuid;
 
+        /*
+        |--------------------------------------------------------------------------
+        | OBTENER CONVERSACIONES
+        |--------------------------------------------------------------------------
+        */
 
-        $chats = DB::table('chats')
+        $conversations = DB::table('chat_conversations')
             ->where(
                 'moderator_uuid',
                 $moderatorUuid
@@ -312,17 +239,115 @@ class ModeratorController extends BaseController
             ->orderByDesc('updated_at')
             ->get();
 
+        /*
+        |--------------------------------------------------------------------------
+        | PREPARAR DATOS PARA LA VISTA
+        |--------------------------------------------------------------------------
+        */
+
+        foreach ($conversations as $conversation) {
+
+            /*
+            |------------------------------------------------------------------
+            | CONVERTIR FECHAS A CARBON
+            |------------------------------------------------------------------
+            */
+
+            if ($conversation->created_at) {
+                $conversation->created_at = Carbon::parse(
+                    $conversation->created_at
+                );
+            }
+
+            if ($conversation->updated_at) {
+                $conversation->updated_at = Carbon::parse(
+                    $conversation->updated_at
+                );
+            }
+
+            if ($conversation->moderator_last_read_at) {
+                $conversation->moderator_last_read_at = Carbon::parse(
+                    $conversation->moderator_last_read_at
+                );
+            }
+
+            /*
+            |------------------------------------------------------------------
+            | OBTENER USUARIO
+            |------------------------------------------------------------------
+            */
+
+            $conversation->user = DB::table('users')
+                ->where(
+                    'uuid',
+                    $conversation->user_uuid
+                )
+                ->first();
+
+            /*
+            |------------------------------------------------------------------
+            | OBTENER MENSAJES
+            |------------------------------------------------------------------
+            */
+
+            $conversation->messages = DB::table('chat_messages')
+                ->where(
+                    'conversation_id',
+                    $conversation->id
+                )
+                ->orderBy(
+                    'created_at',
+                    'asc'
+                )
+                ->get();
+
+            /*
+            |------------------------------------------------------------------
+            | CONVERTIR FECHAS DE LOS MENSAJES A CARBON
+            |------------------------------------------------------------------
+            */
+
+            foreach ($conversation->messages as $message) {
+
+                if ($message->created_at) {
+                    $message->created_at = Carbon::parse(
+                        $message->created_at
+                    );
+                }
+
+                if ($message->updated_at) {
+                    $message->updated_at = Carbon::parse(
+                        $message->updated_at
+                    );
+                }
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | COMPATIBILIDAD
+        |--------------------------------------------------------------------------
+        |
+        | Algunas partes de tu vista pueden utilizar $chats.
+        | Se mantienen ambas variables para evitar errores.
+        |
+        */
+
+        $chats = $conversations;
 
         return view(
             'moderator.chats',
-            compact('chats')
+            compact(
+                'conversations',
+                'chats'
+            )
         );
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | VER CHAT
+    | VER CONVERSACIÓN
     |--------------------------------------------------------------------------
     */
 
@@ -332,14 +357,13 @@ class ModeratorController extends BaseController
 
         $moderatorUuid = Auth::user()->uuid;
 
-
         /*
         |--------------------------------------------------------------------------
-        | BUSCAR CHAT
+        | BUSCAR CONVERSACIÓN
         |--------------------------------------------------------------------------
         */
 
-        $chat = DB::table('chats')
+        $chat = DB::table('chat_conversations')
             ->where(
                 'id',
                 $id
@@ -350,11 +374,46 @@ class ModeratorController extends BaseController
             )
             ->first();
 
-
         if (!$chat) {
             abort(404);
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | CONVERTIR FECHAS DE LA CONVERSACIÓN
+        |--------------------------------------------------------------------------
+        */
+
+        if ($chat->created_at) {
+            $chat->created_at = Carbon::parse(
+                $chat->created_at
+            );
+        }
+
+        if ($chat->updated_at) {
+            $chat->updated_at = Carbon::parse(
+                $chat->updated_at
+            );
+        }
+
+        if ($chat->moderator_last_read_at) {
+            $chat->moderator_last_read_at = Carbon::parse(
+                $chat->moderator_last_read_at
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | OBTENER USUARIO
+        |--------------------------------------------------------------------------
+        */
+
+        $chat->user = DB::table('users')
+            ->where(
+                'uuid',
+                $chat->user_uuid
+            )
+            ->first();
 
         /*
         |--------------------------------------------------------------------------
@@ -364,7 +423,7 @@ class ModeratorController extends BaseController
 
         $messages = DB::table('chat_messages')
             ->where(
-                'chat_id',
+                'conversation_id',
                 $id
             )
             ->orderBy(
@@ -373,6 +432,55 @@ class ModeratorController extends BaseController
             )
             ->get();
 
+        /*
+        |--------------------------------------------------------------------------
+        | CONVERTIR FECHAS DE LOS MENSAJES
+        |--------------------------------------------------------------------------
+        */
+
+        foreach ($messages as $message) {
+
+            if ($message->created_at) {
+                $message->created_at = Carbon::parse(
+                    $message->created_at
+                );
+            }
+
+            if ($message->updated_at) {
+                $message->updated_at = Carbon::parse(
+                    $message->updated_at
+                );
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | MARCAR CONVERSACIÓN COMO LEÍDA
+        |--------------------------------------------------------------------------
+        */
+
+        DB::table('chat_conversations')
+            ->where(
+                'id',
+                $id
+            )
+            ->update([
+                'moderator_last_read_at' => now(),
+            ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACTUALIZAR TAMBIÉN EL OBJETO EN MEMORIA
+        |--------------------------------------------------------------------------
+        */
+
+        $chat->moderator_last_read_at = Carbon::now();
+
+        /*
+        |--------------------------------------------------------------------------
+        | MOSTRAR VISTA
+        |--------------------------------------------------------------------------
+        */
 
         return view(
             'moderator.chat',
@@ -396,10 +504,9 @@ class ModeratorController extends BaseController
     ) {
         $this->checkRole(['MODERATOR']);
 
-
         /*
         |--------------------------------------------------------------------------
-        | VALIDAR MENSAJE
+        | VALIDAR
         |--------------------------------------------------------------------------
         */
 
@@ -411,17 +518,15 @@ class ModeratorController extends BaseController
             ],
         ]);
 
-
         $moderatorUuid = Auth::user()->uuid;
-
 
         /*
         |--------------------------------------------------------------------------
-        | VERIFICAR CHAT
+        | VERIFICAR CONVERSACIÓN
         |--------------------------------------------------------------------------
         */
 
-        $chat = DB::table('chats')
+        $chat = DB::table('chat_conversations')
             ->where(
                 'id',
                 $id
@@ -432,15 +537,13 @@ class ModeratorController extends BaseController
             )
             ->first();
 
-
         if (!$chat) {
             abort(404);
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | NO ENVIAR MENSAJES A CHAT CERRADO
+        | NO PERMITIR MENSAJES EN CONVERSACIÓN CERRADA
         |--------------------------------------------------------------------------
         */
 
@@ -455,7 +558,6 @@ class ModeratorController extends BaseController
             );
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | GUARDAR MENSAJE
@@ -463,29 +565,30 @@ class ModeratorController extends BaseController
         */
 
         DB::table('chat_messages')->insert([
-            'chat_id' => $id,
+            'uuid' => (string) Str::uuid(),
+            'conversation_id' => $id,
             'sender_uuid' => $moderatorUuid,
+            'sender_type' => 'MODERATOR',
             'message' => $request->message,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
-        | ACTUALIZAR CHAT
+        | ACTUALIZAR CONVERSACIÓN
         |--------------------------------------------------------------------------
         */
 
-        DB::table('chats')
+        DB::table('chat_conversations')
             ->where(
                 'id',
                 $id
             )
             ->update([
                 'updated_at' => now(),
+                'status' => 'ACTIVO',
             ]);
-
 
         return back()->with(
             'success',
@@ -496,7 +599,7 @@ class ModeratorController extends BaseController
 
     /*
     |--------------------------------------------------------------------------
-    | CERRAR CHAT
+    | CERRAR CONVERSACIÓN
     |--------------------------------------------------------------------------
     */
 
@@ -506,14 +609,13 @@ class ModeratorController extends BaseController
 
         $moderatorUuid = Auth::user()->uuid;
 
-
         /*
         |--------------------------------------------------------------------------
-        | VERIFICAR CHAT
+        | VERIFICAR CONVERSACIÓN
         |--------------------------------------------------------------------------
         */
 
-        $chat = DB::table('chats')
+        $chat = DB::table('chat_conversations')
             ->where(
                 'id',
                 $id
@@ -524,11 +626,9 @@ class ModeratorController extends BaseController
             )
             ->first();
 
-
         if (!$chat) {
             abort(404);
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -536,7 +636,7 @@ class ModeratorController extends BaseController
         |--------------------------------------------------------------------------
         */
 
-        DB::table('chats')
+        DB::table('chat_conversations')
             ->where(
                 'id',
                 $id
@@ -546,9 +646,10 @@ class ModeratorController extends BaseController
                 'updated_at' => now(),
             ]);
 
-
         return redirect()
-            ->route('moderator.chats')
+            ->route(
+                'moderator.chats'
+            )
             ->with(
                 'success',
                 'La conversación fue cerrada correctamente.'
