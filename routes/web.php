@@ -10,7 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CaseController;
 use App\Http\Controllers\ContactController;
-
+use App\Http\Controllers\ChatController;
 
 /*HOME*/
 
@@ -110,6 +110,23 @@ Route::middleware([
     'maintenance'
 ])->group(function () {
 
+    /*CHATBOT*/
+
+Route::get(
+    '/chat',
+    [ChatController::class, 'index']
+)->name('chat.index');
+
+Route::get(
+    '/chat/messages',
+    [ChatController::class, 'messages']
+)->name('chat.messages');
+
+Route::post(
+    '/chat/message',
+    [ChatController::class, 'sendMessage']
+)->name('chat.message');
+
     /*MODERADOR*/
 
     Route::middleware(['role:MODERATOR'])->group(function () {
@@ -139,6 +156,25 @@ Route::middleware([
         [ModeratorController::class, 'updateStatus']
     )->name('moderator.case.status');
 
+    Route::get(
+    '/moderator/dashboard',
+    [ModeratorController::class, 'dashboard']
+    )->name('moderator.dashboard');
+
+    Route::get(
+    '/moderator/chats',
+    [ModeratorController::class, 'chats']
+    )->name('moderator.chats');
+
+    Route::get(
+    '/moderator/chat/{id}',
+    [ModeratorController::class, 'viewChat']
+    )->name('moderator.chat');
+
+    Route::post(
+    '/moderator/chat/{id}/message',
+    [ModeratorController::class, 'sendChatMessage']
+    )->name('moderator.chat.message');
 });
 
     /*RELACIÓN DE CASOS*/

@@ -98,6 +98,12 @@
             font-weight: 600;
 
             cursor: pointer;
+
+            transition: .2s;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
         }
 
         .container {
@@ -161,6 +167,10 @@
                 0 15px 40px rgba(0,0,0,.08);
 
             transition: .3s;
+
+            position: relative;
+
+            overflow: hidden;
         }
 
         .card:hover {
@@ -220,6 +230,85 @@
             font-size: 14px;
         }
 
+        /* CHAT */
+
+        .chat-card .card-icon {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .chat-card .card-link {
+            color: #059669;
+        }
+
+        /* NOTIFICACIÓN */
+
+        .new-message-badge {
+            position: absolute;
+
+            top: 22px;
+            right: 22px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            background: #fee2e2;
+
+            color: #b91c1c;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            animation: pulse 1.8s infinite;
+        }
+
+        .new-message-badge i {
+            font-size: 9px;
+        }
+
+        @keyframes pulse {
+
+            0% {
+                box-shadow: 0 0 0 0 rgba(220,38,38,.35);
+            }
+
+            70% {
+                box-shadow: 0 0 0 8px rgba(220,38,38,0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(220,38,38,0);
+            }
+
+        }
+
+        .no-new-message {
+            position: absolute;
+
+            top: 22px;
+            right: 22px;
+
+            background: #dcfce7;
+
+            color: #166534;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
         @media(max-width: 700px) {
 
             .navbar {
@@ -234,20 +323,28 @@
                 font-size: 26px;
             }
 
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
         }
 
     </style>
 
 </head>
 
+
 <body>
+
 
 <nav class="navbar">
 
     <div class="brand">
 
         <div class="brand-icon">
+
             <i class="fas fa-shield-halved"></i>
+
         </div>
 
         <div>
@@ -257,25 +354,22 @@
             </h2>
 
             <span>
-                Plataforma VitaSafe
+                Plataforma UMG Xela
             </span>
 
         </div>
 
     </div>
 
-
     <form
         method="POST"
-        action="{{ url('/logout') }}"
-    >
+        action="{{ url('/logout') }}">
 
         @csrf
 
         <button
             type="submit"
-            class="logout-btn"
-        >
+            class="logout-btn">
 
             <i class="fas fa-right-from-bracket"></i>
 
@@ -287,36 +381,102 @@
 
 </nav>
 
-
 <main class="container">
 
     <div class="welcome">
 
         <h1>
-            Bienvenido, {{ auth()->user()->full_name }}
+
+            Bienvenido,
+            {{ auth()->user()->full_name }}
+
         </h1>
 
         <p>
-            Desde este panel puedes gestionar los casos asignados
-            y supervisar el contenido del foro.
+            Desde este panel puedes gestionar los casos asignados,
+            atender conversaciones de usuarios y supervisar
+            el contenido del foro.
         </p>
 
         <span class="role-badge">
+
             MODERADOR
+
         </span>
 
     </div>
 
-
     <div class="cards">
 
+    {{-- CHAT --}}
+
+        <a
+            href="{{ route('moderator.chats') }}"
+            class="card chat-card">
+
+            {{-- NOTIFICACIÓN DE MENSAJES NUEVOS --}}
+
+            @if(isset($newConversationsCount) && $newConversationsCount > 0)
+
+                <div class="new-message-badge">
+
+                    <i class="fas fa-circle"></i>
+
+                    {{ $newConversationsCount }}
+
+                    {{ $newConversationsCount == 1
+                        ? 'mensaje nuevo'
+                        : 'mensajes nuevos'
+                    }}
+
+                </div>
+
+            @else
+
+                <div class="no-new-message">
+
+                    <i class="fas fa-check-circle"></i>
+
+                    Sin mensajes nuevos
+
+                </div>
+
+            @endif
+
+            <div class="card-icon">
+
+                <i class="fas fa-headset"></i>
+
+            </div>
+
+            <h2>
+                Chat con usuarios
+            </h2>
+
+            <p>
+                Atiende las conversaciones de los usuarios
+                que han solicitado hablar con una persona.
+                Puedes revisar los mensajes enviados y
+                responder directamente desde la plataforma.
+            </p>
+
+
+            <div class="card-link">
+
+                Ver conversaciones
+
+                <i class="fas fa-arrow-right"></i>
+
+            </div>
+
+
+        </a>
 
         {{-- MIS CASOS --}}
 
         <a
             href="{{ route('moderator.cases') }}"
-            class="card"
-        >
+            class="card">
 
             <div class="card-icon">
 
@@ -329,10 +489,11 @@
             </h2>
 
             <p>
-                Consulta los casos asignados, revisa la información
-                proporcionada por el usuario y realiza el seguimiento
-                correspondiente.
+                Consulta los casos asignados, revisa la
+                información proporcionada por el usuario
+                y realiza el seguimiento correspondiente.
             </p>
+
 
             <div class="card-link">
 
@@ -349,8 +510,7 @@
 
         <a
             href="{{ route('forum.index') }}"
-            class="card"
-        >
+            class="card">
 
             <div class="card-icon">
 
@@ -359,13 +519,15 @@
             </div>
 
             <h2>
+
                 Foro
+
             </h2>
 
             <p>
-                Supervisa las publicaciones del foro y restringe
-                contenido ofensivo, delicado, inapropiado o que
-                incite a la violencia.
+                Supervisa las publicaciones del foro y
+                restringe contenido ofensivo, delicado,
+                inapropiado o que incite a la violencia.
             </p>
 
             <div class="card-link">
@@ -377,7 +539,6 @@
             </div>
 
         </a>
-
 
     </div>
 

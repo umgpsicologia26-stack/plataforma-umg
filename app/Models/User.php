@@ -5,6 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\CaseComment;
+use App\Models\NicknameHistory;
+use App\Models\CaseFile;
+use App\Models\ChatConversation;
+use App\Models\ChatMessage;
+use App\Models\ModeratorNotification;
 
 class User extends Authenticatable
 {
@@ -98,4 +104,50 @@ class User extends Authenticatable
             'uuid'
         );
     }
+
+    //CHATS COMO USUARIO
+
+public function chatConversations()
+{
+    return $this->hasMany(
+        ChatConversation::class,
+        'user_uuid',
+        'uuid'
+    );
+}
+
+    //CHATS COMO MODERADOR
+
+public function moderatedChatConversations()
+{
+    return $this->hasMany(
+        ChatConversation::class,
+        'moderator_uuid',
+        'uuid'
+    );
+}
+
+
+    //MENSAJES ENVIADOS
+
+public function chatMessages()
+{
+    return $this->hasMany(
+        ChatMessage::class,
+        'sender_uuid',
+        'uuid'
+    );
+}
+
+
+    //NOTIFICACIONES COMO MODERADOR
+
+public function moderatorNotifications()
+{
+    return $this->hasMany(
+        ModeratorNotification::class,
+        'moderator_uuid',
+        'uuid'
+    );
+}
 }
