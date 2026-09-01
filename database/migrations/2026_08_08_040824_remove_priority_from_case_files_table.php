@@ -18,8 +18,8 @@ return new class extends Migration
         Schema::table('case_files', function (Blueprint $table) {
             $table->enum(
                 'priority',
-                ['BAJA', 'MEDIA', 'ALTA', 'CRITICA']
-            )->default('MEDIA');
+                ['Baja', 'Media', 'Alta', 'Critica']
+            )->default('Media');
         });
     }
 };

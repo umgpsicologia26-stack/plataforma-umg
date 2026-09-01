@@ -35,7 +35,7 @@
             color: #1f2937;
         }
 
-    /*CONTENEDOR*/
+    /* CONTENEDOR */
     .container {
             width: 100%;
             max-width: 1200px;
@@ -43,7 +43,7 @@
             padding: 35px 20px 50px;
         }
 
-    /*BOTÓN VOLVER*/
+    /* BOTÓN VOLVER */
     .back-button {
             display: inline-flex;
             align-items: center;
@@ -66,7 +66,7 @@
             transform: translateX(-2px);
         }
 
-    /*ENCABEZADO*/
+    /* ENCABEZADO */
     .page-header {
             background: #ffffff;
             border-radius: 18px;
@@ -95,7 +95,7 @@
             font-size: 14px;
         }
 
-    /*TARJETA*/
+    /* TARJETA */
     .card {
             background: #ffffff;
             border-radius: 18px;
@@ -104,7 +104,7 @@
             border: 1px solid #e8edf5;
         }
 
-    /*ENCABEZADO DE TABLA*/
+    /* ENCABEZADO DE TABLA */
     .table-header {
             display: flex;
             align-items: center;
@@ -137,7 +137,7 @@
             font-weight: 700;
         }
 
-    /*TABLA*/
+    /* TABLA */
     .table-container {
             width: 100%;
             overflow-x: auto;
@@ -189,7 +189,7 @@
             background: #f8fafc;
         }
 
-    /*NÚMERO DE CASO*/
+    /* NÚMERO DE CASO */
     .case-number {
             display: inline-flex;
             align-items: center;
@@ -199,7 +199,7 @@
             font-size: 13px;
         }
 
-    /*TEMA*/
+    /* TEMA */
     .topic {
             display: inline-flex;
             align-items: center;
@@ -212,7 +212,7 @@
             font-weight: 600;
         }
 
-        /*ESTADOS*/
+        /* ESTADOS */
         .status {
             display: inline-flex;
             align-items: center;
@@ -275,7 +275,7 @@
             background: #64748b;
         }
 
-    /*ACCIONES*/
+    /* ACCIONES */
         .actions {
             display: flex;
             align-items: center;
@@ -293,7 +293,7 @@
             transition: all .2s ease;
         }
 
-    /*VISUALIZAR*/
+    /* VISUALIZAR */
         .view-btn {
             background: #eff6ff;
             color: #2563eb;
@@ -306,7 +306,7 @@
             transform: translateY(-1px);
         }
 
-    /*EDITAR*/
+    /* EDITAR */
         .edit-btn {
             background: #fffbeb;
             color: #d97706;
@@ -319,7 +319,7 @@
             transform: translateY(-1px);
         }
 
-    /*ELIMINAR*/
+    /* ELIMINAR */
         .delete-btn {
             background: #fef2f2;
             color: #dc2626;
@@ -333,7 +333,7 @@
         }
 
 
-    /*VACÍO*/
+    /* VACÍO */
         .empty {
             text-align: center;
             padding: 45px 20px;
@@ -350,7 +350,7 @@
             font-size: 14px;
         }
 
-    /*RESPONSIVE*/
+    /* RESPONSIVE */
         @media (max-width: 700px) {
             .container {
                 padding:
@@ -377,7 +377,7 @@
 
 <div class="container">
 
-    <!--VOLVER-->
+    <!-- VOLVER -->
     <a
         href="/admin-panel"
             class="back-button">
@@ -385,7 +385,7 @@
         Volver al panel
     </a>
 
-    <!--ENCABEZADO-->
+    <!-- ENCABEZADO -->
     <div class="page-header">
         <div class="title">
             <i class="fas fa-folder-open"></i>
@@ -397,7 +397,7 @@
         </div>
     </div>
 
-    <!--TABLA-->
+    <!-- TABLA -->
     <div class="card">
         <div class="table-header">
             <div class="table-title">

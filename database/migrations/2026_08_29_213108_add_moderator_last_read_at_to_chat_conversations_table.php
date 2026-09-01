@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Ejecutar migración.
-     */
     public function up(): void
     {
         Schema::table('chat_conversations', function (Blueprint $table) {
@@ -20,9 +17,7 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Revertir migración.
-     */
+    
     public function down(): void
     {
         Schema::table('chat_conversations', function (Blueprint $table) {

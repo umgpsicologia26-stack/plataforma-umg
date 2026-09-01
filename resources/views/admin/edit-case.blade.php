@@ -34,7 +34,7 @@
         }
 
 
-    /*CONTENEDOR*/
+    /* CONTENEDOR */
         .container {
             width: 100%;
             max-width: 900px;
@@ -43,7 +43,7 @@
         }
 
 
-    /*BOTÓN VOLVER*/
+    /* BOTÓN VOLVER */
         .back-button {
             display: inline-flex;
             align-items: center;
@@ -67,8 +67,7 @@
             transform: translateX(-2px);
         }
 
-
-    /*ENCABEZADO*/
+    /* ENCABEZADO */
         .page-header {
             background: white;
             border-radius: 18px;
@@ -102,7 +101,7 @@
             color: #2563eb;
         }
 
-    /*TARJETA*/
+    /* TARJETA */
         .card {
             background: #ffffff;
             border-radius: 18px;
@@ -112,7 +111,6 @@
                 0 8px 25px rgba(0,0,0,0.07);
             border: 1px solid #e8edf5;
         }
-
 
         .card-title {
             display: flex;
@@ -128,8 +126,7 @@
             color: #2563eb;
         }
 
-
-    /*INFORMACIÓN*/
+    /* INFORMACIÓN */
         .info-grid {
             display: grid;
             grid-template-columns:
@@ -143,7 +140,6 @@
             border-radius: 12px;
             padding: 15px;
         }
-
 
         .info-label {
             display: block;
@@ -160,8 +156,7 @@
             color: #1f2937;
         }
 
-
-    /*DESCRIPCIÓN*/
+    /* DESCRIPCIÓN */
         .description {
             margin-top: 20px;
             padding: 18px;
@@ -169,7 +164,6 @@
             border: 1px solid #e5e7eb;
             border-radius: 12px;
         }
-
 
         .description-title {
             font-size: 13px;
@@ -185,8 +179,7 @@
             white-space: pre-line;
         }
 
-
-    /*ESTADO*/
+    /* ESTADO */
         .status-section {
             margin-top: 5px;
         }
@@ -212,14 +205,13 @@
             transition: border-color .2s;
         }
 
-
         select:focus {
             border-color: #2563eb;
             box-shadow:
                 0 0 0 3px rgba(37,99,235,.1);
         }
 
-    /*BOTÓN GUARDAR*/
+    /* BOTÓN GUARDAR */
         .actions {
             display: flex;
             justify-content: flex-end;
@@ -247,7 +239,7 @@
             transform: translateY(-1px);
         }
 
-    /*MENSAJES*/
+    /* MENSAJES */
         .alert {
             padding: 13px 16px;
             border-radius: 10px;
@@ -267,13 +259,12 @@
             border: 1px solid #fecaca;
         }
 
-    /*RESPONSIVE*/
+    /* RESPONSIVE */
         @media (max-width: 650px) {
             .container {
                 padding:
                     20px 14px 40px;
             }
-
 
             .page-header,
             .card {
@@ -302,6 +293,7 @@
 <div class="container">
 
     <!--VOLVER-->
+
     <a
         href="{{ url('/admin-panel') }}"
         class="back-button">
@@ -310,6 +302,7 @@
     </a>
 
     <!--MENSAJES-->
+
     @if(session('success'))
         <div class="alert alert-success">
             <i class="fas fa-check-circle"></i>
@@ -341,6 +334,7 @@
     </div>
 
     <!--INFORMACIÓN DEL CASO -->
+
     <div class="card">
         <div class="card-title">
             <i class="fas fa-folder-open"></i>
@@ -420,6 +414,7 @@
         </div>
 
         <!-- DESCRIPCIÓN -->
+
         <div class="description">
             <div class="description-title">
                 Descripción del caso
@@ -431,6 +426,7 @@
     </div>
 
     <!--ACTUALIZAR ESTADO-->
+
     <div class="card">
         <div class="card-title">
             <i class="fas fa-sliders-h"></i>
@@ -457,8 +453,8 @@
                     required>
 
                     <option
-                        value="ABIERTO"
-                        {{ $case->status == 'ABIERTO'
+                        value="Abierto"
+                        {{ $case->status == 'Abierto'
                             ? 'selected'
                             : '' }}>
                         Abierto
@@ -467,8 +463,8 @@
 
 
                     <option
-                        value="EN_PROCESO"
-                        {{ $case->status == 'EN_PROCESO'
+                        value="En_proceso"
+                        {{ $case->status == 'En_proceso'
                             ? 'selected'
                             : '' }}>
 
@@ -476,24 +472,24 @@
                     </option>
 
                     <option
-                        value="TERMINADO"
-                        {{ $case->status == 'TERMINADO'
+                        value="Terminado"
+                        {{ $case->status == 'Terminado'
                             ? 'selected'
                             : '' }}>
                         Terminado
                     </option>
 
                     <option
-                        value="PENDIENTE_APROBACION"
-                        {{ $case->status == 'PENDIENTE_APROBACION'
+                        value="Pendiente_Aprobacion"
+                        {{ $case->status == 'Pendiente_Aprobacion'
                             ? 'selected'
                             : '' }}>
                         Pendiente de aprobación
                     </option>
 
                     <option
-                        value="CERRADO"
-                        {{ $case->status == 'CERRADO'
+                        value="Cerrado"
+                        {{ $case->status == 'Cerrado'
                             ? 'selected'
                             : '' }}>
                         Cerrado

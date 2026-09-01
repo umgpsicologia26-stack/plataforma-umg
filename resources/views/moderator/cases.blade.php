@@ -295,6 +295,233 @@
     }
 
     /* =====================================================
+       CARPETAS POR TIPO DE CASO
+    ===================================================== */
+
+    .type-group {
+        background: #fbfcfe;
+        border: 1px solid #eef2f7;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .type-group[open] {
+        border-color: #dbeafe;
+    }
+
+    .type-group.type-suicide[open] {
+        border-color: #fecaca;
+    }
+
+    .type-group.type-abuse[open] {
+        border-color: #fde68a;
+    }
+
+    .type-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+
+        padding: 20px 24px;
+        cursor: pointer;
+        list-style: none;
+
+        transition: background .2s;
+    }
+
+    .type-summary:hover {
+        background: #f1f5f9;
+    }
+
+    .type-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .type-summary-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+    }
+
+    .type-icon {
+        width: 46px;
+        height: 46px;
+        flex-shrink: 0;
+
+        border-radius: 14px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+    }
+
+    .type-icon.suicide {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .type-icon.abuse {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .type-icon.other {
+        background: #e2e8f0;
+        color: #475569;
+    }
+
+    .type-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+    }
+
+    .type-name {
+        font-size: 16px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .type-sub {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .type-summary-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
+    .type-count-badge {
+        background: #eff6ff;
+        color: #2563eb;
+        padding: 6px 13px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .type-critical-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+
+        background: #fee2e2;
+        color: #b91c1c;
+
+        padding: 6px 12px;
+        border-radius: 20px;
+
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .type-chevron {
+        color: #94a3b8;
+        transition: transform .2s;
+    }
+
+    .type-group[open] .type-chevron {
+        transform: rotate(180deg);
+    }
+
+    .type-cases {
+        padding: 4px 22px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    /* =====================================================
+       SUB-CARPETA POR USUARIO (dentro de cada tipo)
+    ===================================================== */
+
+    .user-subgroup {
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        background: white;
+        overflow: hidden;
+    }
+
+    .user-subgroup[open] {
+        border-color: #cbd5e1;
+    }
+
+    .user-subgroup-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+
+        padding: 14px 18px;
+        cursor: pointer;
+        list-style: none;
+
+        background: #f8fafc;
+        transition: background .2s;
+    }
+
+    .user-subgroup-summary:hover {
+        background: #f1f5f9;
+    }
+
+    .user-subgroup-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .user-subgroup-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #0f172a;
+        min-width: 0;
+    }
+
+    .user-subgroup-left i {
+        color: #2563eb;
+        font-size: 13px;
+    }
+
+    .user-subgroup-name {
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .user-subgroup-count {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        background: #e2e8f0;
+        padding: 3px 10px;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+
+    .user-subgroup-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .user-subgroup-body {
+        padding: 16px 18px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        background: white;
+    }
+
+    /* =====================================================
        CASOS
     ===================================================== */
 
@@ -304,7 +531,6 @@
         padding: 22px;
         background: #f8fafc;
         transition: .2s;
-        margin-bottom: 20px;
     }
 
     .case-card:hover {
@@ -800,6 +1026,17 @@
             grid-template-columns: 1fr 1fr;
         }
 
+        .type-summary {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .type-summary-right {
+            width: 100%;
+            justify-content: space-between;
+        }
+
         .case-header {
             flex-direction: column;
         }
@@ -1139,410 +1376,260 @@
 
             </div>
 
-        <div class="cases-list">
+            @if($cases->count() > 0)
 
-    @forelse($cases as $caseItem)
+                @php
 
-        <div class="case-card">
+                    /*
+                     * CARPETAS FIJAS POR TIPO DE CASO
+                     *
+                     * "Otros casos" queda como respaldo por si algún
+                     * registro no tuviera el campo type bien seteado,
+                     * para que ningún caso desaparezca de la vista.
+                     */
 
-                        <div class="case-header">
+                    $typeGroups = [
+                        [
+                            'key'   => 'SUICIDIO',
+                            'label' => 'Casos de suicidio',
+                            'sub'   => 'Casos reportados por riesgo de suicidio.',
+                            'icon'  => 'fa-heart-pulse',
+                            'class' => 'suicide',
+                            'cases' => $cases->filter(
+                                fn($c) => strtoupper(trim($c->type ?? '')) === 'SUICIDIO'
+                            )->values(),
+                        ],
+                        [
+                            'key'   => 'ABUSO SEXUAL',
+                            'label' => 'Casos de abuso sexual',
+                            'sub'   => 'Casos reportados por abuso sexual.',
+                            'icon'  => 'fa-shield-heart',
+                            'class' => 'abuse',
+                            'cases' => $cases->filter(
+                                fn($c) => strtoupper(trim($c->type ?? '')) === 'ABUSO SEXUAL'
+                            )->values(),
+                        ],
+                        [
+                            'key'   => 'OTRO',
+                            'label' => 'Otros casos',
+                            'sub'   => 'Casos sin un tipo reconocido.',
+                            'icon'  => 'fa-folder',
+                            'class' => 'other',
+                            'cases' => $cases->reject(
+                                fn($c) => in_array(
+                                    strtoupper(trim($c->type ?? '')),
+                                    ['SUICIDIO', 'ABUSO SEXUAL']
+                                )
+                            )->values(),
+                        ],
+                    ];
 
-                            <div class="case-main">
+                @endphp
 
-                                <div class="case-title-label">
-                                    Número de caso
+                @foreach($typeGroups as $group)
+
+                    @continue($group['cases']->isEmpty())
+
+                    @php
+
+                        $groupCriticalCount = $group['cases']
+                            ->filter(function ($c) {
+
+                                $p = strtolower(trim($c->priority ?? ''));
+
+                                return $p === 'critica' || $p === 'crítica';
+
+                            })
+                            ->count();
+
+                    @endphp
+
+                    <details
+                        class="type-group type-{{ $group['class'] }}"
+                        open
+                    >
+
+                        <summary class="type-summary">
+
+                            <div class="type-summary-left">
+
+                                <div class="type-icon {{ $group['class'] }}">
+                                    <i class="fas {{ $group['icon'] }}"></i>
                                 </div>
 
-                                <div class="case-number">
-                                    {{ $caseItem->case_number }}
-                                </div>
+                                <div class="type-meta">
 
-                                <div class="case-date">
+                                    <span class="type-name">
+                                        {{ $group['label'] }}
+                                    </span>
 
-                                    Creado el
-
-                                    {{ $caseItem->created_at
-                                        ? $caseItem->created_at->format('d/m/Y H:i')
-                                        : 'No disponible'
-                                    }}
+                                    <span class="type-sub">
+                                        {{ $group['sub'] }}
+                                    </span>
 
                                 </div>
 
                             </div>
 
-                            <div class="case-badges">
+                            <div class="type-summary-right">
 
-                                <!-- TIPO -->
+                                <span class="type-count-badge">
 
-                                @php
-                                    $caseType = strtoupper(trim($caseItem->type ?? ''));
-                                @endphp
+                                    {{ $group['cases']->count() }}
 
-                                @if($caseType === 'SUICIDIO')
+                                    caso{{ $group['cases']->count() != 1 ? 's' : '' }}
 
-                                    <span class="badge badge-suicide">
+                                </span>
 
-                                        <i class="fas fa-heart-pulse"></i>
+                                @if($groupCriticalCount > 0)
 
-                                        Suicidio
-
-                                    </span>
-
-                                @elseif($caseType === 'ABUSO SEXUAL')
-
-                                    <span class="badge badge-abuse">
-
-                                        <i class="fas fa-shield-heart"></i>
-
-                                        Abuso sexual
-
-                                    </span>
-
-                                @endif
-
-
-                                <!-- ESTADO -->
-
-                                @php
-                                    $status = strtolower(trim($caseItem->status ?? ''));
-                                @endphp
-
-                                @if($status === 'abierto')
-
-                                    <span class="badge badge-open">
-
-                                        <i class="fas fa-folder-open"></i>
-
-                                        Abierto
-
-                                    </span>
-
-                                @elseif($status === 'en seguimiento')
-
-                                    <span class="badge badge-follow">
-
-                                        <i class="fas fa-spinner"></i>
-
-                                        En seguimiento
-
-                                    </span>
-
-                                @elseif($status === 'cerrado')
-
-                                    <span class="badge badge-closed">
-
-                                        <i class="fas fa-lock"></i>
-
-                                        Cerrado
-
-                                    </span>
-
-                                @else
-
-                                    <span class="badge badge-open">
-
-                                        {{ $caseItem->status ?? 'Sin estado' }}
-
-                                    </span>
-
-                                @endif
-
-
-                                <!-- PRIORIDAD -->
-
-                                @php
-                                    $priority = strtolower(trim($caseItem->priority ?? ''));
-                                @endphp
-
-                                @if($priority === 'baja')
-
-                                    <span class="badge priority-low">
-
-                                        <i class="fas fa-arrow-down"></i>
-
-                                        Baja
-
-                                    </span>
-
-                                @elseif($priority === 'media')
-
-                                    <span class="badge priority-medium">
-
-                                        <i class="fas fa-minus"></i>
-
-                                        Media
-
-                                    </span>
-
-                                @elseif($priority === 'alta')
-
-                                    <span class="badge priority-high">
-
-                                        <i class="fas fa-arrow-up"></i>
-
-                                        Alta
-
-                                    </span>
-
-                                @elseif($priority === 'critica' || $priority === 'crítica')
-
-                                    <span class="badge priority-critical">
+                                    <span class="type-critical-badge">
 
                                         <i class="fas fa-triangle-exclamation"></i>
 
-                                        Crítica
+                                        {{ $groupCriticalCount }}
 
-                                    </span>
-
-                                @else
-
-                                    <span class="badge priority-medium">
-
-                                        <i class="fas fa-minus"></i>
-
-                                        Sin prioridad
+                                        crítico{{ $groupCriticalCount != 1 ? 's' : '' }}
 
                                     </span>
 
                                 @endif
 
+                                <i class="fas fa-chevron-down type-chevron"></i>
+
                             </div>
+
+                        </summary>
+
+                        <div class="type-cases">
+
+                            @php
+
+                                /*
+                                 * SUB-AGRUPAR POR USUARIO DENTRO DE ESTA CARPETA.
+                                 * Si un usuario tiene mas de 1 caso de este tipo,
+                                 * sus casos se anidan en una sub-carpeta colapsable
+                                 * para que no queden apilados uno tras otro.
+                                 */
+
+                                $casesByUser = $group['cases']->groupBy(function ($c) {
+
+                                    return optional($c->user)->uuid
+                                        ?? ('sin-usuario-' . $c->id);
+
+                                });
+
+                            @endphp
+
+                            @foreach($casesByUser as $userKey => $userCases)
+
+                                @if($userCases->count() > 1)
+
+                                    @php
+
+                                        $subUserObj = $userCases->first()->user;
+
+                                        $subUserName = $subUserObj
+                                            ? ($subUserObj->anonymous_nickname
+                                                ?? $subUserObj->full_name
+                                                ?? $subUserObj->first_name
+                                                ?? 'Usuario')
+                                            : 'Usuario';
+
+                                        $subCriticalCount = $userCases
+                                            ->filter(function ($c) {
+
+                                                $p = strtolower(trim($c->priority ?? ''));
+
+                                                return $p === 'critica' || $p === 'crítica';
+
+                                            })
+                                            ->count();
+
+                                        $subOpenCount = $userCases
+                                            ->filter(fn($c) => strtolower(trim($c->status ?? '')) === 'abierto')
+                                            ->count();
+
+                                    @endphp
+
+                                    <details
+                                        class="user-subgroup"
+                                        {{ ($subOpenCount > 0 || $subCriticalCount > 0) ? 'open' : '' }}
+                                    >
+
+                                        <summary class="user-subgroup-summary">
+
+                                            <div class="user-subgroup-left">
+
+                                                <i class="fas fa-user"></i>
+
+                                                <span class="user-subgroup-name">
+                                                    {{ $subUserName }}
+                                                </span>
+
+                                                <span class="user-subgroup-count">
+
+                                                    {{ $userCases->count() }}
+
+                                                    casos
+
+                                                </span>
+
+                                            </div>
+
+                                            <div class="user-subgroup-right">
+
+                                                @if($subCriticalCount > 0)
+
+                                                    <span class="type-critical-badge">
+
+                                                        <i class="fas fa-triangle-exclamation"></i>
+
+                                                        {{ $subCriticalCount }}
+
+                                                        crítico{{ $subCriticalCount != 1 ? 's' : '' }}
+
+                                                    </span>
+
+                                                @endif
+
+                                                <i class="fas fa-chevron-down type-chevron"></i>
+
+                                            </div>
+
+                                        </summary>
+
+                                        <div class="user-subgroup-body">
+
+                                            @foreach($userCases as $caseItem)
+
+                                                @include('moderator.partials._case-card', ['caseItem' => $caseItem])
+
+                                            @endforeach
+
+                                        </div>
+
+                                    </details>
+
+                                @else
+
+                                    @foreach($userCases as $caseItem)
+
+                                        @include('moderator.partials._case-card', ['caseItem' => $caseItem])
+
+                                    @endforeach
+
+                                @endif
+
+                            @endforeach
 
                         </div>
 
+                    </details>
 
-                        <!-- INFORMACION -->
+                @endforeach
 
-                        <div class="case-info">
-
-                            <div class="info-box">
-
-                                <span class="info-label">
-                                    Número de caso
-                                </span>
-
-                                <span class="info-value">
-                                    {{ $caseItem->case_number }}
-                                </span>
-
-                            </div>
-
-                            <div class="info-box">
-
-                                <span class="info-label">
-                                    Tipo de caso
-                                </span>
-
-                                <span class="info-value">
-
-                                    @if($caseType === 'SUICIDIO')
-                                        Suicidio
-                                    @elseif($caseType === 'ABUSO SEXUAL')
-                                        Abuso sexual
-                                    @else
-                                        No especificado
-                                    @endif
-
-                                </span>
-
-                            </div>
-
-                            <div class="info-box">
-
-                                <span class="info-label">
-                                    Estado actual
-                                </span>
-
-                                <span class="info-value">
-
-                                    @if($status === 'abierto')
-                                        Abierto
-                                    @elseif($status === 'en seguimiento')
-                                        En seguimiento
-                                    @elseif($status === 'cerrado')
-                                        Cerrado
-                                    @else
-                                        {{ $caseItem->status ?? 'Sin estado' }}
-                                    @endif
-
-                                </span>
-
-                            </div>
-
-                            <div class="info-box">
-
-                                <span class="info-label">
-                                    Prioridad
-                                </span>
-
-                                <span class="info-value">
-
-                                    @if($priority === 'baja')
-                                        Baja
-                                    @elseif($priority === 'media')
-                                        Media
-                                    @elseif($priority === 'alta')
-                                        Alta
-                                    @elseif($priority === 'critica' || $priority === 'crítica')
-                                        Crítica
-                                    @else
-                                        Sin prioridad
-                                    @endif
-
-                                </span>
-
-                            </div>
-
-                            <div class="info-box">
-
-                                <span class="info-label">
-                                    Usuario
-                                </span>
-
-                                <span class="info-value">
-
-                                    @if($caseItem->user)
-
-                                        {{ $caseItem->user->anonymous_nickname
-                                            ?? $caseItem->user->full_name
-                                            ?? trim(
-                                                ($caseItem->user->first_name ?? '') . ' ' .
-                                                ($caseItem->user->last_name ?? '')
-                                            )
-                                            ?: 'Usuario'
-                                        }}
-
-                                    @else
-
-                                        Usuario
-
-                                    @endif
-
-                                </span>
-
-                            </div>
-
-                            <div class="info-box">
-
-                                <span class="info-label">
-                                    Fecha de creación
-                                </span>
-
-                                <span class="info-value">
-
-                                    {{ $caseItem->created_at
-                                        ? $caseItem->created_at->format('d/m/Y H:i')
-                                        : 'No disponible'
-                                    }}
-
-                                </span>
-
-                            </div>
-
-                            <div class="info-box">
-
-                                <span class="info-label">
-                                    Última actualización
-                                </span>
-
-                                <span class="info-value">
-
-                                    {{ $caseItem->updated_at
-                                        ? $caseItem->updated_at->format('d/m/Y H:i')
-                                        : 'No disponible'
-                                    }}
-
-                                </span>
-
-                            </div>
-
-                            <div class="info-box">
-
-                                <span class="info-label">
-                                    Moderador asignado
-                                </span>
-
-                                <span class="info-value">
-
-                                    @if($caseItem->moderator)
-
-                                        {{ $caseItem->moderator->full_name
-                                            ?? trim(
-                                                ($caseItem->moderator->first_name ?? '') . ' ' .
-                                                ($caseItem->moderator->last_name ?? '')
-                                            )
-                                            ?: 'Moderador'
-                                        }}
-
-                                    @else
-
-                                        Sin asignar
-
-                                    @endif
-
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- DESCRIPCION -->
-
-                        <div class="description">
-
-                            <div class="description-title">
-
-                                <i class="fas fa-file-lines"></i>
-
-                                Situación reportada
-
-                            </div>
-
-                            <div class="description-text">
-
-                                {{ $caseItem->description ?? 'Sin descripción registrada.' }}
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- FOOTER -->
-
-                        <div class="case-footer">
-
-                            <div class="case-user">
-
-                                <div class="user-icon">
-
-                                    <i class="fas fa-user-shield"></i>
-
-                                </div>
-
-                                <span>
-                                    Caso asignado a este moderador
-                                </span>
-
-                            </div>
-
-                            <a
-                                href="{{ route('moderator.case', ['id' => $caseItem->id]) }}"
-                                class="btn-view">
-
-                                <i class="fas fa-eye"></i>
-
-                                Ver y gestionar caso
-
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            @empty
+            @else
 
                 <div class="empty">
 
@@ -1562,7 +1649,7 @@
 
                 </div>
 
-            @endforelse
+            @endif
 
         </div>
 

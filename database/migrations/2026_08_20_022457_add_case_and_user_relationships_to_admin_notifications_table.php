@@ -21,7 +21,7 @@ return new class extends Migration
                 ->after('case_id');
         });
 
-        //Igualar UUID con users.uuid
+        // Igualar UUID con users.uuid
         DB::statement("
             ALTER TABLE admin_notifications
             MODIFY user_uuid CHAR(36)

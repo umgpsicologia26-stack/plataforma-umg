@@ -24,7 +24,7 @@ class NicknameHistory extends Model
         'changed_at' => 'datetime',
     ];
 
-    //Usuario al que pertenece este nickname.
+    // Usuario al que pertenece este nickname.
     public function user()
     {
         return $this->belongsTo(

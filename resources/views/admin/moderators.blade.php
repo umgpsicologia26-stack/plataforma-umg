@@ -36,7 +36,7 @@
             color: #1f2937;
         }
 
-    /*CONTENEDOR*/
+    /* CONTENEDOR */
         .container {
             width: 100%;
             max-width: 1100px;
@@ -44,7 +44,7 @@
             padding: 35px 20px 50px;
         }
 
-    /*BOTÓN VOLVER*/
+    /* BOTÓN VOLVER */
         .back-button {
             display: inline-flex;
             align-items: center;
@@ -67,7 +67,7 @@
             transform: translateX(-2px);
         }
 
-    /*ENCABEZADO*/
+    /* ENCABEZADO */
         .page-header {
             background: #ffffff;
             border-radius: 18px;
@@ -97,7 +97,7 @@
             font-size: 14px;
         }
 
-    /*TARJETAS*/
+    /* TARJETAS */
         .card {
             background: #ffffff;
             border-radius: 18px;
@@ -122,7 +122,7 @@
             color: #2563eb;
         }
 
-    /*FORMULARIO*/
+    /* FORMULARIO */
         .form-grid {
             display: grid;
             grid-template-columns:
@@ -165,7 +165,7 @@
             color: #9ca3af;
         }
 
-    /*BOTÓN CREAR*/
+    /* BOTÓN CREAR */
         .form-actions {
             grid-column: 1 / -1;
             display: flex;
@@ -198,7 +198,7 @@
             transform: translateY(-1px);
         }
 
-    /*ENCABEZADO TABLA*/
+    /* ENCABEZADO TABLA */
         .table-header {
             display: flex;
             align-items: center;
@@ -230,7 +230,7 @@
             font-weight: 700;
         }
 
-    /*TABLA*/
+    /* TABLA */
         .table-container {
             width: 100%;
             overflow-x: auto;
@@ -283,7 +283,7 @@
         }
 
 
-    /*CÓDIGO ANÓNIMO*/
+    /* CÓDIGO ANÓNIMO */
         .anonymous-code {
             display: inline-flex;
             align-items: center;
@@ -298,7 +298,7 @@
             letter-spacing: .4px;
         }
 
-        /*ESTADO*/
+        /* ESTADO */
         .status {
             display: inline-flex;
             align-items: center;
@@ -318,7 +318,7 @@
             background: #22c55e;
         }
 
-    /*MENSAJE VACÍO*/
+    /* MENSAJE VACÍO */
         .empty {
             text-align: center;
             padding: 35px 20px;
@@ -335,7 +335,7 @@
             font-size: 14px;
         }
 
-    /*RESPONSIVE*/
+    /* RESPONSIVE */
         @media (max-width: 700px) {
             .container {
                 padding:
@@ -375,6 +375,7 @@
 <div class="container">
 
     <!--VOLVER AL PANEL-->
+
     <a
         href="/admin-panel"
         class="back-button">
@@ -383,6 +384,7 @@
     </a>
 
     <!--ENCABEZADO-->
+
     <div class="page-header">
         <div class="title">
             <i class="fas fa-user-shield"></i>
@@ -396,6 +398,7 @@
     </div>
 
     <!--AGREGAR MODERADOR-->
+
     <div class="card">
         <div class="card-title">
             <i class="fas fa-user-plus"></i>
@@ -486,6 +489,7 @@
     </div>
 
     <!--LISTADO DE MODERADORES-->
+
     <div class="card">
         <div class="table-header">
             <div class="table-title">

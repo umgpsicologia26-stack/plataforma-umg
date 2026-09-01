@@ -81,7 +81,7 @@ class ChatConversation extends Model
     }
 
 
-    /*MENSAJES DEL USUARIO */
+    /* MENSAJES DEL USUARIO */
 
     public function userMessages()
     {

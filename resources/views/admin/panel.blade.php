@@ -213,7 +213,7 @@
     <!--JAVASCRIPT DEL MENÚ MÓVIL-->
     <script>
 
-        /*ELEMENTOS*/
+        /* ELEMENTOS */
         const menuButton =
             document.getElementById('mobileMenuBtn');
 
@@ -223,7 +223,7 @@
         const overlay =
             document.getElementById('mobileOverlay');
 
-        /*ABRIR MENÚ*/
+        /* ABRIR MENÚ */
         function openMenu() {
             sidebar.classList.add('open');
             overlay.classList.add('active');
@@ -239,7 +239,7 @@
             );
         }
 
-        /*CERRAR MENÚ*/
+        /* CERRAR MENÚ */
         function closeMenu() {
             sidebar.classList.remove('open');
             overlay.classList.remove('active');
@@ -255,7 +255,7 @@
             );
         }
 
-        /*BOTÓN HAMBURGUESA*/
+        /* BOTÓN HAMBURGUESA */
         menuButton.addEventListener(
             'click',
             function () {
@@ -275,7 +275,7 @@
             }
         );
 
-        /*CERRAR TOCANDO EL FONDO*/
+        /* CERRAR TOCANDO EL FONDO */
         overlay.addEventListener(
             'click',
             function () {
@@ -283,7 +283,8 @@
             }
         );
 
-        /*CERRAR AL SELECCIONAR UNA OPCIÓN*/
+        /* CERRAR AL SELECCIONAR UNA OPCIÓN */
+
         const menuLinks =
             document.querySelectorAll('.menu a');
 
@@ -302,7 +303,8 @@
             }
         );
 
-        /*CERRAR SI PASAMOS A PC*/
+        /* CERRAR SI PASAMOS A PC */
+
         window.addEventListener(
             'resize',
             function () {

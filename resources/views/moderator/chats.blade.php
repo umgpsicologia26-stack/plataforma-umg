@@ -97,20 +97,182 @@
         color: #fca5a5;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | GRUPO POR USUARIO
+    |--------------------------------------------------------------------------
+    */
+
+    .user-group {
+        background: #182235;
+        border: 1px solid #334155;
+        border-radius: 16px;
+        margin-bottom: 18px;
+        overflow: hidden;
+    }
+
+    .user-group[open] {
+        border-color: #475569;
+    }
+
+    .user-group.has-unread {
+        border-color: #dc2626;
+        box-shadow:
+            0 0 0 1px rgba(220,38,38,.12),
+            0 12px 35px rgba(220,38,38,.10);
+    }
+
+    .user-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+
+        padding: 20px 22px;
+        cursor: pointer;
+        list-style: none;
+
+        transition: background .2s;
+    }
+
+    .user-summary:hover {
+        background: #1e293b;
+    }
+
+    .user-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .user-summary-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+    }
+
+    .user-avatar {
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+
+        border-radius: 50%;
+        background: #263449;
+        color: #60a5fa;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+    }
+
+    .user-group.has-unread .user-avatar {
+        background: #3f1d1d;
+        color: #f87171;
+    }
+
+    .user-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    .user-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #f8fafc;
+    }
+
+    .user-sub {
+        font-size: 12.5px;
+        color: #94a3b8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .user-summary-right {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-shrink: 0;
+    }
+
+    .user-unread-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+
+        background: #dc2626;
+        color: white;
+
+        padding: 6px 12px;
+        border-radius: 20px;
+
+        font-size: 12px;
+        font-weight: 800;
+
+        animation: pulse 1.8s infinite;
+    }
+
+    .conv-count-badge {
+        background: #263449;
+        color: #cbd5e1;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .chevron {
+        color: #64748b;
+        transition: transform .2s;
+    }
+
+    .user-group[open] .chevron {
+        transform: rotate(180deg);
+    }
+
+    .user-conversations {
+        padding: 4px 18px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    @keyframes pulse {
+
+        0% {
+            box-shadow: 0 0 0 0 rgba(220,38,38,.5);
+        }
+
+        70% {
+            box-shadow: 0 0 0 8px rgba(220,38,38,0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(220,38,38,0);
+        }
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | TARJETA DE CONVERSACIÓN (dentro del grupo)
+    |--------------------------------------------------------------------------
+    */
+
     .card {
         position: relative;
         background: #1e293b;
-        border-radius: 16px;
-        padding: 22px;
-        margin-bottom: 18px;
+        border-radius: 14px;
+        padding: 20px;
         border: 1px solid #334155;
         transition: .25s;
     }
 
     .card:hover {
-        transform: translateY(-3px);
         border-color: #475569;
-        box-shadow: 0 15px 35px rgba(0,0,0,.25);
     }
 
     .card.new-message {
@@ -118,7 +280,7 @@
 
         box-shadow:
             0 0 0 1px rgba(220,38,38,.15),
-            0 12px 35px rgba(220,38,38,.12);
+            0 10px 25px rgba(220,38,38,.12);
     }
 
     .new-message-badge {
@@ -149,28 +311,12 @@
         font-size: 9px;
     }
 
-    @keyframes pulse {
-
-        0% {
-            box-shadow: 0 0 0 0 rgba(220,38,38,.5);
-        }
-
-        70% {
-            box-shadow: 0 0 0 8px rgba(220,38,38,0);
-        }
-
-        100% {
-            box-shadow: 0 0 0 0 rgba(220,38,38,0);
-        }
-
-    }
-
     .card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 15px;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
     }
 
     .conversation-title {
@@ -184,7 +330,7 @@
     }
 
     .conversation-title strong {
-        font-size: 17px;
+        font-size: 16px;
         color: #f8fafc;
     }
 
@@ -213,14 +359,14 @@
 
     .conversation-info {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-        margin-bottom: 18px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
     }
 
     .info {
         background: #263449;
-        padding: 13px;
+        padding: 12px;
         border-radius: 9px;
     }
 
@@ -243,7 +389,7 @@
         padding: 13px 15px;
         border-radius: 8px;
         color: #cbd5e1;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
         font-size: 14px;
         line-height: 1.6;
     }
@@ -292,7 +438,7 @@
         background: #2563eb;
         color: white;
 
-        padding: 11px 19px;
+        padding: 10px 18px;
         border-radius: 9px;
 
         font-size: 14px;
@@ -369,6 +515,17 @@
             justify-content: center;
         }
 
+        .user-summary {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .user-summary-right {
+            width: 100%;
+            justify-content: space-between;
+        }
+
         .conversation-info {
             grid-template-columns: 1fr;
         }
@@ -434,7 +591,7 @@
 </div>
 
 
-    {{-- CALCULAR MENSAJES NUEVOS --}}
+    {{-- CALCULAR MENSAJES NUEVOS (TOTAL GENERAL) --}}
 
 @php
 
@@ -499,267 +656,391 @@
 
 
 {{-- ============================================================
-     CONVERSACIONES
+     CONVERSACIONES AGRUPADAS POR USUARIO
      ============================================================ --}}
 
 @if($conversations->count() > 0)
 
+    @php
 
-    @foreach($conversations as $conversation)
+        /*
+         * AGRUPAR CONVERSACIONES POR USUARIO
+         * (si por alguna razón no tiene user_uuid, se agrupa
+         * individualmente para no perder ninguna conversación)
+         */
 
+        $groupedConversations = $conversations->groupBy(
+            function ($conversation) {
+
+                return $conversation->user_uuid
+                    ?? 'sin-usuario-' . $conversation->id;
+
+            }
+        );
+
+    @endphp
+
+
+    @foreach($groupedConversations as $userKey => $userConversations)
 
         @php
 
+            $firstConversation = $userConversations->first();
+            $userObj = $firstConversation->user;
+
+            $userName = $userObj
+                ? ($userObj->anonymous_nickname
+                    ?? $userObj->first_name
+                    ?? 'Usuario')
+                : 'Usuario';
+
             /*
-             * MENSAJES NUEVOS DE ESTA CONVERSACIÓN
+             * TOTALES DEL GRUPO
              */
 
-            $unreadMessages = $conversation->messages
-                ->where('sender_type', 'USER');
+            $groupUnreadTotal = 0;
+            $groupLastActivity = null;
 
+            foreach ($userConversations as $conversation) {
 
-            if ($conversation->moderator_last_read_at) {
+                $unread = $conversation->messages
+                    ->where('sender_type', 'USER');
 
-                $unreadMessages = $unreadMessages->filter(
-                    function ($message) use ($conversation) {
+                if ($conversation->moderator_last_read_at) {
 
-                        return $message->created_at->gt(
-                            $conversation->moderator_last_read_at
-                        );
+                    $unread = $unread->filter(
+                        function ($message) use ($conversation) {
 
-                    }
-                );
+                            return $message->created_at->gt(
+                                $conversation->moderator_last_read_at
+                            );
+
+                        }
+                    );
+
+                }
+
+                $groupUnreadTotal += $unread->count();
+
+                if (
+                    !$groupLastActivity ||
+                    $conversation->updated_at->gt($groupLastActivity)
+                ) {
+                    $groupLastActivity = $conversation->updated_at;
+                }
 
             }
 
-
-            $unreadCount = $unreadMessages->count();
-
-
-            /*
-             * ÚLTIMO MENSAJE
-             */
-
-            $lastMessage = $conversation->messages
-                ->sortBy('created_at')
-                ->last();
+            $conversationsCount = $userConversations->count();
 
         @endphp
 
 
-        <div
-            class="card {{ $unreadCount > 0 ? 'new-message' : '' }}"
+        <details
+            class="user-group {{ $groupUnreadTotal > 0 ? 'has-unread' : '' }}"
+            {{ $groupUnreadTotal > 0 ? 'open' : '' }}
         >
 
+            <summary class="user-summary">
 
-            {{-- BADGE MENSAJE NUEVO --}}
+                <div class="user-summary-left">
 
-            @if($unreadCount > 0)
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
 
-                <div class="new-message-badge">
+                    <div class="user-meta">
 
-                    <i class="fas fa-circle"></i>
+                        <span class="user-name">
+                            {{ $userName }}
+                        </span>
 
-                    MENSAJE NUEVO
+                        <span class="user-sub">
 
-                    <span>
-                        {{ $unreadCount }}
-                    </span>
+                            {{ $conversationsCount }}
 
-                </div>
+                            conversación{{ $conversationsCount != 1 ? 'es' : '' }}
 
-            @endif
+                            @if($groupLastActivity)
 
+                                &nbsp;•&nbsp;
 
-            {{-- HEADER --}}
+                                Última actividad:
 
-            <div class="card-header">
+                                {{ $groupLastActivity->format('d/m/Y H:i') }}
 
-                <div class="conversation-title">
+                            @endif
 
-                    <i class="fas fa-user-circle"></i>
+                        </span>
 
-                    <strong>
-
-                        Conversación #{{ $conversation->id }}
-
-                    </strong>
-
-                </div>
-
-
-                @if($conversation->status === 'ESPERANDO')
-
-                    <span class="status status-esperando">
-
-                        <i class="fas fa-clock"></i>
-
-                        ESPERANDO
-
-                    </span>
-
-                @elseif($conversation->status === 'ACTIVO')
-
-                    <span class="status status-activo">
-
-                        <i class="fas fa-circle-check"></i>
-
-                        ACTIVO
-
-                    </span>
-
-                @else
-
-                    <span class="status status-cerrado">
-
-                        {{ $conversation->status }}
-
-                    </span>
-
-                @endif
-
-            </div>
-
-
-            {{-- INFORMACIÓN --}}
-
-            <div class="conversation-info">
-
-
-                <div class="info">
-
-                    <span class="label">
-                        Usuario
-                    </span>
-
-                    <span class="value">
-
-                        @if($conversation->user)
-
-                            {{ $conversation->user->anonymous_nickname
-                                ?? $conversation->user->first_name
-                                ?? 'Usuario' }}
-
-                        @else
-
-                            Usuario
-
-                        @endif
-
-                    </span>
+                    </div>
 
                 </div>
 
 
-                <div class="info">
+                <div class="user-summary-right">
 
-                    <span class="label">
-                        Fecha de conversación
+                    <span class="conv-count-badge">
+                        {{ $conversationsCount }}
                     </span>
 
-                    <span class="value">
+                    @if($groupUnreadTotal > 0)
 
-                        {{ $conversation->created_at->format('d/m/Y H:i') }}
-
-                    </span>
-
-                </div>
-
-
-                <div class="info">
-
-                    <span class="label">
-                        Mensajes
-                    </span>
-
-                    <span class="value">
-
-                        {{ $conversation->messages->count() }}
-
-                        @if($unreadCount > 0)
-
-                            <span class="unread-count">
-
-                                {{ $unreadCount }}
-
-                            </span>
-
-                        @endif
-
-                    </span>
-
-                </div>
-
-
-            </div>
-
-
-            {{-- ÚLTIMO MENSAJE --}}
-
-            @if($lastMessage)
-
-                <div
-                    class="last-message {{ $unreadCount > 0 ? 'new' : '' }}"
-                >
-
-                    <strong>
-
-                        @if($unreadCount > 0)
+                        <span class="user-unread-badge">
 
                             <i class="fas fa-bell"></i>
 
-                            Nuevo mensaje:
+                            {{ $groupUnreadTotal }}
 
-                        @else
+                            nuevo{{ $groupUnreadTotal != 1 ? 's' : '' }}
 
-                            Último mensaje:
+                        </span>
 
-                        @endif
+                    @endif
 
-                    </strong>
-
-
-                    {{ \Illuminate\Support\Str::limit(
-                        $lastMessage->message,
-                        180
-                    ) }}
+                    <i class="fas fa-chevron-down chevron"></i>
 
                 </div>
 
-            @endif
+            </summary>
 
 
-            {{-- BOTÓN --}}
+            <div class="user-conversations">
 
-            <a
-                href="{{ route(
-                    'moderator.chat',
-                    $conversation->id
-                ) }}"
-                class="button {{ $unreadCount > 0 ? 'new' : '' }}"
-            >
+                @foreach($userConversations->sortByDesc('updated_at') as $conversation)
 
-                @if($unreadCount > 0)
+                    @php
 
-                    <i class="fas fa-envelope-open"></i>
+                        /*
+                         * MENSAJES NUEVOS DE ESTA CONVERSACIÓN
+                         */
 
-                    Ver mensaje nuevo
-
-                @else
-
-                    <i class="fas fa-comments"></i>
-
-                    Atender conversación
-
-                @endif
-
-                <i class="fas fa-arrow-right"></i>
-
-            </a>
+                        $unreadMessages = $conversation->messages
+                            ->where('sender_type', 'USER');
 
 
-        </div>
+                        if ($conversation->moderator_last_read_at) {
 
+                            $unreadMessages = $unreadMessages->filter(
+                                function ($message) use ($conversation) {
+
+                                    return $message->created_at->gt(
+                                        $conversation->moderator_last_read_at
+                                    );
+
+                                }
+                            );
+
+                        }
+
+
+                        $unreadCount = $unreadMessages->count();
+
+
+                        /*
+                         * ÚLTIMO MENSAJE
+                         */
+
+                        $lastMessage = $conversation->messages
+                            ->sortBy('created_at')
+                            ->last();
+
+                    @endphp
+
+
+                    <div
+                        class="card {{ $unreadCount > 0 ? 'new-message' : '' }}"
+                    >
+
+
+                        {{-- BADGE MENSAJE NUEVO --}}
+
+                        @if($unreadCount > 0)
+
+                            <div class="new-message-badge">
+
+                                <i class="fas fa-circle"></i>
+
+                                MENSAJE NUEVO
+
+                                <span>
+                                    {{ $unreadCount }}
+                                </span>
+
+                            </div>
+
+                        @endif
+
+
+                        {{-- HEADER --}}
+
+                        <div class="card-header">
+
+                            <div class="conversation-title">
+
+                                <i class="fas fa-user-circle"></i>
+
+                                <strong>
+
+                                    Conversación #{{ $conversation->id }}
+
+                                </strong>
+
+                            </div>
+
+
+                            @if($conversation->status === 'ESPERANDO')
+
+                                <span class="status status-esperando">
+
+                                    <i class="fas fa-clock"></i>
+
+                                    ESPERANDO
+
+                                </span>
+
+                            @elseif($conversation->status === 'ACTIVO')
+
+                                <span class="status status-activo">
+
+                                    <i class="fas fa-circle-check"></i>
+
+                                    ACTIVO
+
+                                </span>
+
+                            @else
+
+                                <span class="status status-cerrado">
+
+                                    {{ $conversation->status }}
+
+                                </span>
+
+                            @endif
+
+                        </div>
+
+
+                        {{-- INFORMACIÓN --}}
+
+                        <div class="conversation-info">
+
+
+                            <div class="info">
+
+                                <span class="label">
+                                    Fecha de conversación
+                                </span>
+
+                                <span class="value">
+
+                                    {{ $conversation->created_at->format('d/m/Y H:i') }}
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="info">
+
+                                <span class="label">
+                                    Mensajes
+                                </span>
+
+                                <span class="value">
+
+                                    {{ $conversation->messages->count() }}
+
+                                    @if($unreadCount > 0)
+
+                                        <span class="unread-count">
+
+                                            {{ $unreadCount }}
+
+                                        </span>
+
+                                    @endif
+
+                                </span>
+
+                            </div>
+
+
+                        </div>
+
+
+                        {{-- ÚLTIMO MENSAJE --}}
+
+                        @if($lastMessage)
+
+                            <div
+                                class="last-message {{ $unreadCount > 0 ? 'new' : '' }}"
+                            >
+
+                                <strong>
+
+                                    @if($unreadCount > 0)
+
+                                        <i class="fas fa-bell"></i>
+
+                                        Nuevo mensaje:
+
+                                    @else
+
+                                        Último mensaje:
+
+                                    @endif
+
+                                </strong>
+
+
+                                {{ \Illuminate\Support\Str::limit(
+                                    $lastMessage->message,
+                                    180
+                                ) }}
+
+                            </div>
+
+                        @endif
+
+
+                        {{-- BOTÓN --}}
+
+                        <a
+                            href="{{ route(
+                                'moderator.chat',
+                                $conversation->id
+                            ) }}"
+                            class="button {{ $unreadCount > 0 ? 'new' : '' }}"
+                        >
+
+                            @if($unreadCount > 0)
+
+                                <i class="fas fa-envelope-open"></i>
+
+                                Ver mensaje nuevo
+
+                            @else
+
+                                <i class="fas fa-comments"></i>
+
+                                Atender conversación
+
+                            @endif
+
+                            <i class="fas fa-arrow-right"></i>
+
+                        </a>
+
+
+                    </div>
+
+                @endforeach
+
+            </div>
+
+        </details>
 
     @endforeach
 

@@ -12,12 +12,12 @@ return new class extends Migration
             $table->enum(
                 'priority',
                 [
-                    'BAJA',
-                    'MEDIA',
-                    'ALTA',
-                    'CRITICA'
+                    'Baja',
+                    'Media',
+                    'Alta',
+                    'Critica'
                 ]
-            )->default('MEDIA')
+            )->default('Media')
             ->after('status');
         });
     }

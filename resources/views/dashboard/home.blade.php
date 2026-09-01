@@ -1194,9 +1194,9 @@
                 event.preventDefault();
                 event.stopPropagation();
 
-                chat.classList.toggle('activo');
+                chat.classList.toggle('active');
 
-                if (chat.classList.contains('activo')) {
+                if (chat.classList.contains('active')) {
 
                     scrollMessages();
 
@@ -1215,7 +1215,7 @@
                 event.preventDefault();
                 event.stopPropagation();
 
-                chat.classList.remove('activo');
+                chat.classList.remove('active');
 
             });
 
@@ -1233,7 +1233,7 @@
 
             document.addEventListener('click', function (event) {
 
-                if (!chat.classList.contains('activo')) {
+                if (!chat.classList.contains('active')) {
                     return;
                 }
 
@@ -1242,7 +1242,7 @@
                     !button.contains(event.target)
                 ) {
 
-                    chat.classList.remove('activo');
+                    chat.classList.remove('active');
 
                 }
 
@@ -1265,7 +1265,7 @@
 
                 //MOSTRAR CHAT
 
-                chat.classList.add('activo');
+                chat.classList.add('active');
 
 
                 //DESACTIVAR BOTÓN
@@ -1711,7 +1711,7 @@
             }
 
         });
-
     </script>
+    
 </body>
 </html>

@@ -11,7 +11,7 @@ use App\Models\CaseFile;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\ModeratorNotification;
-
+use App\Models\CaseNotification;
 class User extends Authenticatable
 {
     use SoftDeletes;
@@ -60,13 +60,22 @@ class User extends Authenticatable
     return 'uuid';
 }
 
-    //CAST ROLE EN MAYÚSCULA CONSISTENTE
+    // NOTIFICACIONES DE CASOS
+    public function caseNotifications() 
+    {
+    return $this->hasMany(
+        CaseNotification::class,
+        'user_uuid',
+        'uuid'
+        );
+    }
+    // CAST ROLE EN MAYÚSCULA CONSISTENTE
     public function getRoleAttribute($value)
     {
         return strtoupper($value);
     }
 
-    //COMENTARIOS DE CASOS
+    // COMENTARIOS DE CASOS
     public function comments()
 {
     return $this->hasMany(
@@ -85,7 +94,7 @@ class User extends Authenticatable
     );
 }
 
-    //CASOS CREADOS POR EL USUARIO
+    // CASOS CREADOS POR EL USUARIO
     public function cases()
     {
         return $this->hasMany(
@@ -95,7 +104,7 @@ class User extends Authenticatable
         );
     }
 
-    //CASOS ASIGNADOS COMO MODERADOR
+    // CASOS ASIGNADOS COMO MODERADOR
     public function moderatedCases()
     {
         return $this->hasMany(
@@ -105,7 +114,7 @@ class User extends Authenticatable
         );
     }
 
-    //CHATS COMO USUARIO
+    // CHATS COMO USUARIO
 
 public function chatConversations()
 {
@@ -116,7 +125,7 @@ public function chatConversations()
     );
 }
 
-    //CHATS COMO MODERADOR
+    // CHATS COMO MODERADOR
 
 public function moderatedChatConversations()
 {
@@ -128,7 +137,7 @@ public function moderatedChatConversations()
 }
 
 
-    //MENSAJES ENVIADOS
+    // MENSAJES ENVIADOS
 
 public function chatMessages()
 {
@@ -140,7 +149,7 @@ public function chatMessages()
 }
 
 
-    //NOTIFICACIONES COMO MODERADOR
+    // NOTIFICACIONES COMO MODERADOR
 
 public function moderatorNotifications()
 {

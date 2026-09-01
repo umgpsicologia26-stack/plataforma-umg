@@ -25,13 +25,9 @@
 
 </head>
 
-
 <body class="home-body">
 
-
-{{-- ========================================================= --}}
-{{-- NAVBAR --}}
-{{-- ========================================================= --}}
+    {{-- NAVBAR --}}
 
 <nav class="navbar">
 
@@ -80,11 +76,7 @@
 
 </nav>
 
-
-
-{{-- ========================================================= --}}
-{{-- HERO --}}
-{{-- ========================================================= --}}
+    {{-- HERO --}}
 
 <section
     id="top"
@@ -139,11 +131,7 @@
 
 </section>
 
-
-
-{{-- ========================================================= --}}
-{{-- SERVICIOS --}}
-{{-- ========================================================= --}}
+    {{-- SERVICIOS --}}
 
 <section
     id="services"
@@ -210,8 +198,6 @@
         ];
 
     @endphp
-
-
 
     {{-- TARJETAS DE SERVICIOS --}}
 
@@ -304,11 +290,7 @@
 
 </section>
 
-
-
-{{-- ========================================================= --}}
-{{-- MODALES DE SERVICIOS --}}
-{{-- ========================================================= --}}
+    {{-- MODALES DE SERVICIOS --}}
 
 @foreach ($servicios as $index => $servicio)
 
@@ -389,11 +371,7 @@
 
 @endforeach
 
-
-
-{{-- ========================================================= --}}
-{{-- VISOR DE IMAGEN DE SERVICIOS --}}
-{{-- ========================================================= --}}
+    {{-- VISOR DE IMAGEN DE SERVICIOS --}}
 
 <div
     id="imagenServicioModal"
@@ -420,11 +398,7 @@
 
 </div>
 
-
-
-{{-- ========================================================= --}}
-{{-- JAVASCRIPT SERVICIOS --}}
-{{-- ========================================================= --}}
+    {{-- JAVASCRIPT SERVICIOS --}}
 
 <script>
 
@@ -594,11 +568,7 @@ document.addEventListener(
 
 </script>
 
-
-
-{{-- ========================================================= --}}
-{{-- PROYECTOS --}}
-{{-- ========================================================= --}}
+    {{-- PROYECTOS --}}
 
 <section
     id="projects"
@@ -672,16 +642,10 @@ document.addEventListener(
         ];
     @endphp
 
-    {{-- ========================================================= --}}
-    {{-- TARJETAS --}}
-    {{-- ========================================================= --}}
-
+        {{-- TARJETAS --}}
     <div class="cards-grid">
 
-        {{-- ===================================================== --}}
         {{-- CAMPAÑA --}}
-        {{-- ===================================================== --}}
-
         <div
             class="project-tile project-clickable"
             onclick="abrirModalProyecto('modalCampania')"
@@ -708,9 +672,7 @@ document.addEventListener(
             </div>
         </div>
 
-        {{-- ===================================================== --}}
         {{-- TALLERES --}}
-        {{-- ===================================================== --}}
 
         <div
             class="project-tile project-clickable"
@@ -737,10 +699,7 @@ document.addEventListener(
             </div>
         </div>
 
-        {{-- ===================================================== --}}
         {{-- MATERIAL EDUCATIVO --}}
-        {{-- ===================================================== --}}
-
         <div
             class="project-tile project-clickable"
             onclick="abrirModalProyecto('modalMaterial')"
@@ -768,11 +727,7 @@ document.addEventListener(
     </div>
 
 
-    {{-- ========================================================= --}}
     {{-- MODAL CAMPAÑA --}}
-    {{-- IMPORTANTE: ES INDEPENDIENTE --}}
-    {{-- ========================================================= --}}
-
     <div
         id="modalCampania"
         class="talleres-modal"
@@ -827,11 +782,7 @@ document.addEventListener(
     </div>
 
 
-    {{-- ========================================================= --}}
     {{-- MODAL TALLERES --}}
-    {{-- IMPORTANTE: TERMINA COMPLETAMENTE AQUÍ --}}
-    {{-- ========================================================= --}}
-
     <div
         id="modalTalleres"
         class="talleres-modal"
@@ -864,7 +815,6 @@ document.addEventListener(
 
 
             {{-- IMÁGENES --}}
-
             <div class="talleres-media-section">
                 <h3>
                     <i class="fa-solid fa-images"></i>
@@ -915,11 +865,7 @@ document.addEventListener(
     </div>
 
 
-    {{-- ========================================================= --}}
     {{-- MODAL MATERIAL EDUCATIVO --}}
-    {{-- ESTE MODAL ES INDEPENDIENTE DE TALLERES --}}
-    {{-- ========================================================= --}}
-
     <div
         id="modalMaterial"
         class="talleres-modal"
@@ -942,10 +888,7 @@ document.addEventListener(
             </button>
 
 
-            {{-- ================================================= --}}
             {{-- CONTENIDO DEL MATERIAL --}}
-            {{-- ================================================= --}}
-
             <div
                 id="materialContenido"
                 class="material-contenido">
@@ -962,16 +905,12 @@ document.addEventListener(
 
                 </div>
 
-                {{-- ================================================= --}}
                 {{-- PDF --}}
-                {{-- ================================================= --}}
-
                 <div class="talleres-media-section">
                     <h3>
                         <i class="fas fa-file-pdf"></i>
                         Documentos
                     </h3>
-
 
                     <div class="material-pdf-grid">
                         @foreach ($proyectos[2]['pdfs'] as $pdf)
@@ -988,16 +927,12 @@ document.addEventListener(
                     </div>
                 </div>
 
-                {{-- ================================================= --}}
                 {{-- VIDEO --}}
-                {{-- ================================================= --}}
-
                 <div class="talleres-media-section">
                     <h3>
                         <i class="fa-solid fa-video"></i>
                         Videos
                     </h3>
-
 
                     <div class="talleres-videos">
                         @foreach ($proyectos[2]['videos'] as $video)
@@ -1017,10 +952,7 @@ document.addEventListener(
                 </div>
             </div>
 
-            {{-- ================================================= --}}
             {{-- VISOR PDF --}}
-            {{-- ================================================= --}}
-
             <div
                 id="pdfMaterialViewer"
                 class="pdf-material-viewer"
@@ -1037,7 +969,6 @@ document.addEventListener(
                     </span>
                 </button>
 
-
                 <iframe
                     id="pdfMaterialFrame"
                     src=""
@@ -1047,11 +978,7 @@ document.addEventListener(
         </div>
     </div>
 
-
-    {{-- ========================================================= --}}
     {{-- VISOR DE IMÁGENES --}}
-    {{-- ========================================================= --}}
-
     <div
         id="imagenTallerModal"
         class="imagen-taller-modal"
@@ -1073,20 +1000,13 @@ document.addEventListener(
     </div>
         </section>
 
-
-{{-- ========================================================= --}}
-{{-- JAVASCRIPT PROYECTOS --}}
-{{-- ========================================================= --}}
-
+    {{-- JAVASCRIPT PROYECTOS --}}
     <script>
 
         document.addEventListener('DOMContentLoaded', function () {
 
 
-    /* =========================================================
-    ABRIR MODAL
-    ========================================================= */
-
+    /* ABRIR MODAL */
     window.abrirModalProyecto = function (id) {
         const modal = document.getElementById(id);
         if (!modal) {
@@ -1095,7 +1015,6 @@ document.addEventListener(
         }
 
         /* Cerrar cualquier otro modal abierto */
-
         document
             .querySelectorAll('.talleres-modal.activo')
             .forEach(function (otroModal) {
@@ -1115,20 +1034,14 @@ document.addEventListener(
         );
     };
 
-
-    /* =========================================================
-    CERRAR MODAL
-    ========================================================= */
-
+    /* CERRAR MODAL */
     window.cerrarModalProyecto = function (id) {
         const modal = document.getElementById(id);
         if (!modal) {
             return;
         }
 
-
         /* Pausar videos */
-
         modal
             .querySelectorAll('video')
             .forEach(function (video) {
@@ -1138,11 +1051,9 @@ document.addEventListener(
 
 
         /* Si es Material, cerrar también PDF */
-
         if (id === 'modalMaterial') {
             cerrarPdfMaterial();
         }
-
 
         modal.classList.remove(
             'activo'
@@ -1155,12 +1066,10 @@ document.addEventListener(
 
 
         /* Solo quitar modal-open si no queda otro modal */
-
         const quedaOtroModal =
             document.querySelector(
                 '.talleres-modal.activo'
             );
-
 
         if (!quedaOtroModal) {
             document.body.classList.remove(
@@ -1169,11 +1078,7 @@ document.addEventListener(
         }
     };
 
-
-    /* =========================================================
-    ABRIR PDF
-    ========================================================= */
-
+    /* ABRIR PDF */
     window.abrirPdfMaterial = function (url) {
         const contenido =
             document.getElementById(
@@ -1190,7 +1095,6 @@ document.addEventListener(
                 'pdfMaterialFrame'
             );
 
-
         if (!visor || !frame) {
             console.error(
                 'No se encontró el visor PDF.'
@@ -1198,13 +1102,11 @@ document.addEventListener(
             return;
         }
 
-
         frame.src = url;
         if (contenido) {
             contenido.style.display =
                 'none';
         }
-
 
         visor.classList.add(
             'activo'
@@ -1216,11 +1118,7 @@ document.addEventListener(
         );
     };
 
-
-    /* =========================================================
-    CERRAR PDF / VOLVER A MATERIAL
-    ========================================================= */
-
+    /* CERRAR PDF / VOLVER A MATERIAL */
     window.cerrarPdfMaterial = function () {
         const contenido =
             document.getElementById(
@@ -1237,7 +1135,6 @@ document.addEventListener(
                 'pdfMaterialFrame'
             );
 
-
         if (visor) {
             visor.classList.remove(
                 'activo'
@@ -1249,11 +1146,9 @@ document.addEventListener(
             );
         }
 
-
         if (frame) {
             frame.src = '';
         }
-
 
         if (contenido) {
             contenido.style.display =
@@ -1261,11 +1156,7 @@ document.addEventListener(
         }
     };
 
-
-    /* =========================================================
-    VISOR DE IMAGEN
-    ========================================================= */
-
+    /* VISOR DE IMAGEN */
     window.abrirImagenTaller = function (src) {
         const modal =
             document.getElementById(
@@ -1281,18 +1172,13 @@ document.addEventListener(
             return;
         }
 
-
         imagen.src = src;
         modal.classList.add(
             'activo'
         );
     };
 
-
-    /* =========================================================
-    CERRAR VISOR DE IMAGEN
-    ========================================================= */
-
+    /* CERRAR VISOR DE IMAGEN */
     window.cerrarImagenTaller = function () {
         const modal =
             document.getElementById(
@@ -1304,30 +1190,20 @@ document.addEventListener(
                 'imagenTallerGrande'
             );
 
-
         if (!modal) {
             return;
         }
-
 
         modal.classList.remove(
             'activo'
         );
 
-
         if (imagen) {
-
             imagen.src = '';
-
         }
-
     };
 
-
-    /* =========================================================
-    CERRAR AL HACER CLICK FUERA DEL CONTENIDO
-    ========================================================= */
-
+    /* CERRAR AL HACER CLICK FUERA DEL CONTENIDO */
     document
         .querySelectorAll('.talleres-modal')
         .forEach(function (modal) {
@@ -1348,10 +1224,7 @@ document.addEventListener(
             );
         });
 
-    /* =========================================================
-    ESCAPE
-    ========================================================= */
-
+    /* ESCAPE */
     document.addEventListener(
         'keydown',
         function (event) {
@@ -1359,9 +1232,7 @@ document.addEventListener(
                 return;
             }
 
-
             /* Primero cerrar visor de imagen */
-
             const imagenModal =
                 document.getElementById(
                     'imagenTallerModal'
@@ -1378,9 +1249,7 @@ document.addEventListener(
                 return;
             }
 
-
             /* Después cerrar PDF */
-
             const pdfViewer =
                 document.getElementById(
                     'pdfMaterialViewer'
@@ -1397,15 +1266,12 @@ document.addEventListener(
                 return;
             }
 
-
             /* Finalmente cerrar modal */
-
             document
                 .querySelectorAll(
                     '.talleres-modal.activo'
                 )
                 .forEach(function (modal) {
-
                     cerrarModalProyecto(
                         modal.id
                     );
@@ -1415,10 +1281,7 @@ document.addEventListener(
     });
     </script>
 
-{{-- ========================================================= --}}
-{{-- NOSOTROS --}}
-{{-- ========================================================= --}}
-
+    {{-- NOSOTROS --}}
 <section
     id="infos"
     class="home-section">
@@ -1443,10 +1306,7 @@ document.addEventListener(
             flex-wrap:wrap;
             gap:40px;">
 
-        {{-- ================================================= --}}
         {{-- IMAGEN / LOGO --}}
-        {{-- ================================================= --}}
-
         <div
             style="
                 flex:1 1 380px;
@@ -1464,10 +1324,7 @@ document.addEventListener(
         </div>
 
 
-        {{-- ================================================= --}}
         {{-- INFORMACIÓN --}}
-        {{-- ================================================= --}}
-
         <div
             style="
                 flex:1 1 380px;">
@@ -1558,10 +1415,7 @@ document.addEventListener(
     </div>
         </section>
 
-{{-- ========================================================= --}}
-{{-- GALERÍA --}}
-{{-- ========================================================= --}}
-
+    {{-- GALERÍA --}}
 <section
     id="gallery"
     class="home-section">
@@ -1604,10 +1458,7 @@ document.addEventListener(
     @endphp
 
 
-    {{-- ========================================================= --}}
     {{-- TARJETA DE GALERÍA --}}
-    {{-- ========================================================= --}}
-
     <div class="cards-grid">
         <div
             class="project-tile project-clickable gallery-project-card"
@@ -1635,10 +1486,7 @@ document.addEventListener(
     </div>
 
 
-    {{-- ========================================================= --}}
     {{-- MODAL GALERÍA --}}
-    {{-- ========================================================= --}}
-
     <div
         id="modalGaleria"
         class="talleres-modal"
@@ -1651,7 +1499,6 @@ document.addEventListener(
             aria-labelledby="tituloGaleria">
 
             {{-- BOTÓN X --}}
-
             <button
                 type="button"
                 class="talleres-modal-close"
@@ -1659,7 +1506,6 @@ document.addEventListener(
                 aria-label="Cerrar">
                 &times;
             </button>
-
 
             <div class="talleres-modal-header">
                 <span class="eyebrow">
@@ -1671,17 +1517,12 @@ document.addEventListener(
                 </h2>
             </div>
 
-
-            {{-- ================================================= --}}
             {{-- IMÁGENES --}}
-            {{-- ================================================= --}}
-
             <div class="talleres-media-section">
                 <h3>
                     <i class="fa-solid fa-images"></i>
                     Imágenes
                 </h3>
-
 
                 <div class="talleres-gallery">
                     @foreach ($galeria['images'] as $imagen)
@@ -1698,16 +1539,12 @@ document.addEventListener(
             </div>
 
 
-            {{-- ================================================= --}}
             {{-- VIDEOS --}}
-            {{-- ================================================= --}}
-
             <div class="talleres-media-section">
                 <h3>
                     <i class="fa-solid fa-video"></i>
                     Videos
                 </h3>
-
 
                 <div class="talleres-videos">
                     @foreach ($galeria['videos'] as $video)
@@ -1729,10 +1566,7 @@ document.addEventListener(
     </div>
 
 
-    {{-- ========================================================= --}}
     {{-- VISOR DE IMAGEN DE GALERÍA --}}
-    {{-- ========================================================= --}}
-
     <div
         id="imagenGaleriaModal"
         class="imagen-taller-modal"
@@ -1769,7 +1603,6 @@ function abrirModalGaleria()
     document.body.classList.add('modal-open');
 }
 
-
 function cerrarModalGaleria()
 {
     const modal = document.getElementById('modalGaleria');
@@ -1790,7 +1623,6 @@ function cerrarModalGaleria()
     document.body.classList.remove('modal-open');
 }
 
-
 function abrirImagenGaleria(src)
 {
     const modal =
@@ -1803,7 +1635,6 @@ function abrirImagenGaleria(src)
         imagen.src = src;
         modal.classList.add('activo');
 }
-
 
 function cerrarImagenGaleria()
 {
@@ -1821,7 +1652,6 @@ function cerrarImagenGaleria()
     }
 }
 
-
 document.addEventListener('DOMContentLoaded', function()
 {
     const modal =
@@ -1836,7 +1666,6 @@ document.addEventListener('DOMContentLoaded', function()
         });
     }
 });
-
 
 document.addEventListener('keydown', function(event)
 {
@@ -1853,7 +1682,6 @@ document.addEventListener('keydown', function(event)
         return;
     }
 
-
     const galeria =
         document.getElementById('modalGaleria');
 
@@ -1868,10 +1696,7 @@ document.addEventListener('keydown', function(event)
 
 </script>
 
-{{-- ========================================================= --}}
-{{-- CONTACTO --}}
-{{-- ========================================================= --}}
-
+    {{-- CONTACTO --}}
 <section
     id="contact"
     class="home-section contact-section">
@@ -1893,10 +1718,7 @@ document.addEventListener('keydown', function(event)
     </p>
         </div>
 
-{{-- ========================================================= --}}
-{{-- FOOTER --}}
-{{-- ========================================================= --}}
-
+    {{-- FOOTER --}}
 <footer class="home-footer">
     Copyright &copy; {{ date('Y') }}
     <a href="#">

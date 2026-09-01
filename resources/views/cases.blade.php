@@ -1,566 +1,1440 @@
 <!DOCTYPE html>
-
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Seguimiento de Casos | UMG Xela</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            padding: 35px 20px;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        /* ENCABEZADO */
+
+        .title-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .back {
+            width: 46px;
+            height: 46px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 14px;
+
+            background: #eff6ff;
+            color: #0284c7;
+
+            text-decoration: none;
+            font-size: 28px;
+
+            transition: all .3s ease;
+        }
+
+        .back:hover {
+            background: #e0f2fe;
+            color: #0369a1;
+            transform: translateX(-3px);
+        }
+
+        .title {
+            font-size: 38px;
+            font-weight: 700;
+            color: #0f172a;
+        }
 
-<title>Seguimiento de Casos </title>
+        .subtitle {
+            color: #64748b;
+            line-height: 1.8;
+            margin-bottom: 35px;
+        }
+
+        /* ALERTAS */
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        .alert {
+            padding: 16px 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
 
-<style>
+        .alert-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+        }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+        .alert-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
 
-body{
-    font-family:'Poppins',sans-serif;
+        /* ESTADÍSTICAS */
 
-    background:
-    linear-gradient(rgba(7,15,35,.95),rgba(7,15,35,.97)),
-    url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2070&auto=format&fit=crop');
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 40px;
+        }
 
-    background-size:cover;
-    background-position:center;
-    background-attachment:fixed;
+        .stat {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
 
-    min-height:100vh;
-    padding:40px 20px;
+            padding: 23px;
 
-    color:white;
-}
+            text-align: center;
 
-.container{
-    max-width:950px;
-    margin:auto;
-}
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
 
-.card{
-    background:rgba(255,255,255,.08);
-    backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
+            transition: all .25s ease;
+        }
 
-    border:1px solid rgba(255,255,255,.10);
+        .stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+        }
 
-    padding:40px;
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #0284c7;
+            margin-bottom: 5px;
+        }
 
-    border-radius:30px;
+        .stat-label {
+            color: #64748b;
+            font-size: 13px;
+        }
 
-    box-shadow:
-        0 25px 60px rgba(0,0,0,.30);
-}
+        /* CARPETAS */
 
-/* ENCABEZADO */
+        .folder {
+            margin-bottom: 30px;
 
-.title-row{
-    display:flex;
-    align-items:center;
-    gap:15px;
-    margin-bottom:12px;
-}
+            background: #ffffff;
 
-.back{
-    display:flex;
-    align-items:center;
-    justify-content:center;
+            border: 1px solid #e2e8f0;
 
-    width:46px;
-    height:46px;
+            border-radius: 20px;
 
-    border-radius:14px;
+            overflow: hidden;
 
-    background:rgba(125,211,252,.10);
+            box-shadow: 0 5px 18px rgba(15, 23, 42, 0.06);
+        }
 
-    color:#7dd3fc;
+        .folder-header {
+            padding: 24px 26px;
 
-    text-decoration:none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
 
-    font-size:28px;
+            gap: 20px;
 
-    transition:.3s;
-}
+            background: #f8fafc;
 
-.back:hover{
-    background:rgba(125,211,252,.20);
-    transform:translateX(-3px);
-}
+            border-bottom: 1px solid #e2e8f0;
+        }
 
-.title{
-    font-size:38px;
-    font-weight:700;
-}
+        .folder-title {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
 
-.subtitle{
-    color:#cbd5e1;
-    line-height:1.8;
-    margin-bottom:30px;
-}
+        .folder-icon {
+            width: 45px;
+            height: 45px;
 
-/* FORMULARIO */
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-.form-card{
-    background:rgba(15,23,42,.55);
+            border-radius: 13px;
 
-    border:1px solid rgba(255,255,255,.08);
+            background: #eff6ff;
+            color: #0284c7;
 
-    border-radius:22px;
+            font-size: 22px;
+        }
 
-    padding:25px;
+        .folder-title h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0f172a;
+        }
 
-    margin-bottom:30px;
-}
+        .folder-count {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 3px;
+        }
 
-.form-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
+        .folder-body {
+            padding: 22px;
+            background: #ffffff;
+        }
 
-    gap:20px;
+        /* ESTADOS */
 
-    margin-bottom:20px;
-}
+        .status-section {
+            margin-bottom: 22px;
+        }
 
-.field{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-}
+        .status-section:last-child {
+            margin-bottom: 0;
+        }
 
-label{
-    color:#cbd5e1;
-    font-size:14px;
-    font-weight:500;
-}
+        .status-header {
+            width: 100%;
 
-input{
-    width:100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
 
-    padding:15px 17px;
+            padding: 15px 18px;
 
-    border:1px solid rgba(255,255,255,.10);
+            background: #f8fafc;
 
-    border-radius:14px;
+            border: 1px solid #e2e8f0;
 
-    background:rgba(255,255,255,.06);
+            border-radius: 14px;
 
-    color:white;
+            cursor: pointer;
 
-    font-family:'Poppins',sans-serif;
+            color: #1e293b;
 
-    font-size:15px;
+            font-family: 'Poppins', sans-serif;
 
-    outline:none;
+            transition: all .25s ease;
+        }
 
-    transition:.3s;
-}
+        .status-header:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
 
-input:focus{
-    border-color:#7dd3fc;
+        .status-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    background:rgba(125,211,252,.08);
+        .status-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+        }
 
-    box-shadow:0 0 0 3px rgba(125,211,252,.08);
-}
+        .status-count {
+            padding: 4px 9px;
 
-input::placeholder{
-    color:#94a3b8;
-}
+            border-radius: 20px;
 
-.button{
-    width:100%;
+            background: #e2e8f0;
 
-    padding:16px;
+            color: #475569;
 
-    border:none;
+            font-size: 11px;
+        }
 
-    border-radius:15px;
+        .arrow {
+            font-size: 15px;
+            color: #64748b;
+            transition: .3s;
+        }
 
-    background:#7dd3fc;
+        .status-header.active .arrow {
+            transform: rotate(180deg);
+        }
 
-    color:#081323;
+        .status-content {
+            padding-top: 15px;
+        }
 
-    font-family:'Poppins',sans-serif;
+        .status-content.collapsed {
+            display: none;
+        }
 
-    font-weight:700;
+        /* CASO */
 
-    font-size:16px;
+        .case-card {
+            background: #ffffff;
 
-    cursor:pointer;
+            border: 1px solid #e2e8f0;
 
-    transition:.3s;
-}
+            border-radius: 18px;
 
-.button:hover{
-    background:#38bdf8;
+            overflow: hidden;
 
-    transform:translateY(-2px);
+            margin-bottom: 16px;
 
-    box-shadow:0 8px 20px rgba(56,189,248,.20);
-}
+            box-shadow: 0 5px 15px rgba(15, 23, 42, 0.06);
 
-/* ALERTAS */
+            transition: all .25s ease;
+        }
 
-.alert{
-    padding:15px 18px;
+        .case-card:hover {
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.09);
+        }
 
-    border-radius:14px;
+        .case-card:last-child {
+            margin-bottom: 0;
+        }
 
-    margin-bottom:25px;
+        .case-header {
+            padding: 22px 24px;
 
-    font-size:14px;
-}
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
 
-.alert-error{
-    background:rgba(239,68,68,.12);
+            gap: 20px;
 
-    border:1px solid rgba(239,68,68,.25);
+            background: #ffffff;
 
-    color:#fecaca;
-}
+            border-bottom: 1px solid #e2e8f0;
+        }
 
-.alert-success{
-    background:rgba(34,197,94,.12);
+        .case-info {
+            min-width: 0;
+        }
 
-    border:1px solid rgba(34,197,94,.25);
+        .case-number {
+            font-size: 19px;
 
-    color:#bbf7d0;
-}
+            font-weight: 700;
 
-/* RESULTADO DEL CASO */
+            color: #0f172a;
+        }
 
-.case-card{
-    background:rgba(15,23,42,.62);
+        .case-date {
+            color: #64748b;
 
-    border:1px solid rgba(255,255,255,.09);
+            font-size: 12px;
 
-    border-radius:24px;
+            margin-top: 5px;
+        }
 
-    overflow:hidden;
-}
+        /* ESTADO DEL CASO */
 
-.case-header{
-    padding:25px;
+        .case-status {
+            padding: 8px 14px;
 
-    border-bottom:1px solid rgba(255,255,255,.08);
+            border-radius: 30px;
 
-    display:flex;
+            font-size: 11px;
 
-    justify-content:space-between;
+            font-weight: 700;
 
-    align-items:center;
+            white-space: nowrap;
+        }
 
-    gap:20px;
-}
+        .status-open {
+            color: #15803d;
 
-.case-number{
-    font-size:22px;
+            background: #f0fdf4;
 
-    font-weight:700;
-}
+            border: 1px solid #bbf7d0;
+        }
 
-.case-type{
-    color:#94a3b8;
+        .status-following {
+            color: #0369a1;
 
-    font-size:13px;
+            background: #f0f9ff;
 
-    margin-top:5px;
-}
+            border: 1px solid #bae6fd;
+        }
 
-.status{
-    padding:8px 14px;
+        .status-closed {
+            color: #475569;
 
-    border-radius:30px;
+            background: #f1f5f9;
 
-    background:rgba(125,211,252,.12);
+            border: 1px solid #cbd5e1;
+        }
 
-    border:1px solid rgba(125,211,252,.20);
+        .status-default {
+            color: #a16207;
 
-    color:#7dd3fc;
+            background: #fefce8;
 
-    font-size:13px;
+            border: 1px solid #fde68a;
+        }
 
-    font-weight:600;
+        /* INFORMACIÓN DEL CASO */
 
-    white-space:nowrap;
-}
+        .case-section {
+            padding: 22px 24px;
 
-.case-description{
-    padding:25px;
+            background: #ffffff;
 
-    color:#e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
 
-    line-height:1.8;
+        .section-label {
+            color: #64748b;
 
-    border-bottom:1px solid rgba(255,255,255,.08);
-}
+            font-size: 12px;
 
-.case-description-title{
-    font-size:14px;
+            font-weight: 600;
 
-    color:#94a3b8;
+            text-transform: uppercase;
 
-    margin-bottom:8px;
+            letter-spacing: .5px;
 
-    font-weight:600;
-}
+            margin-bottom: 10px;
+        }
 
-/* SEGUIMIENTO */
+        .description-box {
+            background: #f8fafc;
 
-.tracking{
-    padding:25px;
-}
+            border: 1px solid #e2e8f0;
 
-.tracking-title{
-    font-size:20px;
+            border-radius: 14px;
 
-    font-weight:600;
+            padding: 17px 18px;
 
-    margin-bottom:20px;
-}
+            color: #334155;
 
-.no-comments{
-    padding:20px;
+            font-size: 14px;
 
-    text-align:center;
+            line-height: 1.8;
 
-    border-radius:16px;
+            white-space: pre-line;
 
-    background:rgba(255,255,255,.04);
+            overflow-wrap: anywhere;
+        }
 
-    color:#94a3b8;
+        /* OBSERVACIONES */
 
-    font-size:14px;
-}
+        .observations {
+            padding: 22px 24px 25px;
 
-/* COMENTARIOS */
+            background: #ffffff;
+        }
 
-.comment{
-    padding:18px;
+        .observations-title {
+            display: flex;
 
-    border-radius:18px;
+            align-items: center;
 
-    background:rgba(255,255,255,.045);
+            gap: 9px;
 
-    border:1px solid rgba(255,255,255,.07);
+            font-size: 16px;
 
-    margin-bottom:15px;
-}
+            font-weight: 600;
 
-.comment:last-child{
-    margin-bottom:0;
-}
+            color: #1e293b;
 
-.comment-top{
-    display:flex;
+            margin-bottom: 18px;
+        }
 
-    justify-content:space-between;
+        .observations-title span {
+            color: #0284c7;
+        }
 
-    align-items:center;
+        /* MENSAJES */
 
-    gap:15px;
+        .comment {
+            margin-bottom: 18px;
 
-    margin-bottom:10px;
-}
+            display: flex;
 
-.comment-author{
-    font-weight:600;
+            flex-direction: column;
 
-    color:#7dd3fc;
-}
+            align-items: flex-start;
+        }
 
-.comment-date{
-    color:#64748b;
+        .comment:last-child {
+            margin-bottom: 0;
+        }
 
-    font-size:12px;
-}
+        .comment-meta {
+            display: flex;
 
-.comment-text{
-    color:#e2e8f0;
+            align-items: center;
 
-    line-height:1.7;
+            gap: 10px;
 
-    white-space:pre-line;
-}
+            margin-bottom: 7px;
 
-/* RESPONSIVE */
+            padding-left: 4px;
+        }
 
-@media(max-width:700px){
+        .comment-author {
+            font-size: 12px;
 
-    body{
-        padding:20px 12px;
-    }
+            font-weight: 600;
 
-    .card{
-        padding:22px;
+            color: #0284c7;
+        }
 
-        border-radius:22px;
-    }
+        .comment-date {
+            font-size: 11px;
 
-    .title{
-        font-size:28px;
-    }
+            color: #94a3b8;
+        }
 
-    .form-grid{
-        grid-template-columns:1fr;
-    }
+        .comment-bubble {
+            width: 100%;
 
-    .case-header{
-        flex-direction:column;
+            background: #f8fafc;
 
-        align-items:flex-start;
-    }
+            border: 1px solid #e2e8f0;
 
-    .status{
-        align-self:flex-start;
-    }
+            border-radius: 6px 17px 17px 17px;
 
-}
+            padding: 16px 18px;
 
-</style>
+            color: #334155;
 
+            font-size: 13px;
+
+            line-height: 1.75;
+
+            white-space: pre-line;
+
+            overflow-wrap: anywhere;
+
+            word-break: break-word;
+
+            box-shadow: 0 2px 5px rgba(15, 23, 42, 0.03);
+        }
+
+        /* SIN COMENTARIOS */
+
+        .no-comments {
+            padding: 20px;
+
+            text-align: center;
+
+            border-radius: 14px;
+
+            background: #f8fafc;
+
+            border: 1px solid #e2e8f0;
+
+            color: #64748b;
+
+            font-size: 13px;
+
+            line-height: 1.7;
+        }
+
+        /* SIN CASOS */
+
+        .empty-folder {
+            padding: 35px 20px;
+
+            text-align: center;
+
+            color: #64748b;
+        }
+
+        .empty-icon {
+            font-size: 34px;
+
+            margin-bottom: 10px;
+
+            opacity: .7;
+        }
+
+        .empty-folder p {
+            font-size: 13px;
+        }
+
+        /* BOTONES / ENLACES GENERALES */
+
+        button {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* SCROLLBAR */
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 800px) {
+
+            body {
+                padding: 20px 12px;
+            }
+
+            .card {
+                padding: 22px;
+                border-radius: 23px;
+            }
+
+            .title {
+                font-size: 28px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .folder-header {
+                padding: 20px;
+            }
+
+            .folder-body {
+                padding: 15px;
+            }
+
+            .case-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .case-status {
+                align-self: flex-start;
+            }
+
+            .case-section,
+            .observations {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .title-row {
+                align-items: flex-start;
+            }
+
+            .back {
+                flex-shrink: 0;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .subtitle {
+                font-size: 13px;
+            }
+
+            .folder-title h2 {
+                font-size: 17px;
+            }
+
+            .case-number {
+                font-size: 17px;
+            }
+
+            .comment-meta {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-<div class="card">
+        <div class="main-card">
 
-{{-- ENCABEZADO --}}
+            {{-- ENCABEZADO --}}
 
-<div class="title-row">
+            <div class="title-row">
 
-    <a href="/dashboard" class="back">
-        ←
-    </a>
+                <a href="{{ url('/dashboard') }}" class="back">
+                    ←
+                </a>
 
-    <h1 class="title">
-        Seguimiento de Casos
-    </h1>
-
-</div>
-
-<p class="subtitle">
-    Consulta el estado de tu caso y revisa las observaciones
-    realizadas por el equipo de moderación.
-</p>
-
-
-{{-- MENSAJE DE ERROR --}}
-
-@if(session('error'))
-
-    <div class="alert alert-error">
-        {{ session('error') }}
-    </div>
-
-@endif
-
-
-{{-- MENSAJE DE ÉXITO --}}
-
-@if(session('success'))
-
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-
-@endif
-
-
-{{-- FORMULARIO --}}
-
-<div class="form-card">
-
-    <form
-        method="GET"
-        action="{{ route('cases.tracking') }}"
-    >
-
-        <div class="form-grid">
-
-            <div class="field">
-
-                <label for="anonymous_nickname">
-                    Nombre de usuario
-                </label>
-
-                <input
-                    type="text"
-                    id="anonymous_nickname"
-                    name="anonymous_nickname"
-                    value="{{ old('anonymous_nickname', request('anonymous_nickname')) }}"
-                    placeholder="Ejemplo: User1234"
-                    required
-                >
+                <h1 class="title">
+                    Seguimiento de Casos
+                </h1>
 
             </div>
 
-
-            <div class="field">
-
-                <label for="case_number">
-                    Número de caso
-                </label>
-
-                <input
-                    type="text"
-                    id="case_number"
-                    name="case_number"
-                    value="{{ old('case_number', request('case_number')) }}"
-                    placeholder="Ejemplo: VS-2026-0001"
-                    required
-                >
-
-            </div>
-
-        </div>
+            <p class="subtitle">
+                Aquí puedes consultar todos tus casos, conocer su estado y
+                revisar las observaciones realizadas por el equipo de moderación.
+            </p>
 
 
-        <button
-            type="submit"
-            class="button"
-        >
-            Ver Seguimiento
-        </button>
+            {{-- ALERTAS --}}
 
-    </form>
+            @if(session('error'))
 
-</div>
-
-
-{{-- RESULTADO DEL CASO --}}
-
-@if($case)
-
-    <div class="case-card">
-
-        {{-- ENCABEZADO DEL CASO --}}
-
-        <div class="case-header">
-
-            <div>
-
-                <div class="case-number">
-                    {{ $case->case_number }}
+                <div class="alert alert-error">
+                    {{ session('error') }}
                 </div>
 
-                <div class="case-type">
+            @endif
 
-                    @if($case->type === 'Suicidio')
+            @if(session('success'))
 
-                        Orientación y prevención
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
 
-                    @elseif($case->type === 'Abuso sexual')
+            @endif
 
-                        Orientación sobre abuso sexual
 
-                    @else
+            {{-- ESTADÍSTICAS --}}
 
-                        {{ $case->type }}
+            @php
+
+                /*Se utiliza $cases porque el CaseController entrega todos los casos del usuario. */
+
+                $allCases = $cases ?? collect();
+
+                $totalCases = $allCases->count();
+
+                $openCases = $allCases->filter(function ($case) {
+
+                    $status = strtoupper(trim((string) $case->status));
+
+                    return in_array($status, [
+                        'ABIERTO',
+                        'ABERTA',
+                        'OPEN'
+                    ]);
+
+                })->count();
+
+                $followingCases = $allCases->filter(function ($case) {
+
+                    $status = strtoupper(trim((string) $case->status));
+
+                    return in_array($status, [
+                        'EN_SEGUIMIENTO',
+                        'EN SEGUIMIENTO',
+                        'SEGUIMIENTO',
+                        'EN PROCESO',
+                        'EN_PROCESO'
+                    ]);
+
+                })->count();
+
+            @endphp
+
+
+            <div class="stats">
+
+                <div class="stat">
+
+                    <div class="stat-number">
+                        {{ $totalCases }}
+                    </div>
+
+                    <div class="stat-label">
+                        Casos registrados
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-number">
+                        {{ $openCases }}
+                    </div>
+
+                    <div class="stat-label">
+                        Casos abiertos
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-number">
+                        {{ $followingCases }}
+                    </div>
+
+                    <div class="stat-label">
+                        En seguimiento
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- SEPARACIÓN DE CASOS POR TIPO --}}
+
+            @php
+
+                $suicideCases = $allCases->filter(function ($case) {
+
+                    $type = strtoupper(trim((string) $case->type));
+
+                    return in_array($type, [
+                        'SUICIDIO'
+                    ]);
+
+                });
+
+                $abuseCases = $allCases->filter(function ($case) {
+
+                    $type = strtoupper(trim((string) $case->type));
+
+                    return in_array($type, [
+                        'ABUSO_SEXUAL',
+                        'ABUSO SEXUAL'
+                    ]);
+
+                });
+
+
+                /* Función lógica para obtener el grupo de estado. */
+
+                $getStatusGroup = function ($case) {
+
+                    $status = strtoupper(trim((string) $case->status));
+
+                    if (
+                        in_array($status, [
+                            'CERRADO',
+                            'CERRADA',
+                            'CLOSED'
+                        ])
+                    ) {
+
+                        return 'closed';
+
+                    }
+
+                    if (
+                        in_array($status, [
+                            'EN_SEGUIMIENTO',
+                            'EN SEGUIMIENTO',
+                            'SEGUIMIENTO',
+                            'EN_PROCESO',
+                            'EN PROCESO'
+                        ])
+                    ) {
+
+                        return 'following';
+
+                    }
+
+                    return 'open';
+                };
+
+
+                $suicideOpen = $suicideCases->filter(function ($case) use ($getStatusGroup) {
+                    return $getStatusGroup($case) === 'open';
+                });
+
+                $suicideFollowing = $suicideCases->filter(function ($case) use ($getStatusGroup) {
+                    return $getStatusGroup($case) === 'following';
+                });
+
+                $suicideClosed = $suicideCases->filter(function ($case) use ($getStatusGroup) {
+                    return $getStatusGroup($case) === 'closed';
+                });
+
+
+                $abuseOpen = $abuseCases->filter(function ($case) use ($getStatusGroup) {
+                    return $getStatusGroup($case) === 'open';
+                });
+
+                $abuseFollowing = $abuseCases->filter(function ($case) use ($getStatusGroup) {
+                    return $getStatusGroup($case) === 'following';
+                });
+
+                $abuseClosed = $abuseCases->filter(function ($case) use ($getStatusGroup) {
+                    return $getStatusGroup($case) === 'closed';
+                });
+
+            @endphp
+
+
+            {{-- CARPETA: SUICIDIO --}}
+
+            <div class="folder">
+
+                <div class="folder-header">
+
+                    <div class="folder-title">
+
+                        <div class="folder-icon">
+                            📁
+                        </div>
+
+                        <div>
+
+                            <h2>
+                                Casos de Suicidio
+                            </h2>
+
+                            <div class="folder-count">
+                                {{ $suicideCases->count() }}
+                                {{ $suicideCases->count() === 1 ? 'caso' : 'casos' }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="folder-body">
+
+                    {{-- ABIERTOS --}}
+
+                    @if($suicideOpen->count() > 0)
+
+                        <div class="status-section">
+
+                            <button type="button" class="status-header active" onclick="toggleStatus(this)">
+
+                                <div class="status-header-left">
+
+                                    <span class="status-name">
+                                        Casos abiertos
+                                    </span>
+
+                                    <span class="status-count">
+                                        {{ $suicideOpen->count() }}
+                                    </span>
+
+                                </div>
+
+                                <span class="arrow">
+                                    ▼
+                                </span>
+
+                            </button>
+
+
+                            <div class="status-content">
+
+                                @foreach($suicideOpen as $case)
+
+                                    {{-- TARJETA DEL CASO --}}
+
+                                    <div class="case-card">
+
+                                        <div class="case-header">
+
+                                            <div class="case-info">
+
+                                                <div class="case-number">
+                                                    {{ $case->case_number }}
+                                                </div>
+
+                                                <div class="case-date">
+
+                                                    Registrado el
+
+                                                    {{ optional($case->created_at)->format('d/m/Y H:i') }}
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="case-status status-open">
+                                                ABIERTO
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="case-section">
+
+                                            <div class="section-label">
+                                                Situación reportada
+                                            </div>
+
+                                            <div class="description-box">
+                                                {{ $case->description }}
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="observations">
+
+                                            <div class="observations-title">
+
+                                                <span>💬</span>
+
+                                                Observaciones del equipo de moderación
+
+                                            </div>
+
+
+                                            @if($case->comments && $case->comments->count() > 0)
+
+                                                @foreach($case->comments as $comment)
+
+                                                    <div class="comment">
+
+                                                        <div class="comment-meta">
+
+                                                            <span class="comment-author">
+
+                                                                @if($comment->user)
+
+                                                                    @if($comment->user->role === 'MODERATOR')
+
+                                                                        Moderador
+
+                                                                    @elseif($comment->user->role === 'ADMIN')
+
+                                                                        Administrador
+
+                                                                    @else
+
+                                                                        {{ $comment->user->anonymous_nickname ?? 'Equipo VitaSafe' }}
+
+                                                                    @endif
+
+                                                                @else
+
+                                                                    Equipo VitaSafe
+
+                                                                @endif
+
+                                                            </span>
+
+
+                                                            <span class="comment-date">
+
+                                                                {{ optional($comment->created_at)->format('d/m/Y H:i') }}
+
+                                                            </span>
+
+                                                        </div>
+
+
+                                                        <div class="comment-bubble">
+
+                                                            {{ $comment->comment }}
+
+                                                        </div>
+
+                                                    </div>
+
+                                                @endforeach
+
+                                            @else
+
+                                                <div class="no-comments">
+
+                                                    Aún no hay observaciones de seguimiento
+                                                    realizadas por el equipo de moderación.
+
+                                                </div>
+
+                                            @endif
+
+                                        </div>
+
+                                    </div>
+
+                                @endforeach
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+
+                    {{-- EN SEGUIMIENTO --}}
+
+                    @if($suicideFollowing->count() > 0)
+
+                        <div class="status-section">
+
+                            <button type="button" class="status-header active" onclick="toggleStatus(this)">
+
+                                <div class="status-header-left">
+
+                                    <span class="status-name">
+                                        En seguimiento
+                                    </span>
+
+                                    <span class="status-count">
+                                        {{ $suicideFollowing->count() }}
+                                    </span>
+
+                                </div>
+
+                                <span class="arrow">
+                                    ▼
+                                </span>
+
+                            </button>
+
+
+                            <div class="status-content">
+
+                                @foreach($suicideFollowing as $case)
+
+                                    <div class="case-card">
+
+                                        <div class="case-header">
+
+                                            <div class="case-info">
+
+                                                <div class="case-number">
+                                                    {{ $case->case_number }}
+                                                </div>
+
+                                                <div class="case-date">
+
+                                                    Registrado el
+
+                                                    {{ optional($case->created_at)->format('d/m/Y H:i') }}
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="case-status status-following">
+                                                EN SEGUIMIENTO
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="case-section">
+
+                                            <div class="section-label">
+                                                Situación reportada
+                                            </div>
+
+                                            <div class="description-box">
+                                                {{ $case->description }}
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="observations">
+
+                                            <div class="observations-title">
+
+                                                <span>💬</span>
+
+                                                Observaciones del equipo de moderación
+
+                                            </div>
+
+
+                                            @if($case->comments && $case->comments->count() > 0)
+
+                                                @foreach($case->comments as $comment)
+
+                                                    <div class="comment">
+
+                                                        <div class="comment-meta">
+
+                                                            <span class="comment-author">
+
+                                                                @if($comment->user)
+
+                                                                    @if($comment->user->role === 'MODERATOR')
+
+                                                                        Moderador
+
+                                                                    @elseif($comment->user->role === 'ADMIN')
+
+                                                                        Administrador
+
+                                                                    @else
+
+                                                                        {{ $comment->user->anonymous_nickname ?? 'Equipo VitaSafe' }}
+
+                                                                    @endif
+
+                                                                @else
+
+                                                                    Equipo VitaSafe
+
+                                                                @endif
+
+                                                            </span>
+
+
+                                                            <span class="comment-date">
+
+                                                                {{ optional($comment->created_at)->format('d/m/Y H:i') }}
+
+                                                            </span>
+
+                                                        </div>
+
+
+                                                        <div class="comment-bubble">
+
+                                                            {{ $comment->comment }}
+
+                                                        </div>
+
+                                                    </div>
+
+                                                @endforeach
+
+                                            @else
+
+                                                <div class="no-comments">
+
+                                                    Aún no hay observaciones de seguimiento
+                                                    realizadas por el equipo de moderación.
+
+                                                </div>
+
+                                            @endif
+
+                                        </div>
+
+                                    </div>
+
+                                @endforeach
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+
+                    {{-- CERRADOS --}}
+
+                    @if($suicideClosed->count() > 0)
+
+                        <div class="status-section">
+
+                            <button type="button" class="status-header" onclick="toggleStatus(this)">
+
+                                <div class="status-header-left">
+
+                                    <span class="status-name">
+                                        Casos cerrados
+                                    </span>
+
+                                    <span class="status-count">
+                                        {{ $suicideClosed->count() }}
+                                    </span>
+
+                                </div>
+
+                                <span class="arrow">
+                                    ▼
+                                </span>
+
+                            </button>
+
+
+                            <div class="status-content collapsed">
+
+                                @foreach($suicideClosed as $case)
+
+                                    <div class="case-card">
+
+                                        <div class="case-header">
+
+                                            <div class="case-info">
+
+                                                <div class="case-number">
+                                                    {{ $case->case_number }}
+                                                </div>
+
+                                                <div class="case-date">
+
+                                                    Registrado el
+
+                                                    {{ optional($case->created_at)->format('d/m/Y H:i') }}
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="case-status status-closed">
+                                                CERRADO
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="case-section">
+
+                                            <div class="section-label">
+                                                Situación reportada
+                                            </div>
+
+                                            <div class="description-box">
+                                                {{ $case->description }}
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="observations">
+
+                                            <div class="observations-title">
+
+                                                <span>💬</span>
+
+                                                Observaciones del equipo de moderación
+
+                                            </div>
+
+
+                                            @if($case->comments && $case->comments->count() > 0)
+
+                                                @foreach($case->comments as $comment)
+
+                                                    <div class="comment">
+
+                                                        <div class="comment-meta">
+
+                                                            <span class="comment-author">
+
+                                                                @if($comment->user)
+
+                                                                    @if($comment->user->role === 'MODERATOR')
+
+                                                                        Moderador
+
+                                                                    @elseif($comment->user->role === 'ADMIN')
+
+                                                                        Administrador
+
+                                                                    @else
+
+                                                                        {{ $comment->user->anonymous_nickname ?? 'Equipo VitaSafe' }}
+
+                                                                    @endif
+
+                                                                @else
+
+                                                                    Equipo VitaSafe
+
+                                                                @endif
+
+                                                            </span>
+
+
+                                                            <span class="comment-date">
+
+                                                                {{ optional($comment->created_at)->format('d/m/Y H:i') }}
+
+                                                            </span>
+
+                                                        </div>
+
+
+                                                        <div class="comment-bubble">
+
+                                                            {{ $comment->comment }}
+
+                                                        </div>
+
+                                                    </div>
+
+                                                @endforeach
+
+                                            @else
+
+                                                <div class="no-comments">
+
+                                                    No hay observaciones registradas
+                                                    para este caso.
+
+                                                </div>
+
+                                            @endif
+
+                                        </div>
+
+                                    </div>
+
+                                @endforeach
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+
+                    {{-- SIN CASOS DE SUICIDIO --}}
+
+                    @if($suicideCases->count() === 0)
+
+                        <div class="empty-folder">
+
+                            <div class="empty-icon">
+                                📂
+                            </div>
+
+                            <p>
+                                No tienes casos de Suicidio registrados.
+                            </p>
+
+                        </div>
 
                     @endif
 
@@ -569,93 +1443,557 @@ input::placeholder{
             </div>
 
 
-            <div class="status">
+            {{-- CARPETA: ABUSO SEXUAL --}}
 
-                {{ $case->status }}
+            <div class="folder">
 
-            </div>
+                <div class="folder-header">
 
-        </div>
+                    <div class="folder-title">
 
-
-        {{-- DESCRIPCIÓN ORIGINAL --}}
-
-        <div class="case-description">
-
-            <div class="case-description-title">
-                Situación reportada
-            </div>
-
-            {{ $case->description }}
-
-        </div>
-
-
-        {{-- SEGUIMIENTO --}}
-
-        <div class="tracking">
-
-            <div class="tracking-title">
-                Seguimiento del caso
-            </div>
-
-
-            @if($case->comments->count() > 0)
-
-                @foreach($case->comments as $comment)
-
-                    <div class="comment">
-
-                        <div class="comment-top">
-
-                            <div class="comment-author">
-
-                                @if($comment->user)
-
-                                    @if($comment->user->role === 'MODERATOR')
-
-                                        Moderador
-
-                                    @else
-
-                                        {{ $comment->user->anonymous_nickname ?? 'Usuario' }}
-
-                                    @endif
-
-                                @else
-
-                                    Equipo UMG Xela
-
-                                @endif
-
-                            </div>
-
-
-                            <div class="comment-date">
-
-                                {{ $comment->created_at->format('d/m/Y H:i') }}
-
-                            </div>
-
+                        <div class="folder-icon">
+                            📁
                         </div>
 
+                        <div>
 
-                        <div class="comment-text">
+                            <h2>
+                                Casos de Abuso sexual
+                            </h2>
 
-                            {{ $comment->comment }}
+                            <div class="folder-count">
+                                {{ $abuseCases->count() }}
+                                {{ $abuseCases->count() === 1 ? 'caso' : 'casos' }}
+                            </div>
 
                         </div>
 
                     </div>
 
-                @endforeach
+                </div>
 
-            @else
 
-                <div class="no-comments">
+                <div class="folder-body">
 
-                    Aún no hay observaciones de seguimiento
-                    realizadas por el moderador.
+                    {{-- ABIERTOS --}}
+
+                    @if($abuseOpen->count() > 0)
+
+                        <div class="status-section">
+
+                            <button type="button" class="status-header active" onclick="toggleStatus(this)">
+
+                                <div class="status-header-left">
+
+                                    <span class="status-name">
+                                        Casos abiertos
+                                    </span>
+
+                                    <span class="status-count">
+                                        {{ $abuseOpen->count() }}
+                                    </span>
+
+                                </div>
+
+                                <span class="arrow">
+                                    ▼
+                                </span>
+
+                            </button>
+
+
+                            <div class="status-content">
+
+                                @foreach($abuseOpen as $case)
+
+                                    <div class="case-card">
+
+                                        <div class="case-header">
+
+                                            <div class="case-info">
+
+                                                <div class="case-number">
+                                                    {{ $case->case_number }}
+                                                </div>
+
+                                                <div class="case-date">
+
+                                                    Registrado el
+
+                                                    {{ optional($case->created_at)->format('d/m/Y H:i') }}
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="case-status status-open">
+                                                ABIERTO
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="case-section">
+
+                                            <div class="section-label">
+                                                Situación reportada
+                                            </div>
+
+                                            <div class="description-box">
+                                                {{ $case->description }}
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="observations">
+
+                                            <div class="observations-title">
+
+                                                <span>💬</span>
+
+                                                Observaciones del equipo de moderación
+
+                                            </div>
+
+
+                                            @if($case->comments && $case->comments->count() > 0)
+
+                                                @foreach($case->comments as $comment)
+
+                                                    <div class="comment">
+
+                                                        <div class="comment-meta">
+
+                                                            <span class="comment-author">
+
+                                                                @if($comment->user)
+
+                                                                    @if($comment->user->role === 'MODERATOR')
+
+                                                                        Moderador
+
+                                                                    @elseif($comment->user->role === 'ADMIN')
+
+                                                                        Administrador
+
+                                                                    @else
+
+                                                                        {{ $comment->user->anonymous_nickname ?? 'Equipo VitaSafe' }}
+
+                                                                    @endif
+
+                                                                @else
+
+                                                                    Equipo VitaSafe
+
+                                                                @endif
+
+                                                            </span>
+
+
+                                                            <span class="comment-date">
+
+                                                                {{ optional($comment->created_at)->format('d/m/Y H:i') }}
+
+                                                            </span>
+
+                                                        </div>
+
+
+                                                        <div class="comment-bubble">
+
+                                                            {{ $comment->comment }}
+
+                                                        </div>
+
+                                                    </div>
+
+                                                @endforeach
+
+                                            @else
+
+                                                <div class="no-comments">
+
+                                                    Aún no hay observaciones de seguimiento
+                                                    realizadas por el equipo de moderación.
+
+                                                </div>
+
+                                            @endif
+
+                                        </div>
+
+                                    </div>
+
+                                @endforeach
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+
+                    {{-- EN SEGUIMIENTO --}}
+
+                    @if($abuseFollowing->count() > 0)
+
+                        <div class="status-section">
+
+                            <button type="button" class="status-header active" onclick="toggleStatus(this)">
+
+                                <div class="status-header-left">
+
+                                    <span class="status-name">
+                                        En seguimiento
+                                    </span>
+
+                                    <span class="status-count">
+                                        {{ $abuseFollowing->count() }}
+                                    </span>
+
+                                </div>
+
+                                <span class="arrow">
+                                    ▼
+                                </span>
+
+                            </button>
+
+
+                            <div class="status-content">
+
+                                @foreach($abuseFollowing as $case)
+
+                                    <div class="case-card">
+
+                                        <div class="case-header">
+
+                                            <div class="case-info">
+
+                                                <div class="case-number">
+                                                    {{ $case->case_number }}
+                                                </div>
+
+                                                <div class="case-date">
+
+                                                    Registrado el
+
+                                                    {{ optional($case->created_at)->format('d/m/Y H:i') }}
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="case-status status-following">
+                                                EN SEGUIMIENTO
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="case-section">
+
+                                            <div class="section-label">
+                                                Situación reportada
+                                            </div>
+
+                                            <div class="description-box">
+                                                {{ $case->description }}
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="observations">
+
+                                            <div class="observations-title">
+
+                                                <span>💬</span>
+
+                                                Observaciones del equipo de moderación
+
+                                            </div>
+
+
+                                            @if($case->comments && $case->comments->count() > 0)
+
+                                                @foreach($case->comments as $comment)
+
+                                                    <div class="comment">
+
+                                                        <div class="comment-meta">
+
+                                                            <span class="comment-author">
+
+                                                                @if($comment->user)
+
+                                                                    @if($comment->user->role === 'MODERATOR')
+
+                                                                        Moderador
+
+                                                                    @elseif($comment->user->role === 'ADMIN')
+
+                                                                        Administrador
+
+                                                                    @else
+
+                                                                        {{ $comment->user->anonymous_nickname ?? 'Equipo VitaSafe' }}
+
+                                                                    @endif
+
+                                                                @else
+
+                                                                    Equipo VitaSafe
+
+                                                                @endif
+
+                                                            </span>
+
+
+                                                            <span class="comment-date">
+
+                                                                {{ optional($comment->created_at)->format('d/m/Y H:i') }}
+
+                                                            </span>
+
+                                                        </div>
+
+
+                                                        <div class="comment-bubble">
+
+                                                            {{ $comment->comment }}
+
+                                                        </div>
+
+                                                    </div>
+
+                                                @endforeach
+
+                                            @else
+
+                                                <div class="no-comments">
+
+                                                    Aún no hay observaciones de seguimiento
+                                                    realizadas por el equipo de moderación.
+
+                                                </div>
+
+                                            @endif
+
+                                        </div>
+
+                                    </div>
+
+                                @endforeach
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+
+                    {{-- CERRADOS --}}
+
+                    @if($abuseClosed->count() > 0)
+
+                        <div class="status-section">
+
+                            <button type="button" class="status-header" onclick="toggleStatus(this)">
+
+                                <div class="status-header-left">
+
+                                    <span class="status-name">
+                                        Casos cerrados
+                                    </span>
+
+                                    <span class="status-count">
+                                        {{ $abuseClosed->count() }}
+                                    </span>
+
+                                </div>
+
+                                <span class="arrow">
+                                    ▼
+                                </span>
+
+                            </button>
+
+
+                            <div class="status-content collapsed">
+
+                                @foreach($abuseClosed as $case)
+
+                                    <div class="case-card">
+
+                                        <div class="case-header">
+
+                                            <div class="case-info">
+
+                                                <div class="case-number">
+                                                    {{ $case->case_number }}
+                                                </div>
+
+                                                <div class="case-date">
+
+                                                    Registrado el
+
+                                                    {{ optional($case->created_at)->format('d/m/Y H:i') }}
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="case-status status-closed">
+                                                CERRADO
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="case-section">
+
+                                            <div class="section-label">
+                                                Situación reportada
+                                            </div>
+
+                                            <div class="description-box">
+                                                {{ $case->description }}
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="observations">
+
+                                            <div class="observations-title">
+
+                                                <span>💬</span>
+
+                                                Observaciones del equipo de moderación
+
+                                            </div>
+
+
+                                            @if($case->comments && $case->comments->count() > 0)
+
+                                                @foreach($case->comments as $comment)
+
+                                                    <div class="comment">
+
+                                                        <div class="comment-meta">
+
+                                                            <span class="comment-author">
+
+                                                                @if($comment->user)
+
+                                                                    @if($comment->user->role === 'MODERATOR')
+
+                                                                        Moderador
+
+                                                                    @elseif($comment->user->role === 'ADMIN')
+
+                                                                        Administrador
+
+                                                                    @else
+
+                                                                        {{ $comment->user->anonymous_nickname ?? 'Equipo VitaSafe' }}
+
+                                                                    @endif
+
+                                                                @else
+
+                                                                    Equipo VitaSafe
+
+                                                                @endif
+
+                                                            </span>
+
+
+                                                            <span class="comment-date">
+
+                                                                {{ optional($comment->created_at)->format('d/m/Y H:i') }}
+
+                                                            </span>
+
+                                                        </div>
+
+
+                                                        <div class="comment-bubble">
+
+                                                            {{ $comment->comment }}
+
+                                                        </div>
+
+                                                    </div>
+
+                                                @endforeach
+
+                                            @else
+
+                                                <div class="no-comments">
+
+                                                    No hay observaciones registradas
+                                                    para este caso.
+
+                                                </div>
+
+                                            @endif
+
+                                        </div>
+
+                                    </div>
+
+                                @endforeach
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+
+                    {{-- SIN CASOS DE ABUSO --}}
+
+                    @if($abuseCases->count() === 0)
+
+                        <div class="empty-folder">
+
+                            <div class="empty-icon">
+                                📂
+                            </div>
+
+                            <p>
+                                No tienes casos de Abuso sexual registrados.
+                            </p>
+
+                        </div>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+
+            {{-- SIN NINGÚN CASO --}}
+
+            @if($totalCases === 0)
+
+                <div class="empty-folder">
+
+                    <div class="empty-icon">
+                        📂
+                    </div>
+
+                    <p>
+                        Actualmente no tienes casos registrados.
+                    </p>
 
                 </div>
 
@@ -665,11 +2003,37 @@ input::placeholder{
 
     </div>
 
-@endif
 
-</div>
+    <script>
 
-</div>
+        function toggleStatus(button) {
+
+            const content = button.nextElementSibling;
+
+            if (!content) {
+                return;
+            }
+
+            const isCollapsed =
+                content.classList.contains('collapsed');
+
+            if (isCollapsed) {
+
+                content.classList.remove('collapsed');
+
+                button.classList.add('active');
+
+            } else {
+
+                content.classList.add('collapsed');
+
+                button.classList.remove('active');
+
+            }
+        }
+
+    </script>
 
 </body>
+
 </html>

@@ -13,11 +13,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ChatController;
 
 
-/*
-|--------------------------------------------------------------------------
-| HOME
-|--------------------------------------------------------------------------
-*/
+    /* HOME */
 
 Route::get('/', function () {
     return view('welcome');
@@ -125,7 +121,40 @@ Route::middleware([
     'must.change.password',
     'maintenance'
 ])->group(function () {
+/*
+|--------------------------------------------------------------------------
+| SEGUIMIENTO DE CASOS
+|--------------------------------------------------------------------------
+*/
 
+Route::get(
+    '/cases',
+    [CaseController::class, 'tracking']
+)->name('cases.tracking');
+
+
+/*
+|--------------------------------------------------------------------------
+| RESPONDER A UN CASO
+|--------------------------------------------------------------------------
+*/
+
+Route::post(
+    '/cases/{id}/reply',
+    [CaseController::class, 'replyToCase']
+)->name('cases.reply');
+
+
+/*
+|--------------------------------------------------------------------------
+| MARCAR NOTIFICACIÓN COMO LEÍDA
+|--------------------------------------------------------------------------
+*/
+
+Route::post(
+    '/cases/notifications/{id}/read',
+    [CaseController::class, 'markNotificationAsRead']
+)->name('cases.notification.read');
 
     /*
     |--------------------------------------------------------------------------
