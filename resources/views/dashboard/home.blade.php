@@ -766,8 +766,8 @@
             .floating-message-wrapper {
                 max-width: 82%;
             }
-
         }
+        
     </style>
 
 </head>

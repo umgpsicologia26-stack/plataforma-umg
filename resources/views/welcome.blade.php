@@ -81,8 +81,7 @@
 <section
     id="top"
     class="home-hero">
-
-    <div class="hero-card">
+        <div class="hero-card">
 
         <div class="hero-text">
 
@@ -1723,7 +1722,7 @@ document.addEventListener('keydown', function(event)
     Copyright &copy; {{ date('Y') }}
     <a href="#">
         UMG
-    </a>.
+    </a>
     Todos los derechos reservados.
     </footer>
         </body>

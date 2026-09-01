@@ -1,0 +1,41 @@
+/* =========================================================
+   UMG · tilt-3d.js (opcional)
+   Efecto de inclinación 3D siguiendo el mouse en tarjetas.
+   No depende de nada más y no rompe el resto del JS existente.
+   Pega este <script src="{{ asset('js/tilt-3d.js') }}"></script>
+   justo antes de </body> en welcome.blade.php si lo quieres usar.
+   ========================================================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const tiltSelectors = '.glass-card, .project-tile, .gallery-project-card';
+    const cards = document.querySelectorAll(tiltSelectors);
+
+    cards.forEach(function (card) {
+
+        card.style.transformStyle = 'preserve-3d';
+
+        card.addEventListener('mousemove', function (event) {
+
+            const rect = card.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            const rotateX = ((y - centerY) / centerY) * -6;
+            const rotateY = ((x - centerX) / centerX) * 6;
+
+            card.style.transform =
+                'perspective(900px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-6px)';
+
+        });
+
+        card.addEventListener('mouseleave', function () {
+            card.style.transform = '';
+        });
+
+    });
+
+});
