@@ -217,26 +217,6 @@
         color: #475569;
     }
 
-    .priority-low {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .priority-medium {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .priority-high {
-        background: #ffedd5;
-        color: #c2410c;
-    }
-
-    .priority-critical {
-        background: #fee2e2;
-        color: #b91c1c;
-    }
-
     .situation {
         background: #f8fafc;
         border-left: 4px solid #2563eb;
@@ -318,16 +298,6 @@
 
     .btn-primary:hover {
         background: #1d4ed8;
-        transform: translateY(-1px);
-    }
-
-    .btn-priority {
-        background: #7c3aed;
-        color: white;
-    }
-
-    .btn-priority:hover {
-        background: #6d28d9;
         transform: translateY(-1px);
     }
 
@@ -486,719 +456,655 @@
 
 <nav class="navbar">
 
-    <div class="brand">
 
-        <div class="brand-icon">
-            <i class="fas fa-shield-halved"></i>
-        </div>
+<div class="brand">
 
-        <div>
-            <h2>Panel del Moderador</h2>
-            <span>Plataforma UMG Xela</span>
-        </div>
-
-    </div>
-
-</nav>
-
-
-<main class="container">
-
-    <a
-        href="{{ route('moderator.cases') }}"
-        class="back">
-
-        <i class="fas fa-arrow-left"></i>
-
-        Volver a mis casos
-
-    </a>
-
-
-    {{-- MENSAJE DE ÉXITO --}}
-
-    @if(session('success'))
-
-        <div class="alert alert-success">
-
-            <i class="fas fa-circle-check"></i>
-
-            {{ session('success') }}
-
-        </div>
-
-    @endif
-
-
-    {{-- MENSAJE DE ERROR --}}
-
-    @if(session('error'))
-
-        <div class="alert alert-error">
-
-            <i class="fas fa-circle-exclamation"></i>
-
-            {{ session('error') }}
-
-        </div>
-
-    @endif
-
-
-    {{-- ERRORES DE VALIDACIÓN --}}
-
-    @if($errors->any())
-
-        <div class="alert alert-error">
-
-            <strong>Se encontraron errores:</strong>
-
-            <ul style="margin-top: 7px; padding-left: 20px;">
-
-                @foreach($errors->all() as $error)
-
-                    <li>{{ $error }}</li>
-
-                @endforeach
-
-            </ul>
-
-        </div>
-
-    @endif
-
-
-    <div class="page-title">
-
-        <h1>Detalle del caso</h1>
-
-        <p>
-            Información y seguimiento del caso asignado.
-        </p>
-
-    </div>
-
-
-    {{-- ========================================================= --}}
-    {{-- INFORMACIÓN DEL CASO --}}
-    {{-- ========================================================= --}}
-
-    <div class="card">
-
-        <div class="card-title">
-
-            <div class="card-title-icon">
-                <i class="fas fa-folder-open"></i>
-            </div>
-
-            <div>
-
-                <h2>Información del caso</h2>
-
-                <p>
-                    Datos registrados por el usuario.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="info-grid">
-
-            {{-- NÚMERO DE CASO --}}
-
-            <div class="info-box">
-
-                <span class="info-label">
-                    Número de caso
-                </span>
-
-                <span class="info-value case-number">
-                    {{ $case->case_number }}
-                </span>
-
-            </div>
-
-
-            {{-- TIPO DE CASO --}}
-
-            <div class="info-box">
-
-                <span class="info-label">
-                    Tipo de caso
-                </span>
-
-                <span class="info-value">
-
-                    @if($case->type === 'SUICIDIO')
-
-                        <span class="badge badge-suicide">
-
-                            <i class="fas fa-heart-pulse"></i>
-
-                            Suicidio
-
-                        </span>
-
-                    @elseif(in_array($case->type, ['ABUSO', 'ABUSO_SEXUAL']))
-
-                        <span class="badge badge-abuse">
-
-                            <i class="fas fa-shield-heart"></i>
-
-                            Abuso sexual
-
-                        </span>
-
-                    @else
-
-                        {{ $case->type }}
-
-                    @endif
-
-                </span>
-
-            </div>
-
-
-            {{-- USUARIO --}}
-
-            <div class="info-box">
-
-                <span class="info-label">
-                    Usuario
-                </span>
-
-                <span class="info-value">
-
-                    @if($case->user)
-
-                        @php
-                            $anonymousName = $case->user->anonymous_nickname ?? null;
-                            $fullName = $case->user->full_name ?? null;
-                            $firstLastName = trim(
-                                ($case->user->first_name ?? '') . ' ' .
-                                ($case->user->last_name ?? '')
-                            );
-                        @endphp
-
-                        {{ $anonymousName ?: $fullName ?: ($firstLastName ?: 'Usuario') }}
-
-                    @else
-
-                        Usuario
-
-                    @endif
-
-                </span>
-
-            </div>
-
-
-            {{-- FECHA DE CREACIÓN --}}
-
-            <div class="info-box">
-
-                <span class="info-label">
-                    Fecha de creación
-                </span>
-
-                <span class="info-value">
-
-                    {{ $case->created_at
-                        ? $case->created_at->format('d/m/Y H:i')
-                        : 'No disponible'
-                    }}
-
-                </span>
-
-            </div>
-
-
-            {{-- ESTADO --}}
-
-            <div class="info-box">
-
-                <span class="info-label">
-                    Estado actual
-                </span>
-
-                <span class="info-value">
-
-                    @if($case->status === 'En seguimiento')
-
-                        <span class="badge badge-follow">
-
-                            <i class="fas fa-spinner"></i>
-
-                            En seguimiento
-
-                        </span>
-
-                    @elseif($case->status === 'Cerrado')
-
-                        <span class="badge badge-closed">
-
-                            <i class="fas fa-lock"></i>
-
-                            Cerrado
-
-                        </span>
-
-                    @elseif($case->status === 'Abierto')
-
-                        <span class="badge badge-open">
-
-                            <i class="fas fa-folder-open"></i>
-
-                            Abierto
-
-                        </span>
-
-                    @else
-
-                        <span class="badge badge-open">
-                            {{ $case->status }}
-                        </span>
-
-                    @endif
-
-                </span>
-
-            </div>
-
-
-            {{-- PRIORIDAD --}}
-
-            <div class="info-box">
-
-                <span class="info-label">
-                    Prioridad
-                </span>
-
-                <span class="info-value">
-
-                    @if($case->priority === 'Baja')
-
-                        <span class="badge priority-low">
-
-                            <i class="fas fa-arrow-down"></i>
-
-                            Baja
-
-                        </span>
-
-                    @elseif($case->priority === 'Media')
-
-                        <span class="badge priority-medium">
-
-                            <i class="fas fa-minus"></i>
-
-                            Media
-
-                        </span>
-
-                    @elseif($case->priority === 'Alta')
-
-                        <span class="badge priority-high">
-
-                            <i class="fas fa-arrow-up"></i>
-
-                            Alta
-
-                        </span>
-
-                    @elseif(in_array($case->priority, ['Critica', 'Crítica']))
-
-                        <span class="badge priority-critical">
-
-                            <i class="fas fa-triangle-exclamation"></i>
-
-                            Crítica
-
-                        </span>
-
-                    @else
-
-                        <span class="badge priority-medium">
-                            {{ $case->priority ?: 'Media' }}
-                        </span>
-
-                    @endif
-
-                </span>
-
-            </div>
-
-
-            {{-- MODERADOR --}}
-
-            <div class="info-box">
-
-                <span class="info-label">
-                    Moderador asignado
-                </span>
-
-                <span class="info-value">
-
-                    @if($case->moderator)
-
-                        {{ $case->moderator->first_name ?? '' }}
-                        {{ $case->moderator->last_name ?? '' }}
-
-                    @else
-
-                        No asignado
-
-                    @endif
-
-                </span>
-
-            </div>
-
-
-            {{-- ACTUALIZACIÓN --}}
-
-            <div class="info-box">
-
-                <span class="info-label">
-                    Última actualización
-                </span>
-
-                <span class="info-value">
-
-                    {{ $case->updated_at
-                        ? $case->updated_at->format('d/m/Y H:i')
-                        : 'No disponible'
-                    }}
-
-                </span>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- ========================================================= --}}
-    {{-- SITUACIÓN REPORTADA --}}
-    {{-- ========================================================= --}}
-
-    <div class="card">
-
-        <div class="card-title">
-
-            <div class="card-title-icon">
-                <i class="fas fa-file-lines"></i>
-            </div>
-
-            <div>
-
-                <h2>Situación reportada por el usuario</h2>
-
-                <p>
-                    Información proporcionada al registrar el caso.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="situation">
-
-            <div class="situation-label">
-
-                <i class="fas fa-circle-info"></i>
-
-                Situación reportada
-
-            </div>
-
-            {{ $case->description }}
-
-        </div>
-
-    </div>
-
-
-<!-- ACTUALIZAR CASO -->
-
-<div class="card">
-
-<div class="card-title">
-
-    <div class="card-title-icon">
-        <i class="fas fa-sliders"></i>
+    <div class="brand-icon">
+        <i class="fas fa-shield-halved"></i>
     </div>
 
     <div>
 
-        <h2>Actualizar caso</h2>
+        <h2>Panel del Moderador</h2>
 
-        <p>
-            Selecciona la prioridad y el estado del caso. Los cambios se aplicarán al guardar.
-        </p>
+        <span>Plataforma UMG Xela</span>
 
     </div>
 
 </div>
 
+</nav>
 
-<form
-    method="POST"
-    action="{{ route('moderator.case.update', $case->id) }}">
+<main class="container">
 
-    @csrf
-    @method('PUT')
+<a
+    href="{{ route('moderator.cases') }}"
+    class="back">
 
+    <i class="fas fa-arrow-left"></i>
 
-    <!-- PRIORIDAD -->
+    Volver a mis casos
 
-<div class="form-group">
-
-    <label for="priority">
-        Prioridad del caso
-    </label>
-
-    <select
-        name="priority"
-        id="priority"
-        required>
-
-        <option value="" selected disabled>
-            Seleccionar prioridad
-        </option>
-
-        <option value="Baja">
-            Baja
-        </option>
-
-        <option value="Media">
-            Media
-        </option>
-
-        <option value="Alta">
-            Alta
-        </option>
-
-        <option value="Critica">
-            Crítica
-        </option>
-
-    </select>
-
-</div>
+</a>
 
 
-<!-- ESTADO -->
+{{-- MENSAJE DE ÉXITO --}}
 
-<div class="form-group">
+@if(session('success'))
 
-    <label for="status">
-        Estado del caso
-    </label>
+    <div class="alert alert-success">
 
-    <select
-        name="status"
-        id="status"
-        required>
+        <i class="fas fa-circle-check"></i>
 
-        <option value="" selected disabled>
-            Seleccionar estado
-        </option>
+        {{ session('success') }}
 
-        <option value="Abierto">
-            Abierto
-        </option>
-
-        <option value="En seguimiento">
-            En seguimiento
-        </option>
-
-        <option value="Cerrado">
-            Cerrado
-        </option>
-
-    </select>
-
-</div>
-
-    <!-- RESPUESTA / COMENTARIO --> 
-        <div class="form-group">
-            <label for="comment"> Respuesta </label> 
-            <textarea id="comment" 
-            name="comment" 
-            placeholder="Escribe aquí la respuesta, orientación o seguimiento para el usuario..." 
-            maxlength="5000">
-            {{ old('comment') }}
-                </textarea> 
-            <small style=" display:block; margin-top:7px; color:#64748b; font-size:11px; "> Este comentario quedará registrado en el historial del caso y podrá ser consultado como parte del seguimiento. 
-                </small> 
     </div>
 
-    <!-- BOTÓN -->
+@endif
 
-    <button
-        type="submit"
-        class="btn btn-primary">
 
-        <i class="fas fa-save"></i>
+{{-- MENSAJE DE ERROR --}}
 
-        Guardar cambios
+@if(session('error'))
 
-    </button>
+    <div class="alert alert-error">
 
-</form>
+        <i class="fas fa-circle-exclamation"></i>
+
+        {{ session('error') }}
+
+    </div>
+
+@endif
+
+
+{{-- ERRORES DE VALIDACIÓN --}}
+
+@if($errors->any())
+
+    <div class="alert alert-error">
+
+        <strong>Se encontraron errores:</strong>
+
+        <ul style="margin-top: 7px; padding-left: 20px;">
+
+            @foreach($errors->all() as $error)
+
+                <li>{{ $error }}</li>
+
+            @endforeach
+
+        </ul>
+
+    </div>
+
+@endif
+
+
+<div class="page-title">
+
+    <h1>Detalle del caso</h1>
+
+    <p>
+        Información y seguimiento del caso asignado.
+    </p>
 
 </div>
 
 
-    {{-- ========================================================= --}}
-    {{-- HISTORIAL --}}
-    {{-- ========================================================= --}}
+{{-- ========================================================= --}}
+{{-- INFORMACIÓN DEL CASO --}}
+{{-- ========================================================= --}}
 
-    <div class="card">
+<div class="card">
 
-        <div class="card-title">
+    <div class="card-title">
 
-            <div class="card-title-icon">
-                <i class="fas fa-clock-rotate-left"></i>
-            </div>
+        <div class="card-title-icon">
+            <i class="fas fa-folder-open"></i>
+        </div>
 
-            <div>
+        <div>
 
-                <h2>Historial del caso</h2>
+            <h2>Información del caso</h2>
 
-                <p>
-                    Registro de comentarios y seguimiento.
-                </p>
+            <p>
+                Datos registrados por el usuario.
+            </p>
 
-            </div>
+        </div>
+
+    </div>
+
+
+    <div class="info-grid">
+
+        {{-- NÚMERO DE CASO --}}
+
+        <div class="info-box">
+
+            <span class="info-label">
+                Número de caso
+            </span>
+
+            <span class="info-value case-number">
+                {{ $case->case_number }}
+            </span>
 
         </div>
 
 
-        @if($case->comments && $case->comments->count() > 0)
+        {{-- TIPO DE CASO --}}
 
-            <div class="history">
+        <div class="info-box">
 
-                @foreach($case->comments->sortByDesc('created_at') as $comment)
+            <span class="info-label">
+                Tipo de caso
+            </span>
 
-                    <div class="history-item">
+            <span class="info-value">
 
-                        <div class="history-header">
+                @if($case->type === 'SUICIDIO')
 
-                            <div class="history-user">
+                    <span class="badge badge-suicide">
 
-                                <div class="history-avatar">
-                                    <i class="fas fa-user-shield"></i>
-                                </div>
+                        <i class="fas fa-heart-pulse"></i>
 
-                                <div>
+                        Suicidio
 
-                                    <strong>
+                    </span>
 
-                                        @if($comment->user)
+                @elseif(in_array($case->type, ['ABUSO', 'ABUSO_SEXUAL']))
 
-                                            @php
-                                                $commentFullName = $comment->user->full_name ?? null;
+                    <span class="badge badge-abuse">
 
-                                                $commentFirstLast = trim(
-                                                    ($comment->user->first_name ?? '') . ' ' .
-                                                    ($comment->user->last_name ?? '')
-                                                );
-                                            @endphp
+                        <i class="fas fa-shield-heart"></i>
 
-                                            {{ $commentFullName ?: ($commentFirstLast ?: 'Usuario') }}
+                        Abuso sexual
 
-                                        @else
+                    </span>
 
-                                            Moderador
+                @else
 
-                                        @endif
+                    {{ $case->type }}
 
-                                    </strong>
+                @endif
 
-                                    <span class="history-date">
+            </span>
 
-                                        {{ $comment->created_at
-                                            ? $comment->created_at->format('d/m/Y H:i')
-                                            : ''
-                                        }}
+        </div>
 
-                                    </span>
 
-                                </div>
+        {{-- USUARIO --}}
+
+        <div class="info-box">
+
+            <span class="info-label">
+                Usuario
+            </span>
+
+            <span class="info-value">
+
+                @if($case->user)
+
+                    @php
+
+                        $anonymousName =
+                            $case->user->anonymous_nickname ?? null;
+
+                        $fullName =
+                            $case->user->full_name ?? null;
+
+                        $firstLastName = trim(
+                            ($case->user->first_name ?? '') . ' ' .
+                            ($case->user->last_name ?? '')
+                        );
+
+                    @endphp
+
+                    {{ $anonymousName ?: $fullName ?: ($firstLastName ?: 'Usuario') }}
+
+                @else
+
+                    Usuario
+
+                @endif
+
+            </span>
+
+        </div>
+
+
+        {{-- FECHA DE CREACIÓN --}}
+
+        <div class="info-box">
+
+            <span class="info-label">
+                Fecha de creación
+            </span>
+
+            <span class="info-value">
+
+                {{ $case->created_at
+                    ? $case->created_at->format('d/m/Y H:i')
+                    : 'No disponible'
+                }}
+
+            </span>
+
+        </div>
+
+
+        {{-- ESTADO --}}
+
+        <div class="info-box">
+
+            <span class="info-label">
+                Estado actual
+            </span>
+
+            <span class="info-value">
+
+                @if($case->status === 'En seguimiento')
+
+                    <span class="badge badge-follow">
+
+                        <i class="fas fa-spinner"></i>
+
+                        En seguimiento
+
+                    </span>
+
+                @elseif($case->status === 'Cerrado')
+
+                    <span class="badge badge-closed">
+
+                        <i class="fas fa-lock"></i>
+
+                        Cerrado
+
+                    </span>
+
+                @elseif($case->status === 'Abierto')
+
+                    <span class="badge badge-open">
+
+                        <i class="fas fa-folder-open"></i>
+
+                        Abierto
+
+                    </span>
+
+                @else
+
+                    <span class="badge badge-open">
+                        {{ $case->status }}
+                    </span>
+
+                @endif
+
+            </span>
+
+        </div>
+
+
+        {{-- MODERADOR --}}
+
+        <div class="info-box">
+
+            <span class="info-label">
+                Moderador asignado
+            </span>
+
+            <span class="info-value">
+
+                @if($case->moderator)
+
+                    {{ $case->moderator->first_name ?? '' }}
+                    {{ $case->moderator->last_name ?? '' }}
+
+                @else
+
+                    No asignado
+
+                @endif
+
+            </span>
+
+        </div>
+
+
+        {{-- ACTUALIZACIÓN --}}
+
+        <div class="info-box">
+
+            <span class="info-label">
+                Última actualización
+            </span>
+
+            <span class="info-value">
+
+                {{ $case->updated_at
+                    ? $case->updated_at->format('d/m/Y H:i')
+                    : 'No disponible'
+                }}
+
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{{-- ========================================================= --}}
+{{-- SITUACIÓN REPORTADA --}}
+{{-- ========================================================= --}}
+
+<div class="card">
+
+    <div class="card-title">
+
+        <div class="card-title-icon">
+            <i class="fas fa-file-lines"></i>
+        </div>
+
+        <div>
+
+            <h2>Situación reportada por el usuario</h2>
+
+            <p>
+                Información proporcionada al registrar el caso.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="situation">
+
+        <div class="situation-label">
+
+            <i class="fas fa-circle-info"></i>
+
+            Situación reportada
+
+        </div>
+
+        {{ $case->description }}
+
+    </div>
+
+</div>
+
+
+{{-- ========================================================= --}}
+{{-- ACTUALIZAR CASO --}}
+{{-- ========================================================= --}}
+
+<div class="card">
+
+    <div class="card-title">
+
+        <div class="card-title-icon">
+            <i class="fas fa-sliders"></i>
+        </div>
+
+        <div>
+
+            <h2>Actualizar caso</h2>
+
+            <p>
+                Selecciona el estado y registra un comentario de seguimiento para el usuario.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <form
+        method="POST"
+        action="{{ route('moderator.case.update', $case->id) }}">
+
+        @csrf
+        @method('PUT')
+
+
+        {{-- ESTADO --}}
+
+        <div class="form-group">
+
+            <label for="status">
+                Estado del caso
+            </label>
+
+            <select
+                name="status"
+                id="status"
+                required>
+
+                <option value="" selected disabled>
+                    Seleccionar estado
+                </option>
+
+                <option value="Abierto"
+                    {{ old('status', $case->status) === 'Abierto' ? 'selected' : '' }}>
+                    Abierto
+                </option>
+
+                <option value="En seguimiento"
+                    {{ old('status', $case->status) === 'En seguimiento' ? 'selected' : '' }}>
+                    En seguimiento
+                </option>
+
+                <option value="Cerrado"
+                    {{ old('status', $case->status) === 'Cerrado' ? 'selected' : '' }}>
+                    Cerrado
+                </option>
+
+            </select>
+
+        </div>
+
+
+        {{-- COMENTARIO DE SEGUIMIENTO --}}
+
+        <div class="form-group">
+
+            <label for="comment">
+                Comentario de seguimiento
+            </label>
+
+            <textarea
+                id="comment"
+                name="comment"
+                placeholder="Escribe aquí la respuesta, orientación o seguimiento para el usuario..."
+                maxlength="5000">{{ old('comment') }}</textarea>
+
+            <small
+                style="
+                    display:block;
+                    margin-top:7px;
+                    color:#64748b;
+                    font-size:11px;
+                ">
+
+                Este comentario quedará registrado en el historial del caso y podrá ser consultado por el usuario como parte del seguimiento.
+
+            </small>
+
+        </div>
+
+
+        {{-- BOTÓN --}}
+
+        <button
+            type="submit"
+            class="btn btn-primary">
+
+            <i class="fas fa-save"></i>
+
+            Guardar cambios
+
+        </button>
+
+    </form>
+
+</div>
+
+
+{{-- ========================================================= --}}
+{{-- HISTORIAL --}}
+{{-- ========================================================= --}}
+
+<div class="card">
+
+    <div class="card-title">
+
+        <div class="card-title-icon">
+            <i class="fas fa-clock-rotate-left"></i>
+        </div>
+
+        <div>
+
+            <h2>Historial del caso</h2>
+
+            <p>
+                Registro de comentarios y seguimiento.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    @if($case->comments && $case->comments->count() > 0)
+
+        <div class="history">
+
+            @foreach($case->comments->sortByDesc('created_at') as $comment)
+
+                <div class="history-item">
+
+                    <div class="history-header">
+
+                        <div class="history-user">
+
+                            <div class="history-avatar">
+                                <i class="fas fa-user-shield"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+
+                                    @if($comment->user)
+
+                                        @php
+
+                                            $commentFullName =
+                                                $comment->user->full_name ?? null;
+
+                                            $commentFirstLast = trim(
+                                                ($comment->user->first_name ?? '') . ' ' .
+                                                ($comment->user->last_name ?? '')
+                                            );
+
+                                        @endphp
+
+                                        {{ $commentFullName ?: ($commentFirstLast ?: 'Usuario') }}
+
+                                    @else
+
+                                        Moderador
+
+                                    @endif
+
+                                </strong>
+
+                                <span class="history-date">
+
+                                    {{ $comment->created_at
+                                        ? $comment->created_at->format('d/m/Y H:i')
+                                        : ''
+                                    }}
+
+                                </span>
 
                             </div>
 
-
-                            @php
-                                $commentType = strtoupper(trim((string) $comment->type));
-                            @endphp
-
-
-                            @if($commentType === 'OBSERVACION')
-
-                                <span class="badge type-observacion">
-                                    Observación
-                                </span>
-
-                            @elseif($commentType === 'CORRECCION')
-
-                                <span class="badge type-correccion">
-                                    Corrección
-                                </span>
-
-                            @elseif($commentType === 'SEGUIMIENTO')
-
-                                <span class="badge type-seguimiento">
-                                    Seguimiento
-                                </span>
-
-                            @else
-
-                                <span class="badge type-seguimiento">
-                                    {{ $comment->type }}
-                                </span>
-
-                            @endif
-
                         </div>
 
 
-                        <div class="history-comment">
+                        @php
 
-                            {{ $comment->comment }}
+                            $commentType =
+                                strtoupper(trim((string) $comment->type));
 
-                        </div>
+                        @endphp
+
+
+                        @if($commentType === 'OBSERVACION')
+
+                            <span class="badge type-observacion">
+                                Observación
+                            </span>
+
+                        @elseif($commentType === 'CORRECCION')
+
+                            <span class="badge type-correccion">
+                                Corrección
+                            </span>
+
+                        @elseif($commentType === 'SEGUIMIENTO')
+
+                            <span class="badge type-seguimiento">
+                                Seguimiento
+                            </span>
+
+                        @else
+
+                            <span class="badge type-seguimiento">
+                                {{ $comment->type }}
+                            </span>
+
+                        @endif
 
                     </div>
 
-                @endforeach
 
-            </div>
+                    <div class="history-comment">
 
-        @else
+                        {{ $comment->comment }}
 
-            <div class="empty">
+                    </div>
 
-                <div class="empty-icon">
-                    <i class="fas fa-comments"></i>
                 </div>
 
-                <p>
-                    Todavía no hay seguimiento registrado para este caso.
-                </p>
+            @endforeach
 
+        </div>
+
+    @else
+
+        <div class="empty">
+
+            <div class="empty-icon">
+                <i class="fas fa-comments"></i>
             </div>
 
-        @endif
+            <p>
+                Todavía no hay seguimiento registrado para este caso.
+            </p>
 
-    </div>
+        </div>
+
+    @endif
+
+</div>
 
 </main>
 

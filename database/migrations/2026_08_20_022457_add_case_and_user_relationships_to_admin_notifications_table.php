@@ -26,7 +26,7 @@ return new class extends Migration
             ALTER TABLE admin_notifications
             MODIFY user_uuid CHAR(36)
             CHARACTER SET utf8mb4
-            COLLATE utf8mb4_0900_ai_ci
+            COLLATE utf8mb4_unicode_ci
             NULL
         ");
         Schema::table('admin_notifications', function (Blueprint $table) {

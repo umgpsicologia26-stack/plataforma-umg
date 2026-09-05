@@ -91,7 +91,7 @@ class User extends Authenticatable
         NicknameHistory::class,
         'user_uuid',
         'uuid'
-    );
+    )->orderByDesc('changed_at');
 }
 
     // CASOS CREADOS POR EL USUARIO

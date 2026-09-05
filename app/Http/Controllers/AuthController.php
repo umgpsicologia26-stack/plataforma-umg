@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Kreait\Firebase\Contract\Auth as FirebaseAuth;
 
 class AuthController extends Controller
 {
@@ -273,5 +274,269 @@ public function login(Request $request)
 
         //Regresar al login.
                 return redirect('/login');
+    }
+
+        // LOGIN CON GOOGLE MEDIANTE FIREBASE
+
+    public function googleLogin(
+        Request $request,
+        FirebaseAuth $firebaseAuth
+    ) {
+        $request->validate([
+            'idToken' => [
+                'required',
+                'string'
+            ],
+        ]);
+
+        try {
+
+            /*
+             * Verificar que el token realmente
+             * fue emitido por Firebase.
+             */
+            $verifiedIdToken =
+                $firebaseAuth->verifyIdToken(
+                    $request->idToken
+                );
+
+            /*
+             * Obtener UID de Firebase.
+             */
+            $firebaseUid =
+                $verifiedIdToken
+                    ->claims()
+                    ->get('sub');
+
+            /*
+             * Obtener información completa
+             * del usuario de Firebase.
+             */
+            $firebaseUser =
+                $firebaseAuth->getUser($firebaseUid);
+
+            /*
+             * Google debe proporcionar
+             * un correo electrónico.
+             */
+            if (!$firebaseUser->email) {
+
+                return response()->json([
+                    'success' => false,
+                    'message' =>
+                        'La cuenta de Google no tiene un correo electrónico asociado.'
+                ], 422);
+            }
+
+            /*
+             * Para este flujo exigimos que
+             * el correo esté verificado.
+             */
+            if (!$firebaseUser->emailVerified) {
+
+                return response()->json([
+                    'success' => false,
+                    'message' =>
+                        'El correo de la cuenta de Google no está verificado.'
+                ], 403);
+            }
+
+            /*
+             * Buscar primero por Firebase UID.
+             */
+            $user = User::where(
+                'firebase_uid',
+                $firebaseUid
+            )->first();
+
+            /*
+             * Si no existe, buscar por correo.
+             *
+             * Esto permite vincular una cuenta
+             * existente de la plataforma con Google.
+             */
+            if (!$user) {
+
+                $user = User::where(
+                    'email',
+                    $firebaseUser->email
+                )->first();
+            }
+
+            /*
+             * Si el usuario todavía no existe
+             * en MySQL, crearlo.
+             */
+            if (!$user) {
+
+                /*
+                 * Obtener nombre de Google.
+                 */
+                $displayName =
+                    trim($firebaseUser->displayName ?? '');
+
+                $nameParts =
+                    preg_split(
+                        '/\s+/',
+                        $displayName
+                    );
+
+                $firstName =
+                    $nameParts[0] ?? 'Usuario';
+
+                $lastName =
+                    count($nameParts) > 1
+                        ? implode(
+                            ' ',
+                            array_slice(
+                                $nameParts,
+                                1
+                            )
+                        )
+                        : 'Google';
+
+                /*
+                 * Crear un nickname único.
+                 */
+                $baseNickname =
+                    'usuario_' .
+                    Str::lower(
+                        Str::random(8)
+                    );
+
+                $nickname =
+                    $baseNickname;
+
+                while (
+                    User::where(
+                        'anonymous_nickname',
+                        $nickname
+                    )->exists()
+                ) {
+
+                    $nickname =
+                        'usuario_' .
+                        Str::lower(
+                            Str::random(8)
+                        );
+                }
+
+                $user = User::create([
+
+                    'uuid' =>
+                        (string) Str::uuid(),
+
+                    'firebase_uid' =>
+                        $firebaseUid,
+
+                    'first_name' =>
+                        $firstName,
+
+                    'last_name' =>
+                        $lastName,
+
+                    'email' =>
+                        $firebaseUser->email,
+
+                    'anonymous_nickname' =>
+                        $nickname,
+
+                    'provider' =>
+                        'GOOGLE',
+
+                    /*
+                     * Google no necesita una contraseña
+                     * local para este tipo de cuenta.
+                     */
+                    'password_hash' =>
+                        null,
+
+                    'role' =>
+                        'USER',
+
+                    'status' =>
+                        'Activo',
+
+                    'must_change_password' =>
+                        false,
+
+                    'phone' =>
+                        $firebaseUser->phoneNumber,
+
+                    'profile_image' =>
+                        $firebaseUser->photoUrl,
+                ]);
+
+            } else {
+
+                /*
+                 * Vincular el UID real de Firebase
+                 * con el usuario existente.
+                 */
+                $user->firebase_uid =
+                    $firebaseUid;
+
+                /*
+                 * Mantener la cuenta activa.
+                 */
+                if (!$user->status) {
+                    $user->status = 'Activo';
+                }
+
+                $user->save();
+            }
+
+            /*
+             * Verificar estado de la cuenta.
+             */
+            if ($user->status !== 'Activo') {
+
+                return response()->json([
+                    'success' => false,
+                    'message' =>
+                        'Tu cuenta se encuentra bloqueada. Contacta a un administrador.'
+                ], 403);
+            }
+
+            /*
+             * Crear sesión Laravel.
+             */
+            Auth::login($user);
+
+            /*
+             * Regenerar sesión.
+             */
+            $request->session()->regenerate();
+
+            /*
+             * Eliminar cualquier verificación
+             * administrativa anterior.
+             */
+            $request->session()->forget([
+                'admin_verified',
+                'admin_verified_user'
+            ]);
+
+            /*
+             * Respuesta al navegador.
+             */
+            return response()->json([
+                'success' => true,
+                'redirect' =>
+                    route('dashboard')
+            ]);
+
+        } catch (\Throwable $e) {
+
+            /*
+             * No mostrar detalles internos
+             * de Firebase al usuario.
+             */
+            return response()->json([
+                'success' => false,
+                'message' =>
+                    'No fue posible iniciar sesión con Google.'
+            ], 401);
+        }
     }
 }

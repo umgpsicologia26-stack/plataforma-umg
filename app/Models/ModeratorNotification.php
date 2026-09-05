@@ -11,6 +11,8 @@ class ModeratorNotification extends Model
     protected $fillable = [
         'moderator_uuid',
         'conversation_id',
+        'evaluacion_uuid',
+        'attempt_uuid',
         'message',
         'read',
     ];
@@ -19,8 +21,6 @@ class ModeratorNotification extends Model
         'read' => 'boolean',
     ];
 
-    //MODERADOR
-    
     public function moderator()
     {
         return $this->belongsTo(
@@ -30,14 +30,30 @@ class ModeratorNotification extends Model
         );
     }
 
-    //CONVERSACIÓN
-    
     public function conversation()
     {
         return $this->belongsTo(
             ChatConversation::class,
             'conversation_id',
             'id'
+        );
+    }
+
+    public function evaluacion()
+    {
+        return $this->belongsTo(
+            Evaluacion::class,
+            'evaluacion_uuid',
+            'uuid'
+        );
+    }
+
+    public function intento()
+    {
+        return $this->belongsTo(
+            EvaluationAttempt::class,
+            'attempt_uuid',
+            'uuid'
         );
     }
 }

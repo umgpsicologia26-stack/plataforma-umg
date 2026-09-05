@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Evaluación Emocional</title>
+<title>{{ $evaluacion?->title ?? 'Evaluación' }}</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -86,6 +87,67 @@ body{
     border-radius:15px;
 }
 
+.option input{
+    margin-right:10px;
+}
+
+.text-input{
+    width:100%;
+    padding:15px;
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:15px;
+    background:rgba(255,255,255,.05);
+    color:white;
+    font-family:'Poppins',sans-serif;
+    font-size:15px;
+    outline:none;
+}
+
+.text-input:focus{
+    border-color:#7dd3fc;
+}
+
+textarea.text-input{
+    min-height:120px;
+    resize:vertical;
+}
+
+.text-input::placeholder{
+    color:#94a3b8;
+}
+
+.scale-options{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(60px,1fr));
+    gap:10px;
+}
+
+.scale-option{
+    position:relative;
+}
+
+.scale-option input{
+    position:absolute;
+    opacity:0;
+}
+
+.scale-option label{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:15px 10px;
+    background:rgba(255,255,255,.05);
+    border-radius:12px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.scale-option input:checked + label{
+    background:#7dd3fc;
+    color:#081323;
+    font-weight:700;
+}
+
 button{
     width:100%;
     border:none;
@@ -103,8 +165,54 @@ button:hover{
     background:#38bdf8;
 }
 
+.alert{
+    background:rgba(255,255,255,.08);
+    border-radius:15px;
+    padding:20px;
+    color:#cbd5e1;
+}
+
+.error-alert{
+    background:rgba(239,68,68,.15);
+    border:1px solid rgba(239,68,68,.3);
+    border-radius:15px;
+    padding:20px;
+    color:#fecaca;
+    margin-bottom:25px;
+}
+
+.required{
+    color:#f87171;
+}
+
+@media(max-width:700px){
+
+    body{
+        padding:20px;
+    }
+
+    .card{
+        padding:25px;
+    }
+
+    .title{
+        font-size:30px;
+    }
+
+    .back{
+        font-size:28px;
+    }
+
+    .scale-options{
+        grid-template-columns:repeat(5,1fr);
+    }
+
+}
+
 </style>
+
 </head>
+
 <body>
 
 <div class="container">
@@ -116,60 +224,258 @@ button:hover{
 <a href="/dashboard" class="back">←</a>
 
 <h1 class="title">
-Evaluación Emocional
+    {{ $evaluacion?->title ?? 'Evaluación' }}
 </h1>
 
 </div>
 
+@if(!$evaluacion)
+
+
+<div class="alert">
+    Actualmente no hay ninguna evaluación activa disponible.
+</div>
+
+
+@else
+
 <p class="subtitle">
-Responde esta evaluación emocional para identificar posibles señales de ansiedad,
-estrés o depresión.
+    {{ $evaluacion->description }}
 </p>
 
-<form>
+@if($errors->any())
 
-<div class="question">
+    <div class="error-alert">
 
-<h3>1. ¿Cómo te has sentido esta semana?</h3>
+        <strong>
+            No fue posible enviar la evaluación.
+        </strong>
 
-<div class="options">
-<label class="option"><input type="radio" name="q1"> Muy bien</label>
-<label class="option"><input type="radio" name="q1"> Normal</label>
-<label class="option"><input type="radio" name="q1"> Triste</label>
-<label class="option"><input type="radio" name="q1"> Muy mal</label>
-</div>
+        <ul style="margin-top:10px; margin-left:20px;">
 
-</div>
+            @foreach($errors->all() as $error)
 
-<div class="question">
+                <li>
+                    {{ $error }}
+                </li>
 
-<h3>2. ¿Has sentido ansiedad o miedo constante?</h3>
+            @endforeach
 
-<div class="options">
-<label class="option"><input type="radio" name="q2"> Nunca</label>
-<label class="option"><input type="radio" name="q2"> Algunas veces</label>
-<label class="option"><input type="radio" name="q2"> Frecuentemente</label>
-</div>
+        </ul>
 
-</div>
+    </div>
 
-<div class="question">
+@endif
 
-<h3>3. ¿Has pensado en hacerte daño?</h3>
+<form
+    method="POST"
+    action="{{ route('evaluation.submit', $evaluacion->uuid) }}">
 
-<div class="options">
-<label class="option"><input type="radio" name="q3"> No</label>
-<label class="option"><input type="radio" name="q3"> Algunas veces</label>
-<label class="option"><input type="radio" name="q3"> Sí</label>
-</div>
+    @csrf
 
-</div>
+    @foreach($evaluacion->preguntas as $pregunta)
 
-<button type="submit">
-Finalizar Evaluación
-</button>
+        <div class="question">
+
+            <h3>
+
+                {{ $pregunta->question_order }}.
+                {{ $pregunta->question }}
+
+                @if($pregunta->required)
+
+                    <span class="required">*</span>
+
+                @endif
+
+            </h3>
+
+
+            @php
+
+                $options = is_array($pregunta->options)
+                    ? $pregunta->options
+                    : [];
+
+            @endphp
+
+
+            @if($pregunta->question_type === 'TEXTO')
+
+                <textarea
+                    class="text-input"
+                    name="respuestas[{{ $pregunta->uuid }}]"
+                    placeholder="Escribe tu respuesta..."
+                    {{ $pregunta->required ? 'required' : '' }}>{{ old("respuestas.{$pregunta->uuid}") }}</textarea>
+
+
+            @elseif($pregunta->question_type === 'NUMERO')
+
+                <input
+                    type="number"
+                    class="text-input"
+                    name="respuestas[{{ $pregunta->uuid }}]"
+                    placeholder="Ingresa un número entero"
+                    step="1"
+                    {{ $pregunta->required ? 'required' : '' }}
+                    value="{{ old("respuestas.{$pregunta->uuid}") }}">
+
+
+            @elseif($pregunta->question_type === 'DECIMAL')
+
+                <input
+                    type="number"
+                    class="text-input"
+                    name="respuestas[{{ $pregunta->uuid }}]"
+                    placeholder="Ingresa un número decimal"
+                    step="any"
+                    {{ $pregunta->required ? 'required' : '' }}
+                    value="{{ old("respuestas.{$pregunta->uuid}") }}">
+
+
+            @elseif($pregunta->question_type === 'FECHA')
+
+                <input
+                    type="date"
+                    class="text-input"
+                    name="respuestas[{{ $pregunta->uuid }}]"
+                    {{ $pregunta->required ? 'required' : '' }}
+                    value="{{ old("respuestas.{$pregunta->uuid}") }}">
+
+
+            @elseif($pregunta->question_type === 'OPCION_UNICA')
+
+                <div class="options">
+
+                    @foreach($options as $option)
+
+                        <label class="option">
+
+                            <input
+                                type="radio"
+                                name="respuestas[{{ $pregunta->uuid }}]"
+                                value="{{ $option }}"
+                                {{ $pregunta->required ? 'required' : '' }}
+                                {{ old("respuestas.{$pregunta->uuid}") === $option ? 'checked' : '' }}>
+
+                            {{ $option }}
+
+                        </label>
+
+                    @endforeach
+
+                </div>
+
+
+            @elseif($pregunta->question_type === 'OPCION_MULTIPLE')
+
+                <div class="options">
+
+                    @foreach($options as $option)
+
+                        <label class="option">
+
+                            <input
+                                type="checkbox"
+                                name="respuestas[{{ $pregunta->uuid }}][]"
+                                value="{{ $option }}">
+
+                            {{ $option }}
+
+                        </label>
+
+                    @endforeach
+
+                </div>
+
+
+            @elseif($pregunta->question_type === 'ESCALA')
+
+                <div class="scale-options">
+
+                    @foreach($options as $option)
+
+                        <div class="scale-option">
+
+                            <input
+                                type="radio"
+                                id="scale_{{ $pregunta->uuid }}_{{ $loop->index }}"
+                                name="respuestas[{{ $pregunta->uuid }}]"
+                                value="{{ $option }}"
+                                {{ $pregunta->required ? 'required' : '' }}>
+
+                            <label
+                                for="scale_{{ $pregunta->uuid }}_{{ $loop->index }}">
+
+                                {{ $option }}
+
+                            </label>
+
+                        </div>
+
+                    @endforeach
+
+                </div>
+
+
+            @elseif($pregunta->question_type === 'SI_NO')
+
+                <div class="options">
+
+                    <label class="option">
+
+                        <input
+                            type="radio"
+                            name="respuestas[{{ $pregunta->uuid }}]"
+                            value="Sí"
+                            {{ $pregunta->required ? 'required' : '' }}>
+
+                        Sí
+
+                    </label>
+
+                    <label class="option">
+
+                        <input
+                            type="radio"
+                            name="respuestas[{{ $pregunta->uuid }}]"
+                            value="No"
+                            {{ $pregunta->required ? 'required' : '' }}>
+
+                        No
+
+                    </label>
+
+                </div>
+
+
+            @else
+
+                <input
+                    type="text"
+                    class="text-input"
+                    name="respuestas[{{ $pregunta->uuid }}]"
+                    placeholder="Escribe tu respuesta..."
+                    {{ $pregunta->required ? 'required' : '' }}
+                    value="{{ old("respuestas.{$pregunta->uuid}") }}">
+
+            @endif
+
+        </div>
+
+    @endforeach
+
+
+    <button type="submit">
+
+        Finalizar Evaluación
+
+    </button>
 
 </form>
+
+
+@endif
 
 </div>
 

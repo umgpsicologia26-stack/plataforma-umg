@@ -13,9 +13,7 @@ return new class extends Migration
             $table->id();
 
             // Moderador que recibe la notificación
-            $table->char('moderator_uuid', 36)
-                ->charset('utf8mb4')
-                ->collation('utf8mb4_0900_ai_ci');
+            $table->char('moderator_uuid', 36);
 
             // Conversación relacionada
             $table->foreignId('conversation_id')

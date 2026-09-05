@@ -1,16 +1,6 @@
-{{--
-    PARTIAL: TARJETA DE UN CASO
-    --------------------------------------------------------------------------
-    Recibe: $caseItem (CaseFile con relaciones 'user' y 'moderator' cargadas)
-
-    Uso:
-    @include('moderator.partials._case-card', ['caseItem' => $caseItem])
---}}
-
 @php
     $caseType = strtoupper(trim($caseItem->type ?? ''));
     $status = strtolower(trim($caseItem->status ?? ''));
-    $priority = strtolower(trim($caseItem->priority ?? ''));
 @endphp
 
 <div class="case-card">
@@ -28,138 +18,64 @@
             </div>
 
             <div class="case-date">
-
                 Creado el
 
                 {{ $caseItem->created_at
                     ? $caseItem->created_at->format('d/m/Y H:i')
                     : 'No disponible'
                 }}
-
             </div>
 
         </div>
 
         <div class="case-badges">
 
-            <!-- TIPO -->
+            {{-- TIPO --}}
 
             @if($caseType === 'SUICIDIO')
 
                 <span class="badge badge-suicide">
-
                     <i class="fas fa-heart-pulse"></i>
-
                     Suicidio
-
                 </span>
 
             @elseif($caseType === 'ABUSO SEXUAL')
 
                 <span class="badge badge-abuse">
-
                     <i class="fas fa-shield-heart"></i>
-
                     Abuso sexual
-
                 </span>
 
             @endif
 
 
-            <!-- ESTADO -->
+            {{-- ESTADO --}}
 
             @if($status === 'abierto')
 
                 <span class="badge badge-open">
-
                     <i class="fas fa-folder-open"></i>
-
                     Abierto
-
                 </span>
 
             @elseif($status === 'en seguimiento')
 
                 <span class="badge badge-follow">
-
                     <i class="fas fa-spinner"></i>
-
                     En seguimiento
-
                 </span>
 
             @elseif($status === 'cerrado')
 
                 <span class="badge badge-closed">
-
                     <i class="fas fa-lock"></i>
-
                     Cerrado
-
                 </span>
 
             @else
 
                 <span class="badge badge-open">
-
                     {{ $caseItem->status ?? 'Sin estado' }}
-
-                </span>
-
-            @endif
-
-
-            <!-- PRIORIDAD -->
-
-            @if($priority === 'baja')
-
-                <span class="badge priority-low">
-
-                    <i class="fas fa-arrow-down"></i>
-
-                    Baja
-
-                </span>
-
-            @elseif($priority === 'media')
-
-                <span class="badge priority-medium">
-
-                    <i class="fas fa-minus"></i>
-
-                    Media
-
-                </span>
-
-            @elseif($priority === 'alta')
-
-                <span class="badge priority-high">
-
-                    <i class="fas fa-arrow-up"></i>
-
-                    Alta
-
-                </span>
-
-            @elseif($priority === 'critica' || $priority === 'crítica')
-
-                <span class="badge priority-critical">
-
-                    <i class="fas fa-triangle-exclamation"></i>
-
-                    Crítica
-
-                </span>
-
-            @else
-
-                <span class="badge priority-medium">
-
-                    <i class="fas fa-minus"></i>
-
-                    Sin prioridad
-
                 </span>
 
             @endif
@@ -169,7 +85,7 @@
     </div>
 
 
-    <!-- INFORMACION -->
+    {{-- INFORMACIÓN --}}
 
     <div class="case-info">
 
@@ -184,6 +100,7 @@
             </span>
 
         </div>
+
 
         <div class="info-box">
 
@@ -204,6 +121,7 @@
             </span>
 
         </div>
+
 
         <div class="info-box">
 
@@ -227,29 +145,6 @@
 
         </div>
 
-        <div class="info-box">
-
-            <span class="info-label">
-                Prioridad
-            </span>
-
-            <span class="info-value">
-
-                @if($priority === 'baja')
-                    Baja
-                @elseif($priority === 'media')
-                    Media
-                @elseif($priority === 'alta')
-                    Alta
-                @elseif($priority === 'critica' || $priority === 'crítica')
-                    Crítica
-                @else
-                    Sin prioridad
-                @endif
-
-            </span>
-
-        </div>
 
         <div class="info-box">
 
@@ -280,6 +175,7 @@
 
         </div>
 
+
         <div class="info-box">
 
             <span class="info-label">
@@ -297,6 +193,7 @@
 
         </div>
 
+
         <div class="info-box">
 
             <span class="info-label">
@@ -313,6 +210,7 @@
             </span>
 
         </div>
+
 
         <div class="info-box">
 
@@ -345,7 +243,7 @@
     </div>
 
 
-    <!-- DESCRIPCION -->
+    {{-- DESCRIPCIÓN --}}
 
     <div class="description">
 
@@ -366,7 +264,7 @@
     </div>
 
 
-    <!-- FOOTER -->
+    {{-- FOOTER --}}
 
     <div class="case-footer">
 

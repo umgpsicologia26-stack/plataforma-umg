@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CaseFile;
 use App\Models\CaseComment;
 use App\Models\CaseNotification;
+use App\Models\ChatConversation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -66,7 +67,6 @@ class CaseController extends BaseController
             'user_uuid'     => $user->uuid,
             'moderator_uuid'=> $moderator?->uuid,
             'status'        => 'Abierto',
-            'priority'      => 'Media',
             'admin_approved'=> false,
         ]);
 
@@ -81,6 +81,7 @@ class CaseController extends BaseController
             if (in_array('moderator_uuid', $columns)) {
 
                 DB::table('case_notifications')->insert([
+                    'user_uuid'      => $user->uuid,
                     'moderator_uuid' => $moderator->uuid,
                     'case_id'        => $case->id,
                     'message'        =>
@@ -157,7 +158,6 @@ class CaseController extends BaseController
             'user_uuid'     => $user->uuid,
             'moderator_uuid'=> $moderator?->uuid,
             'status'        => 'Abierto',
-            'priority'      => 'Media',
             'admin_approved'=> false,
         ]);
 
@@ -175,6 +175,7 @@ class CaseController extends BaseController
             if (in_array('moderator_uuid', $columns)) {
 
                 DB::table('case_notifications')->insert([
+                    'user_uuid' => $user->uuid,
                     'moderator_uuid' => $moderator->uuid,
                     'case_id'        => $case->id,
                     'message'        =>
@@ -250,6 +251,27 @@ class CaseController extends BaseController
                 'created_at'
             )
             ->get();
+
+            /* CARGAR RESPUESTAS DEL MODERADOR DESDE EL CHAT */
+
+$conversations = ChatConversation::with([
+    'messages.sender'
+])
+    ->where('user_uuid', $userUuid)
+    ->get();
+
+foreach ($cases as $case) {
+
+    $conversation = $conversations->first(function ($conversation) use ($case) {
+
+        return $conversation->moderator_uuid === $case->moderator_uuid;
+
+    });
+
+    $case->moderator_messages = $conversation
+        ? $conversation->messages
+        : collect();
+}
 
         /* SEPARAR POR TIPO */
 

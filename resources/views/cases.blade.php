@@ -30,7 +30,7 @@
             margin: auto;
         }
 
-        .card {
+        .main-card {
             background: #ffffff;
             border: 1px solid #e2e8f0;
             padding: 40px;
@@ -393,14 +393,6 @@
             border: 1px solid #cbd5e1;
         }
 
-        .status-default {
-            color: #a16207;
-
-            background: #fefce8;
-
-            border: 1px solid #fde68a;
-        }
-
         /* INFORMACIÓN DEL CASO */
 
         .case-section {
@@ -583,7 +575,7 @@
             font-size: 13px;
         }
 
-        /* BOTONES / ENLACES GENERALES */
+        /* BOTONES */
 
         button {
             font-family: 'Poppins', sans-serif;
@@ -616,7 +608,7 @@
                 padding: 20px 12px;
             }
 
-            .card {
+            .main-card {
                 padding: 22px;
                 border-radius: 23px;
             }
@@ -735,8 +727,6 @@
 
             @php
 
-                /*Se utiliza $cases porque el CaseController entrega todos los casos del usuario. */
-
                 $allCases = $cases ?? collect();
 
                 $totalCases = $allCases->count();
@@ -747,7 +737,7 @@
 
                     return in_array($status, [
                         'ABIERTO',
-                        'ABERTA',
+                        'ABIERTA',
                         'OPEN'
                     ]);
 
@@ -821,9 +811,7 @@
 
                     $type = strtoupper(trim((string) $case->type));
 
-                    return in_array($type, [
-                        'SUICIDIO'
-                    ]);
+                    return $type === 'SUICIDIO';
 
                 });
 
@@ -839,7 +827,7 @@
                 });
 
 
-                /* Función lógica para obtener el grupo de estado. */
+                /* Función para obtener el grupo de estado. */
 
                 $getStatusGroup = function ($case) {
 
@@ -903,7 +891,9 @@
             @endphp
 
 
+            {{-- ========================================================= --}}
             {{-- CARPETA: SUICIDIO --}}
+            {{-- ========================================================= --}}
 
             <div class="folder">
 
@@ -941,7 +931,9 @@
 
                         <div class="status-section">
 
-                            <button type="button" class="status-header active" onclick="toggleStatus(this)">
+                            <button type="button"
+                                class="status-header active"
+                                onclick="toggleStatus(this)">
 
                                 <div class="status-header-left">
 
@@ -966,8 +958,6 @@
 
                                 @foreach($suicideOpen as $case)
 
-                                    {{-- TARJETA DEL CASO --}}
-
                                     <div class="case-card">
 
                                         <div class="case-header">
@@ -981,13 +971,11 @@
                                                 <div class="case-date">
 
                                                     Registrado el
-
                                                     {{ optional($case->created_at)->format('d/m/Y H:i') }}
 
                                                 </div>
 
                                             </div>
-
 
                                             <div class="case-status status-open">
                                                 ABIERTO
@@ -1008,6 +996,8 @@
 
                                         </div>
 
+
+                                        {{-- OBSERVACIONES --}}
 
                                         <div class="observations">
 
@@ -1042,13 +1032,13 @@
 
                                                                     @else
 
-                                                                        {{ $comment->user->anonymous_nickname ?? 'Equipo VitaSafe' }}
+                                                                        Equipo de moderación
 
                                                                     @endif
 
                                                                 @else
 
-                                                                    Equipo VitaSafe
+                                                                    Equipo de moderación
 
                                                                 @endif
 
@@ -1104,7 +1094,9 @@
 
                         <div class="status-section">
 
-                            <button type="button" class="status-header active" onclick="toggleStatus(this)">
+                            <button type="button"
+                                class="status-header active"
+                                onclick="toggleStatus(this)">
 
                                 <div class="status-header-left">
 
@@ -1142,13 +1134,11 @@
                                                 <div class="case-date">
 
                                                     Registrado el
-
                                                     {{ optional($case->created_at)->format('d/m/Y H:i') }}
 
                                                 </div>
 
                                             </div>
-
 
                                             <div class="case-status status-following">
                                                 EN SEGUIMIENTO
@@ -1203,13 +1193,13 @@
 
                                                                     @else
 
-                                                                        {{ $comment->user->anonymous_nickname ?? 'Equipo VitaSafe' }}
+                                                                        Equipo de moderación
 
                                                                     @endif
 
                                                                 @else
 
-                                                                    Equipo VitaSafe
+                                                                    Equipo de moderación
 
                                                                 @endif
 
@@ -1265,7 +1255,9 @@
 
                         <div class="status-section">
 
-                            <button type="button" class="status-header" onclick="toggleStatus(this)">
+                            <button type="button"
+                                class="status-header"
+                                onclick="toggleStatus(this)">
 
                                 <div class="status-header-left">
 
@@ -1303,13 +1295,11 @@
                                                 <div class="case-date">
 
                                                     Registrado el
-
                                                     {{ optional($case->created_at)->format('d/m/Y H:i') }}
 
                                                 </div>
 
                                             </div>
-
 
                                             <div class="case-status status-closed">
                                                 CERRADO
@@ -1364,13 +1354,13 @@
 
                                                                     @else
 
-                                                                        {{ $comment->user->anonymous_nickname ?? 'Equipo VitaSafe' }}
+                                                                        Equipo de moderación
 
                                                                     @endif
 
                                                                 @else
 
-                                                                    Equipo VitaSafe
+                                                                    Equipo de moderación
 
                                                                 @endif
 
@@ -1443,7 +1433,9 @@
             </div>
 
 
+            {{-- ========================================================= --}}
             {{-- CARPETA: ABUSO SEXUAL --}}
+            {{-- ========================================================= --}}
 
             <div class="folder">
 
@@ -1462,8 +1454,11 @@
                             </h2>
 
                             <div class="folder-count">
+
                                 {{ $abuseCases->count() }}
+
                                 {{ $abuseCases->count() === 1 ? 'caso' : 'casos' }}
+
                             </div>
 
                         </div>
@@ -1481,7 +1476,9 @@
 
                         <div class="status-section">
 
-                            <button type="button" class="status-header active" onclick="toggleStatus(this)">
+                            <button type="button"
+                                class="status-header active"
+                                onclick="toggleStatus(this)">
 
                                 <div class="status-header-left">
 
@@ -1519,13 +1516,11 @@
                                                 <div class="case-date">
 
                                                     Registrado el
-
                                                     {{ optional($case->created_at)->format('d/m/Y H:i') }}
 
                                                 </div>
 
                                             </div>
-
 
                                             <div class="case-status status-open">
                                                 ABIERTO
@@ -1580,13 +1575,13 @@
 
                                                                     @else
 
-                                                                        {{ $comment->user->anonymous_nickname ?? 'Equipo VitaSafe' }}
+                                                                        Equipo de moderación
 
                                                                     @endif
 
                                                                 @else
 
-                                                                    Equipo VitaSafe
+                                                                    Equipo de moderación
 
                                                                 @endif
 
@@ -1642,7 +1637,9 @@
 
                         <div class="status-section">
 
-                            <button type="button" class="status-header active" onclick="toggleStatus(this)">
+                            <button type="button"
+                                class="status-header active"
+                                onclick="toggleStatus(this)">
 
                                 <div class="status-header-left">
 
@@ -1680,13 +1677,11 @@
                                                 <div class="case-date">
 
                                                     Registrado el
-
                                                     {{ optional($case->created_at)->format('d/m/Y H:i') }}
 
                                                 </div>
 
                                             </div>
-
 
                                             <div class="case-status status-following">
                                                 EN SEGUIMIENTO
@@ -1741,13 +1736,13 @@
 
                                                                     @else
 
-                                                                        {{ $comment->user->anonymous_nickname ?? 'Equipo VitaSafe' }}
+                                                                        Equipo de moderación
 
                                                                     @endif
 
                                                                 @else
 
-                                                                    Equipo VitaSafe
+                                                                    Equipo de moderación
 
                                                                 @endif
 
@@ -1803,7 +1798,9 @@
 
                         <div class="status-section">
 
-                            <button type="button" class="status-header" onclick="toggleStatus(this)">
+                            <button type="button"
+                                class="status-header"
+                                onclick="toggleStatus(this)">
 
                                 <div class="status-header-left">
 
@@ -1841,13 +1838,11 @@
                                                 <div class="case-date">
 
                                                     Registrado el
-
                                                     {{ optional($case->created_at)->format('d/m/Y H:i') }}
 
                                                 </div>
 
                                             </div>
-
 
                                             <div class="case-status status-closed">
                                                 CERRADO
@@ -1902,13 +1897,13 @@
 
                                                                     @else
 
-                                                                        {{ $comment->user->anonymous_nickname ?? 'Equipo VitaSafe' }}
+                                                                        Equipo de moderación
 
                                                                     @endif
 
                                                                 @else
 
-                                                                    Equipo VitaSafe
+                                                                    Equipo de moderación
 
                                                                 @endif
 
@@ -2037,3 +2032,4 @@
 </body>
 
 </html>
+

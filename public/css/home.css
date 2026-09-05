@@ -1,15 +1,3 @@
-/* =========================================================
-   UMG · home.css (v2 — moderno, con la paleta original)
-   Colores base tomados TAL CUAL de tu home.css/style.css:
-   - Hero:   #0f172a -> #1e3a8a -> #0ea5e9 -> #22c55e
-   - Botones:#6366f1 -> #8b5cf6
-   - Login:  #2563eb -> #4f46e5 -> #7c3aed
-   - Textos: #111827 / #14213d  |  Gris: #6b7280 / #667085
-   NOTA: tu JS agrega la clase "activo" a los modales, pero el
-   CSS anterior usaba ".active". Aquí ya quedó unificado a
-   "activo" para que los modales realmente funcionen.
-   ========================================================= */
-
 :root {
     --navy: #0f172a;
     --blue-deep: #1e3a8a;
@@ -44,9 +32,7 @@
     --shadow-glow: 0 20px 45px rgba(99, 102, 241, .30);
 }
 
-/* =========================================================
-   WELCOME / HOME — base
-   ========================================================= */
+    /* WELCOME / HOME — base */
 
 body.home-body {
     display: block;
@@ -59,9 +45,7 @@ body.home-body {
         var(--bg);
 }
 
-/* =========================================================
-   NAVBAR (solo dentro de home-body, no toca otras páginas)
-   ========================================================= */
+/* NAVBAR */
 
 body.home-body .navbar {
     background: rgba(17, 24, 39, .85);
@@ -81,13 +65,22 @@ body.home-body .nav-center a:hover {
     transform: translateY(-2px);
 }
 
-/* =========================================================
-   HERO
-   ========================================================= */
+/* HERO */
 
 .home-hero {
-    background: var(--gradient-hero);
-    background-size: 220% 220%;
+    background-image:
+        radial-gradient(rgba(255, 255, 255, .16) 1.5px, transparent 1.5px),
+        repeating-linear-gradient(
+            135deg,
+            rgba(255, 255, 255, .05) 0px,
+            rgba(255, 255, 255, .05) 1px,
+            transparent 1px,
+            transparent 34px
+        ),
+        var(--gradient-hero);
+    background-size: 26px 26px, auto, 220% 220%;
+    background-position: 0 0, 0 0, 0% 50%;
+    background-repeat: repeat, repeat, no-repeat;
     animation: heroShift 14s ease infinite;
     padding: 90px 40px;
     position: relative;
@@ -96,17 +89,17 @@ body.home-body .nav-center a:hover {
 }
 
 @keyframes heroShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+    0%, 100% { background-position: 0 0, 0 0, 0% 50%; }
+    50% { background-position: 0 0, 0 0, 100% 50%; }
 }
 
-/* orbes de luz decorativos, sin romper el layout */
+/* orbes de luz + anillos decorativos, sin romper el layout ni cambiar el color base */
 .home-hero::before,
 .home-hero::after {
     content: "";
     position: absolute;
     border-radius: 50%;
-    filter: blur(90px);
+    filter: blur(70px);
     pointer-events: none;
     z-index: 0;
 }
@@ -114,17 +107,38 @@ body.home-body .nav-center a:hover {
 .home-hero::before {
     width: 380px;
     height: 380px;
-    top: -140px;
-    right: 8%;
+    top: -160px;
+    right: 6%;
     background: rgba(34, 197, 94, .35);
+    box-shadow:
+        0 0 0 46px rgba(255, 255, 255, .05),
+        0 0 0 100px rgba(255, 255, 255, .03);
 }
 
 .home-hero::after {
     width: 320px;
     height: 320px;
-    bottom: -160px;
-    left: 4%;
+    bottom: -180px;
+    left: 2%;
     background: rgba(14, 165, 233, .30);
+    box-shadow:
+        0 0 0 40px rgba(255, 255, 255, .05),
+        0 0 0 90px rgba(255, 255, 255, .03);
+}
+
+/* silueta geométrica grande, muy sutil, detrás del contenido */
+.home-hero .hero-card::before {
+    content: "";
+    position: absolute;
+    top: -60px;
+    right: -220px;
+    width: 520px;
+    height: 520px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 40%;
+    transform: rotate(18deg);
+    pointer-events: none;
+    z-index: -1;
 }
 
 .home-hero .hero-card {
@@ -251,9 +265,7 @@ body.home-body .nav-center a:hover {
     transform: translateY(-3px);
 }
 
-/* =========================================================
-   SECCIONES GENERALES
-   ========================================================= */
+/* SECCIONES GENERALES */
 
 .home-section {
     padding: 80px 40px;
@@ -298,9 +310,7 @@ body.home-body .nav-center a:hover {
     font-size: 1rem;
 }
 
-/* =========================================================
-   CARDS — con inclinación 3D
-   ========================================================= */
+/* CARDS — con inclinación 3D */
 
 .cards-grid {
     display: grid;
@@ -344,9 +354,7 @@ body.home-body .nav-center a:hover {
     font-weight: 600;
 }
 
-/* =========================================================
-   PROYECTOS
-   ========================================================= */
+/* PROYECTOS */
 
 .project-tile {
     position: relative;
@@ -420,9 +428,7 @@ body.home-body .nav-center a:hover {
     font-size: 48px;
 }
 
-/* =========================================================
-   ABOUT / PROGRESO
-   ========================================================= */
+/* ABOUT / PROGRESO */
 
 .about-img-glass {
     border-radius: 30px;
@@ -463,9 +469,7 @@ body.home-body .nav-center a:hover {
     transition: width 1.2s ease;
 }
 
-/* =========================================================
-   CONTACTO
-   ========================================================= */
+/* CONTACTO */
 
 .contact-section .input-field input,
 .contact-section .input-field textarea {
@@ -530,9 +534,7 @@ body.home-body .nav-center a:hover {
     color: var(--dark);
 }
 
-/* =========================================================
-   FOOTER
-   ========================================================= */
+/* FOOTER */
 
 .home-footer {
     background: var(--dark);
@@ -551,9 +553,7 @@ body.home-body .nav-center a:hover {
     text-decoration: underline;
 }
 
-/* =========================================================
-   BOTÓN LOGIN (ya tenía buen efecto — se conserva)
-   ========================================================= */
+/* BOTÓN LOGIN (ya tenía buen efecto — se conserva) */
 
 .login-btn {
     display: inline-flex;
@@ -600,10 +600,8 @@ body.home-body .nav-center a:hover {
     transform: scale(.98);
 }
 
-/* =========================================================
-   MODALES (talleres / servicios / proyectos / galería)
-   Clase real usada por tu JS: "activo" (no "active")
-   ========================================================= */
+/* MODALES (talleres / servicios / proyectos / galería)
+   Clase real usada por tu JS: "activo" (no "active") */
 
 .talleres-modal {
     position: fixed;
@@ -842,9 +840,7 @@ body.modal-open {
     transform: rotate(90deg);
 }
 
-/* =========================================================
-   SERVICIOS
-   ========================================================= */
+/* SERVICIOS */
 
 .service-image-container {
     position: relative;
@@ -920,9 +916,7 @@ body.modal-open {
     color: var(--gray2);
 }
 
-/* =========================================================
-   GALERÍA DE ACTIVIDADES
-   ========================================================= */
+/* GALERÍA DE ACTIVIDADES */
 
 #gallery,
 #gallery *,
@@ -1102,9 +1096,7 @@ body.modal-open {
     transform: rotate(90deg);
 }
 
-/* =========================================================
-   MATERIAL EDUCATIVO — PDF
-   ========================================================= */
+/* MATERIAL EDUCATIVO — PDF */
 
 .material-pdf-grid {
     display: grid;
@@ -1217,9 +1209,7 @@ body.modal-open {
     background: #fff;
 }
 
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
+/* RESPONSIVE */
 
 @media (max-width: 768px) {
     .home-hero {

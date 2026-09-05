@@ -11,12 +11,14 @@ return new class extends Migration
     {
         /* AUDIT LOGS */
 
-        Schema::table('audit_logs', function (Blueprint $table) {
-
-            $table->dropForeign('fk_audit_logs_performed_by');
-            $table->dropForeign('fk_audit_logs_target_user');
-
-        });
+        try {
+    Schema::table('audit_logs', function (Blueprint $table) {
+        $table->dropForeign('fk_audit_logs_performed_by');
+        $table->dropForeign('fk_audit_logs_target_user');
+    });
+} catch (\Throwable $e) {
+    // Nombres de llave foranea no coinciden en esta base, se ignora y se continua
+}
 
 
         // UUID PERFORMED_BY
@@ -24,7 +26,7 @@ return new class extends Migration
             ALTER TABLE audit_logs
             MODIFY performed_by CHAR(36)
             CHARACTER SET utf8mb4
-            COLLATE utf8mb4_0900_ai_ci
+            COLLATE utf8mb4_unicode_ci
             NOT NULL
         ");
 
@@ -33,7 +35,7 @@ return new class extends Migration
             ALTER TABLE audit_logs
             MODIFY target_user CHAR(36)
             CHARACTER SET utf8mb4
-            COLLATE utf8mb4_0900_ai_ci
+            COLLATE utf8mb4_unicode_ci
             NOT NULL
         ");
 

@@ -653,7 +653,7 @@ class ChatController extends Controller
             ) {
 
                 return
-                    "Hola 👋 Soy UMG Cerca. "
+                    "Hola 👋 Soy UMG. "
                     . "Estoy aquí para escucharte y orientarte. "
                     . "Puedes contarme qué estás sintiendo o qué situación estás atravesando.";
             }
@@ -778,7 +778,7 @@ class ChatController extends Controller
         */
 
         return
-            "Gracias por confiar en UMG Cerca. "
+            "Gracias por confiar en UMG. "
             . "Estoy aquí para escucharte. "
             . "Puedes contarme qué está sucediendo o cómo te estás sintiendo. "
             . "Si necesitas atención de una persona, puedes escribir "

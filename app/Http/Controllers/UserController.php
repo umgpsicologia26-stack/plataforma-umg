@@ -157,7 +157,7 @@ public function sendResetCode(Request $request)
     )->first();
 
     // No revela si el correo existe.
-    if (!$user || $user->status !== 'ACTIVO') {
+    if (!$user || $user->status !== 'Activo') {
         return back()->with(
             'success',
             'Si existe una cuenta asociada al correo indicado, recibirás un código de recuperación.'

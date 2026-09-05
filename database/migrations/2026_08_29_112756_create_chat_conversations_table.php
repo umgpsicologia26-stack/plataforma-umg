@@ -16,15 +16,11 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
 
             // Usuario que inició la conversación
-            $table->char('user_uuid', 36)
-                ->charset('utf8mb4')
-                ->collation('utf8mb4_0900_ai_ci');
+            $table->char('user_uuid', 36);
 
             // Moderador asignado
             $table->char('moderator_uuid', 36)
-                ->nullable()
-                ->charset('utf8mb4')
-                ->collation('utf8mb4_0900_ai_ci');
+                ->nullable();
 
             // Estado de la conversación
             $table->enum('status', [

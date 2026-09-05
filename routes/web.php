@@ -11,6 +11,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CaseController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\EvaluacionController;
 
 
     /* HOME */
@@ -20,11 +22,7 @@ Route::get('/', function () {
 });
 
 
-/*
-|--------------------------------------------------------------------------
-| LOGIN
-|--------------------------------------------------------------------------
-*/
+    /* LOGIN */
 
 Route::get(
     '/login',
@@ -36,6 +34,10 @@ Route::post(
     [AuthController::class, 'login']
 );
 
+Route::get('/register', function () {
+    return view('auth.login');
+})->name('register');
+
 Route::post(
     '/register',
     [AuthController::class, 'register']
@@ -46,12 +48,13 @@ Route::post(
     [AuthController::class, 'logout']
 )->middleware('auth')->name('logout');
 
+Route::post(
+    '/auth/google',
+    [AuthController::class, 'googleLogin']
+)->name('google.login');
 
-/*
-|--------------------------------------------------------------------------
-| RECUPERACIÓN DE CONTRASEÑA
-|--------------------------------------------------------------------------
-*/
+
+    /* RECUPERACIÓN DE CONTRASEÑA */
 
 Route::get(
     '/forgot-password',
@@ -77,17 +80,7 @@ Route::post(
     [UserController::class, 'resetPassword']
 );
 
-
-/*
-|--------------------------------------------------------------------------
-| CAMBIO DE CONTRASEÑA
-|--------------------------------------------------------------------------
-|
-| Estas rutas solamente requieren autenticación.
-| Se mantienen fuera de must.change.password para permitir
-| que el usuario pueda cambiar su contraseña.
-|
-*/
+    /* CAMBIO DE CONTRASEÑA */
 
 Route::middleware(['auth'])->group(function () {
 
@@ -103,64 +96,54 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-
-/*
-|--------------------------------------------------------------------------
-| USUARIO AUTENTICADO
-|--------------------------------------------------------------------------
-|
-| Requiere:
-| 1. Usuario autenticado.
-| 2. Cambio de contraseña cuando corresponda.
-| 3. Modo mantenimiento para usuarios no administradores.
-|
-*/
+    /* USUARIO AUTENTICADO */
 
 Route::middleware([
     'auth',
     'must.change.password',
     'maintenance'
 ])->group(function () {
-/*
-|--------------------------------------------------------------------------
-| SEGUIMIENTO DE CASOS
-|--------------------------------------------------------------------------
-*/
 
-Route::get(
-    '/cases',
-    [CaseController::class, 'tracking']
-)->name('cases.tracking');
+    /* PERFIL */
 
+    Route::get(
+        '/perfil',
+        [ProfileController::class, 'edit']
+    )->name('profile.edit');
 
-/*
-|--------------------------------------------------------------------------
-| RESPONDER A UN CASO
-|--------------------------------------------------------------------------
-*/
+    Route::put(
+        '/perfil',
+        [ProfileController::class, 'update']
+    )->name('profile.update');
 
-Route::post(
-    '/cases/{id}/reply',
-    [CaseController::class, 'replyToCase']
-)->name('cases.reply');
+    Route::put(
+        '/perfil/password',
+        [ProfileController::class, 'updatePassword']
+    )->name('profile.password.update');
 
 
-/*
-|--------------------------------------------------------------------------
-| MARCAR NOTIFICACIÓN COMO LEÍDA
-|--------------------------------------------------------------------------
-*/
+    /* SEGUIMIENTO DE CASOS */
 
-Route::post(
-    '/cases/notifications/{id}/read',
-    [CaseController::class, 'markNotificationAsRead']
-)->name('cases.notification.read');
+    Route::get(
+        '/cases',
+        [CaseController::class, 'tracking']
+    )->name('cases.tracking');
 
-    /*
-    |--------------------------------------------------------------------------
-    | CHAT DEL USUARIO
-    |--------------------------------------------------------------------------
-    */
+    /* RESPONDER A UN CASO */
+
+    Route::post(
+        '/cases/{id}/reply',
+        [CaseController::class, 'replyToCase']
+    )->name('cases.reply');
+
+    /* MARCAR NOTIFICACIÓN COMO LEÍDA */
+
+    Route::post(
+        '/cases/notifications/{id}/read',
+        [CaseController::class, 'markNotificationAsRead']
+    )->name('cases.notification.read');
+
+    /* CHAT DEL USUARIO */
 
     Route::get(
         '/chat',
@@ -177,88 +160,7 @@ Route::post(
         [ChatController::class, 'sendMessage']
     )->name('chat.message');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | MODERADOR
-    |--------------------------------------------------------------------------
-    */
-
-    Route::middleware(['role:MODERATOR'])->group(function () {
-
-
-        /*
-        |----------------------------------------------------------------------
-        | DASHBOARD DEL MODERADOR
-        |----------------------------------------------------------------------
-        */
-
-        Route::get(
-            '/moderator/dashboard',
-            [ModeratorController::class, 'dashboard']
-        )->name('moderator.dashboard');
-
-
-        /*
-        |----------------------------------------------------------------------
-        | CASOS DEL MODERADOR
-        |----------------------------------------------------------------------
-        */
-
-        Route::get(
-            '/moderator/cases',
-            [ModeratorController::class, 'cases']
-        )->name('moderator.cases');
-
-        Route::get(
-            '/moderator/cases/{id}',
-            [ModeratorController::class, 'viewCase']
-        )->name('moderator.case');
-
-        Route::post(
-            '/moderator/cases/{id}/comment',
-            [ModeratorController::class, 'saveComment']
-        )->name('moderator.case.comment');
-
-        Route::put(
-            '/moderator/cases/{id}/update',
-            [ModeratorController::class, 'updateCase']
-        )->name('moderator.case.update'); 
-
-        /*
-        |----------------------------------------------------------------------
-        | CHATS DEL MODERADOR
-        |----------------------------------------------------------------------
-        */
-
-        Route::get(
-            '/moderator/chats',
-            [ModeratorController::class, 'chats']
-        )->name('moderator.chats');
-
-        Route::get(
-            '/moderator/chat/{id}',
-            [ModeratorController::class, 'viewChat']
-        )->name('moderator.chat');
-
-        Route::post(
-            '/moderator/chat/{id}/message',
-            [ModeratorController::class, 'sendChatMessage']
-        )->name('moderator.chat.message');
-
-        Route::post(
-            '/moderator/chat/{id}/close',
-            [ModeratorController::class, 'closeChat']
-        )->name('moderator.chat.close');
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | RELACIÓN DE CASOS
-    |--------------------------------------------------------------------------
-    */
+    /* RELACIÓN DE CASOS */
 
     Route::post(
         '/cases/suicide',
@@ -270,24 +172,14 @@ Route::post(
         [CaseController::class, 'createAbuseCase']
     )->name('cases.abuse');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | DASHBOARD
-    |--------------------------------------------------------------------------
-    */
+    /* DASHBOARD */
 
     Route::get(
         '/dashboard',
         [DashboardController::class, 'index']
     )->name('dashboard');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | FORO
-    |--------------------------------------------------------------------------
-    */
+    /* FORO */
 
     Route::get(
         '/forum',
@@ -309,48 +201,38 @@ Route::post(
         [ForumController::class, 'restore']
     )->name('forum.restore');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | PERFIL
-    |--------------------------------------------------------------------------
-    */
+    /* PERFIL */
 
     Route::get(
         '/profile',
         [UserController::class, 'profile']
     );
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | EVALUACIÓN
-    |--------------------------------------------------------------------------
-    */
+    /* EVALUACIONES DEL USUARIO */
 
     Route::get(
         '/evaluation',
-        fn () => view('evaluation')
-    );
+        [EvaluacionController::class, 'index']
+    )->name('evaluation.index');
 
+    Route::get(
+        '/evaluation/{uuid}',
+        [EvaluacionController::class, 'show']
+    )->name('evaluation.show');
 
-    /*
-    |--------------------------------------------------------------------------
-    | BOTÓN DE PÁNICO
-    |--------------------------------------------------------------------------
-    */
+    Route::post(
+        '/evaluation/{uuid}',
+        [EvaluacionController::class, 'submit']
+    )->name('evaluation.submit');
+
+    /* BOTÓN DE PÁNICO */
 
     Route::get(
         '/panic-button',
         fn () => view('panic')
     );
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | CASOS INFORMATIVOS
-    |--------------------------------------------------------------------------
-    */
+    /* CASOS INFORMATIVOS */
 
     Route::get(
         '/casesAbusoSexual',
@@ -362,41 +244,136 @@ Route::post(
         fn () => view('casesSuicidio')
     );
 
+});
 
-    /*
-    |--------------------------------------------------------------------------
-    | SEGUIMIENTO DE CASOS
-    |--------------------------------------------------------------------------
-    */
+    /* MODERADOR */
+
+Route::middleware([
+    'auth',
+    'must.change.password',
+    'role:MODERATOR'
+])->group(function () {
+
+    /* DASHBOARD DEL MODERADOR */
 
     Route::get(
-        '/cases',
-        [CaseController::class, 'tracking']
-    )->name('cases.tracking');
+        '/moderator/dashboard',
+        [ModeratorController::class, 'dashboard']
+    )->name('moderator.dashboard');
+
+    Route::get(
+        '/moderator/evaluations',
+        [EvaluacionController::class, 'moderatorIndex']
+    )->name('moderator.evaluations');
+
+    Route::get(
+        '/moderator/evaluations/create',
+        [EvaluacionController::class, 'create']
+    )->name('moderator.evaluations.create');
+
+    Route::post(
+        '/moderator/evaluations',
+        [EvaluacionController::class, 'store']
+    )->name('moderator.evaluations.store');
+
+    Route::get(
+        '/moderator/evaluations/{uuid}/edit',
+        [EvaluacionController::class, 'edit']
+    )->name('moderator.evaluations.edit');
+
+    Route::put(
+        '/moderator/evaluations/{uuid}',
+        [EvaluacionController::class, 'update']
+    )->name('moderator.evaluations.update');
+
+    Route::delete(
+        '/moderator/evaluations/{uuid}',
+        [EvaluacionController::class, 'destroy']
+    )->name('moderator.evaluations.destroy');
+
+    Route::get('/moderator/evaluation-results/user/{userUuid}', 
+    [EvaluacionController::class, 'moderatorUserResults'])
+    ->name('moderator.evaluation-results.user');
+
+    Route::get('/moderator/evaluation-result/{id}', 
+    [ModeratorController::class, 'evaluationResult'])
+    ->name('moderator.evaluation.result');
+
+    Route::get('/moderator/evaluation-result/{id}/pdf', 
+    [ModeratorController::class, 'downloadEvaluationResult'])
+    ->name('moderator.evaluation.pdf');
+
+    /* RESULTADOS DE EVALUACIONES */
+
+    Route::get(
+        '/moderator/evaluation-results/{id}',
+        [ModeratorController::class, 'evaluationResult']
+    )->name('moderator.evaluation-result');
+
+    Route::get(
+        '/moderator/evaluation-results/{id}/pdf',
+        [ModeratorController::class, 'downloadEvaluationResult']
+    )->name('moderator.evaluation-result.pdf');
+
+    Route::post(
+        '/moderator/notifications/evaluations/{id}/read',
+        [ModeratorController::class, 'markEvaluationNotificationAsRead']
+    )->name('moderator.evaluation-notifications.read');
+
+    /* CASOS DEL MODERADOR */
+
+    Route::get(
+        '/moderator/cases',
+        [ModeratorController::class, 'cases']
+    )->name('moderator.cases');
+
+    Route::get(
+        '/moderator/cases/{id}',
+        [ModeratorController::class, 'viewCase']
+    )->name('moderator.case');
+
+    Route::post(
+        '/moderator/cases/{id}/comment',
+        [ModeratorController::class, 'saveComment']
+    )->name('moderator.case.comment');
+
+    Route::put(
+        '/moderator/cases/{id}/update',
+        [ModeratorController::class, 'updateCase']
+    )->name('moderator.case.update');
+
+    /* CHATS DEL MODERADOR */
+
+    Route::get(
+        '/moderator/chats',
+        [ModeratorController::class, 'chats']
+    )->name('moderator.chats');
+
+    Route::get(
+        '/moderator/chat/{id}',
+        [ModeratorController::class, 'viewChat']
+    )->name('moderator.chat');
+
+    Route::post(
+        '/moderator/chat/{id}/message',
+        [ModeratorController::class, 'sendChatMessage']
+    )->name('moderator.chat.message');
+
+    Route::post(
+        '/moderator/chat/{id}/close',
+        [ModeratorController::class, 'closeChat']
+    )->name('moderator.chat.close');
 
 });
 
-
-/*
-|--------------------------------------------------------------------------
-| ACCESO ADMINISTRATIVO
-|--------------------------------------------------------------------------
-|
-| Solo usuarios con rol ADMIN.
-|
-*/
+    /* ACCESO ADMINISTRATIVO */
 
 Route::middleware([
     'auth',
     'role:ADMIN'
 ])->group(function () {
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | PANTALLA DE ACCESO ADMINISTRATIVO
-    |--------------------------------------------------------------------------
-    */
+    /* PANTALLA DE ACCESO ADMINISTRATIVO */
 
     Route::get(
         '/admin-access',
@@ -405,47 +382,27 @@ Route::middleware([
         }
     );
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | VERIFICAR CONTRASEÑA ADMINISTRATIVA
-    |--------------------------------------------------------------------------
-    */
+    /* VERIFICAR CONTRASEÑA ADMINISTRATIVA */
 
     Route::post(
         '/admin-access',
         [AdminController::class, 'verifyAdmin']
     );
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | ÁREA ADMINISTRATIVA VERIFICADA
-    |--------------------------------------------------------------------------
-    */
+    /* ÁREA ADMINISTRATIVA VERIFICADA */
 
     Route::middleware([
         'admin.verified'
     ])->group(function () {
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | PANEL PRINCIPAL
-        |--------------------------------------------------------------------------
-        */
+    /* PANEL PRINCIPAL */
 
         Route::get(
             '/admin-panel',
             [AdminController::class, 'panel']
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | NOTIFICACIONES
-        |--------------------------------------------------------------------------
-        */
+    /* NOTIFICACIONES */
 
         Route::get(
             '/admin/notifications',
@@ -457,24 +414,14 @@ Route::middleware([
             [AdminController::class, 'markNotificationAsRead']
         )->name('admin.notifications.read');
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | DASHBOARD ADMIN
-        |--------------------------------------------------------------------------
-        */
+        /* DASHBOARD ADMIN */
 
         Route::get(
             '/admin',
             [AdminController::class, 'dashboard']
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | USUARIOS
-        |--------------------------------------------------------------------------
-        */
+        /* USUARIOS */
 
         Route::get(
             '/admin/users',
@@ -501,12 +448,7 @@ Route::middleware([
             [AdminController::class, 'restoreUser']
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | EDITAR USUARIOS
-        |--------------------------------------------------------------------------
-        */
+        /* EDITAR USUARIOS */
 
         Route::get(
             '/admin/edit/{id}',
@@ -519,11 +461,7 @@ Route::middleware([
         );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | MODERADORES
-        |--------------------------------------------------------------------------
-        */
+        /* MODERADORES */
 
         Route::get(
             '/admin/moderators',
@@ -545,12 +483,7 @@ Route::middleware([
             [AdminController::class, 'restoreModerator']
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CASOS ADMINISTRATIVOS
-        |--------------------------------------------------------------------------
-        */
+        /* CASOS ADMINISTRATIVOS */
 
         Route::get(
             '/admin/cases',
@@ -587,12 +520,7 @@ Route::middleware([
             [AdminController::class, 'saveComment']
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | REPORTES
-        |--------------------------------------------------------------------------
-        */
+        /* REPORTES */
 
         Route::get(
             '/admin/reports',
@@ -610,11 +538,7 @@ Route::middleware([
         );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | CONFIGURACIÓN
-        |--------------------------------------------------------------------------
-        */
+        /* CONFIGURACIÓN */
 
         Route::get(
             '/admin/configuration',
@@ -626,12 +550,7 @@ Route::middleware([
             [AdminController::class, 'saveConfiguration']
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | ELIMINAR USUARIO
-        |--------------------------------------------------------------------------
-        */
+        /* ELIMINAR USUARIO */
 
         Route::get(
             '/admin/delete/{id}',
@@ -642,14 +561,9 @@ Route::middleware([
 
 });
 
-
-/*
-|--------------------------------------------------------------------------
-| CONTACTO
-|--------------------------------------------------------------------------
-*/
+    /* CONTACTO */
 
 Route::post(
     '/contact',
     [ContactController::class, 'store']
-)->name('contact.store');
+)->name('contact.store'); 

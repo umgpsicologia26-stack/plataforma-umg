@@ -21,9 +21,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             // Usuario que envió el mensaje
-            $table->char('sender_uuid', 36)
-                ->charset('utf8mb4')
-                ->collation('utf8mb4_0900_ai_ci');
+            $table->char('sender_uuid', 36);
 
             // USER, MODERATOR o BOT
             $table->enum('sender_type', [

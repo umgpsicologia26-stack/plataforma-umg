@@ -15,7 +15,6 @@ class CaseFile extends Model
         'description',
         'user_uuid',
         'moderator_uuid',
-        'priority',
         'status',
         'admin_approved'
 

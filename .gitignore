@@ -23,3 +23,4 @@ database/migrations/backup_migration/
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/storage/app/firebase/

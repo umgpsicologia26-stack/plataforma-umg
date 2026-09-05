@@ -3,7 +3,7 @@
         <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+    <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>UMG</title>
             <link rel="stylesheet"
                     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -197,33 +197,116 @@
         <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script>
         const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_DOMINIO",
-    projectId: "TU_PROJECT_ID",
-    storageBucket: "TU_BUCKET",
-    messagingSenderId: "TU_SENDER",
-    appId: "TU_APP_ID"
+    apiKey: "AIzaSyCtmqJGlHhehKOAmWrfEpuxB5gFhW1Bw10",
+    authDomain: "plataformaumg.firebaseapp.com",
+    projectId: "plataformaumg",
+    storageBucket: "plataformaumg.firebasestorage.app",
+    messagingSenderId: "2360835961",
+    appId: "1:2360835961:web:7c57c82f0028bf9621b9a8"
 };
+
 firebase.initializeApp(firebaseConfig);
 
     /*GOOGLE LOGIN*/
-async function googleLogin(){
+async function googleLogin() {
+
     const provider =
         new firebase.auth.GoogleAuthProvider();
+
     provider.setCustomParameters({
         prompt: 'select_account'
     });
-    try{
-        await firebase
-            .auth()
-            .signInWithPopup(provider);
-        window.location.href =
-            '/dashboard';
-    }catch(error){
-        alert(error.message);
+
+    try {
+
+        /*
+         * Abrir ventana de Google.
+         */
+        const result =
+            await firebase
+                .auth()
+                .signInWithPopup(provider);
+
+        /*
+         * Obtener usuario autenticado.
+         */
+        const user =
+            result.user;
+
+        /*
+         * Obtener ID Token de Firebase.
+         */
+        const idToken =
+            await user.getIdToken();
+
+        /*
+         * Enviar el token a Laravel.
+         */
+        const response =
+            await fetch(
+                '{{ route("google.login") }}',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json',
+
+                        'Accept':
+                            'application/json',
+
+                        'X-CSRF-TOKEN':
+                            document
+                                .querySelector(
+                                    'meta[name="csrf-token"]'
+                                )
+                                .getAttribute('content')
+                    },
+
+                    body: JSON.stringify({
+                        idToken: idToken
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        /*
+         * Si Laravel rechazó el inicio
+         * de sesión.
+         */
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                'No fue posible iniciar sesión con Google.'
+            );
+        }
+
+        /*
+         * Laravel creó correctamente
+         * la sesión.
+         */
+        if (data.success) {
+
+            window.location.href =
+                data.redirect;
+        }
+
+    } catch (error) {
+
+        console.error(
+            'Error en inicio de sesión con Google:',
+            error
+        );
+
+        alert(
+            error.message ||
+            'No fue posible iniciar sesión con Google.'
+        );
     }
 }
-
     /*MOSTRAR REGISTRO*/
 function toggleRegisterForm(){
     const login =

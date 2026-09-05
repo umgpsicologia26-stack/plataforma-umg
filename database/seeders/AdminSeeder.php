@@ -11,26 +11,25 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-    User::updateOrCreate(
-    ['email' => 'claudia.lopez@plataforma.com'],
-    [
-        'uuid' => Str::uuid(), 
-        'firebase_uid' => Str::uuid(),
+        User::updateOrCreate(
+            ['email' => 'umgpsicologia26@gmail.com'],
+            [
+                'uuid' => (string) Str::uuid(),
+                'firebase_uid' => (string) Str::uuid(),
 
-        'first_name' => 'Claudia',
-        'last_name' => 'López',
+                'first_name' => 'Administrador',
+                'last_name' => 'UMG',
 
-        'email' => 'claudia.lopez@plataforma.com',
-        'anonymous_nickname' => 'ADMIN-CT-001',
+                'anonymous_nickname' => 'ADMIN-UMG-001',
 
-        'provider' => 'EMAIL',
-        'password_hash' => Hash::make('Admin12345'),
+                'provider' => 'EMAIL',
+                'password_hash' => Hash::make(env('ADMIN_PASSWORD')),
 
-        'role' => 'ADMIN',
-        'status' => 'ACTIVE',
+                'role' => 'ADMIN',
+                'status' => 'Activo',
 
-        'phone' => '00000000',
-        'birth_date' => null,
+                'phone' => null,
+                'birth_date' => null,
             ]
         );
     }

@@ -3,13 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class NicknameHistory extends Model
 {
     protected $table = 'nickname_history';
-    protected $primaryKey = 'uuid';
-    public $incrementing = false;
-    protected $keyType = 'string';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -17,20 +16,22 @@ class NicknameHistory extends Model
         'user_uuid',
         'old_nickname',
         'new_nickname',
-        'changed_at'
+        'changed_at',
     ];
 
-    protected $casts = [
-        'changed_at' => 'datetime',
-    ];
+    protected static function boot()
+    {
+        parent::boot();
 
-    // Usuario al que pertenece este nickname.
+        static::creating(function ($history) {
+            if (!$history->uuid) {
+                $history->uuid = (string) Str::uuid();
+            }
+        });
+    }
+
     public function user()
     {
-        return $this->belongsTo(
-            User::class,
-            'user_uuid',
-            'uuid'
-        );
+        return $this->belongsTo(User::class, 'user_uuid', 'uuid');
     }
 }

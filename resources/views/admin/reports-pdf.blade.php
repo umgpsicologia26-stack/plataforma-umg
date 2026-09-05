@@ -1,55 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
-    <title>Reporte de Casos - UMG</title>
 
-<style>
+    <title>Reporte de Casos - UMG Xela</title>
+
+    <style>
+
         @page {
-            margin: 35px 30px;
+            margin: 32px 30px;
         }
 
         body {
             font-family: DejaVu Sans, sans-serif;
             color: #1f2937;
             font-size: 11px;
+            margin: 0;
+            padding: 0;
         }
 
-    /*ENCABEZADO*/
-        .header {
-            border-bottom: 3px solid #2563eb;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-        }
-
-        .brand {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2563eb;
-        }
-
-        .subtitle {
-            margin-top: 5px;
-            color: #6b7280;
-            font-size: 11px;
-        }
-
-        .date {
-            margin-top: 8px;
-            color: #6b7280;
-            font-size: 10px;
-        }
-
-    /*TÍTULO*/
         .report-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             margin-bottom: 18px;
-            color: #1f2937;
+            color: #0f172a;
         }
 
-    /*RESUMEN*/
         .summary {
             width: 100%;
             margin-bottom: 22px;
@@ -58,12 +34,13 @@
         .summary-box {
             border: 1px solid #dbeafe;
             background: #eff6ff;
-            padding: 10px;
+            border-radius: 12px;
+            padding: 12px;
             text-align: center;
         }
 
         .summary-number {
-            font-size: 18px;
+            font-size: 19px;
             font-weight: bold;
             color: #2563eb;
         }
@@ -71,29 +48,29 @@
         .summary-label {
             font-size: 9px;
             color: #64748b;
+            margin-top: 2px;
         }
 
-    /*TABLA*/
-        table {
+        table.cases {
             width: 100%;
             border-collapse: collapse;
         }
 
-        th {
-            background: #2563eb;
-            color: white;
-            padding: 9px 7px;
+        table.cases th {
+            background: #0f172a;
+            color: #ffffff;
+            padding: 9px 8px;
             text-align: left;
             font-size: 10px;
         }
 
-        td {
+        table.cases td {
             border-bottom: 1px solid #e5e7eb;
-            padding: 8px 7px;
+            padding: 9px 8px;
             font-size: 10px;
         }
 
-        tr:nth-child(even) td {
+        table.cases tr:nth-child(even) td {
             background: #f8fafc;
         }
 
@@ -102,7 +79,6 @@
             font-weight: bold;
         }
 
-    /*ESTADOS+*/
         .status {
             font-weight: bold;
         }
@@ -127,44 +103,38 @@
             color: #475569;
         }
 
-    /*PIE*/
         .footer {
-            margin-top: 30px;
+            margin-top: 28px;
             padding-top: 10px;
             border-top: 1px solid #e5e7eb;
             text-align: center;
             color: #94a3b8;
             font-size: 9px;
         }
+
     </style>
 </head>
+
 <body>
 
-    <!--ENCABEZADO-->
-    <div class="header">
-        <div class="brand">
-            UMG
-        </div>
-        <div class="subtitle">
-            Plataforma informática preventiva y de orientación
-        </div>
+    @include('pdf.partials.header', [
+        'documentTitle' => 'REPORTE DE CASOS',
+        'documentDate' => now()->format('d/m/Y H:i'),
+        'documentNumber' => null,
+    ])
 
-        <div class="date">
-            Reporte generado:
-            {{ now()->format('d/m/Y H:i') }}
-        </div>
-    </div>
-
-    <!--TÍTULO-->
     <div class="report-title">
         Reporte de Casos Administrativos
     </div>
 
-    <!--RESUMEN-->
-    <table class="summary">
+    {{-- RESUMEN --}}
+
+    <table class="summary" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="33%">
+
+            <td width="32%">
                 <div class="summary-box">
+
                     <div class="summary-number">
                         {{ $cases->count() }}
                     </div>
@@ -172,71 +142,63 @@
                     <div class="summary-label">
                         Total de casos
                     </div>
+
                 </div>
             </td>
 
-            <td width="33%">
+            <td width="2%"></td>
+
+            <td width="32%">
                 <div class="summary-box">
+
                     <div class="summary-number">
-                        {{
-                            $cases
-                                ->where('status', 'ABIERTO')
-                                ->count()
-                        }}
+                        {{ $cases->where('status', 'ABIERTO')->count() }}
                     </div>
 
                     <div class="summary-label">
                         Casos abiertos
                     </div>
+
                 </div>
             </td>
 
-            <td width="33%">
+            <td width="2%"></td>
+
+            <td width="32%">
                 <div class="summary-box">
+
                     <div class="summary-number">
-                        {{
-                            $cases
-                                ->where('status', 'CERRADO')
-                                ->count()
-                        }}
+                        {{ $cases->where('status', 'CERRADO')->count() }}
                     </div>
 
                     <div class="summary-label">
                         Casos cerrados
                     </div>
+
                 </div>
             </td>
+
         </tr>
     </table>
 
-    <!--TABLA DE CASOS-->
-    <table>
+    {{-- TABLA DE CASOS --}}
+
+    <table class="cases">
+
         <thead>
             <tr>
-                <th>
-                    Número de caso
-                </th>
-
-                <th>
-                    Tema
-                </th>
-
-                <th>
-                    Estado
-                </th>
-
-                <th>
-                    Moderador
-                </th>
-
-                <th>
-                    Fecha
-                </th>
+                <th>Número de caso</th>
+                <th>Tema</th>
+                <th>Estado</th>
+                <th>Moderador</th>
+                <th>Fecha</th>
             </tr>
         </thead>
 
         <tbody>
+
             @forelse($cases as $case)
+
                 <tr>
 
                     <td>
@@ -256,41 +218,31 @@
                     </td>
 
                     <td>
+
                         @if($case->status === 'ABIERTO')
-                            <span class="status open">
-                                Abierto
-                            </span>
+                            <span class="status open">Abierto</span>
 
                         @elseif($case->status === 'EN_PROCESO')
-                            <span class="status process">
-                                En proceso
-                            </span>
+                            <span class="status process">En proceso</span>
 
                         @elseif($case->status === 'TERMINADO')
-                            <span class="status finished">
-                                Terminado
-                            </span>
+                            <span class="status finished">Terminado</span>
 
                         @elseif($case->status === 'PENDIENTE_APROBACION')
-                            <span class="status pending">
-                                Pendiente aprobación
-                            </span>
+                            <span class="status pending">Pendiente aprobación</span>
 
                         @elseif($case->status === 'CERRADO')
-                            <span class="status closed">
-                                Cerrado
-                            </span>
+                            <span class="status closed">Cerrado</span>
 
                         @else
                             {{ $case->status }}
                         @endif
+
                     </td>
 
                     <td>
                         {{ $case->moderator
-                            ? $case->moderator->first_name
-                            . ' '
-                            . $case->moderator->last_name
+                            ? $case->moderator->first_name . ' ' . $case->moderator->last_name
                             : 'No asignado'
                         }}
                     </td>
@@ -300,23 +252,24 @@
                     </td>
 
                 </tr>
-            @empty
-                <tr>
 
-                    <td
-                        colspan="5"
-                        style="text-align:center; padding:25px;">
+            @empty
+
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:25px; color:#64748b;">
                         No hay casos registrados.
                     </td>
                 </tr>
 
             @endforelse
+
         </tbody>
+
     </table>
 
-    <!--PIE-->
     <div class="footer">
-        UMG — Reporte administrativo de casos
+        UMG Xela — Reporte administrativo de casos generado automáticamente
     </div>
+
 </body>
 </html>

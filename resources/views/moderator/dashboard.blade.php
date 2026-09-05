@@ -149,6 +149,10 @@
             grid-template-columns:
                 repeat(auto-fit, minmax(300px, 1fr));
 
+            grid-auto-rows: min-content;
+
+            align-items: start;
+
             gap: 25px;
         }
 
@@ -230,7 +234,9 @@
             font-size: 14px;
         }
 
-        /* CHAT */
+        /* =========================================================
+           CHAT
+        ========================================================= */
 
         .chat-card .card-icon {
             background: #ecfdf5;
@@ -241,7 +247,22 @@
             color: #059669;
         }
 
-        /* NOTIFICACIÓN */
+        /* =========================================================
+           EVALUACIONES
+        ========================================================= */
+
+        .evaluation-card .card-icon {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .evaluation-card .card-link {
+            color: #d97706;
+        }
+
+        /* =========================================================
+           NOTIFICACIÓN
+        ========================================================= */
 
         .new-message-badge {
             position: absolute;
@@ -268,6 +289,8 @@
             font-weight: 800;
 
             animation: pulse 1.8s infinite;
+
+            z-index: 2;
         }
 
         .new-message-badge i {
@@ -307,12 +330,20 @@
             font-size: 11px;
 
             font-weight: 700;
+
+            z-index: 2;
         }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
 
         @media(max-width: 700px) {
 
             .navbar {
                 width: 92%;
+
+                padding: 16px 20px;
             }
 
             .container {
@@ -329,6 +360,28 @@
 
         }
 
+        @media(max-width: 600px) {
+
+            .brand h2 {
+                font-size: 16px;
+            }
+
+            .brand span {
+                font-size: 10px;
+            }
+
+            .logout-btn {
+                padding: 9px 12px;
+
+                font-size: 11px;
+            }
+
+            .logout-btn i {
+                margin-right: 0;
+            }
+
+        }
+
     </style>
 
 </head>
@@ -336,6 +389,10 @@
 
 <body>
 
+
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
 
 <nav class="navbar">
 
@@ -361,15 +418,18 @@
 
     </div>
 
+
     <form
         method="POST"
-        action="{{ url('/logout') }}">
+        action="{{ url('/logout') }}"
+    >
 
         @csrf
 
         <button
             type="submit"
-            class="logout-btn">
+            class="logout-btn"
+        >
 
             <i class="fas fa-right-from-bracket"></i>
 
@@ -381,7 +441,17 @@
 
 </nav>
 
+
+<!-- =========================================================
+     CONTENIDO
+========================================================= -->
+
 <main class="container">
+
+
+    <!-- =====================================================
+         BIENVENIDA
+    ====================================================== -->
 
     <div class="welcome">
 
@@ -393,9 +463,11 @@
         </h1>
 
         <p>
+
             Desde este panel puedes gestionar los casos asignados,
             atender conversaciones de usuarios y supervisar
             el contenido del foro.
+
         </p>
 
         <span class="role-badge">
@@ -406,13 +478,22 @@
 
     </div>
 
+
+    <!-- =====================================================
+         TARJETAS
+    ====================================================== -->
+
     <div class="cards">
 
-    {{-- CHAT --}}
+
+        <!-- =================================================
+             CHAT
+        ================================================== -->
 
         <a
             href="{{ route('moderator.chats') }}"
-            class="card chat-card">
+            class="card chat-card"
+        >
 
             {{-- NOTIFICACIÓN DE MENSAJES NUEVOS --}}
 
@@ -443,21 +524,26 @@
 
             @endif
 
+
             <div class="card-icon">
 
                 <i class="fas fa-headset"></i>
 
             </div>
 
+
             <h2>
                 Chat con usuarios
             </h2>
 
+
             <p>
+
                 Atiende las conversaciones de los usuarios
                 que han solicitado hablar con una persona.
                 Puedes revisar los mensajes enviados y
                 responder directamente desde la plataforma.
+
             </p>
 
 
@@ -469,14 +555,17 @@
 
             </div>
 
-
         </a>
 
-        {{-- MIS CASOS --}}
+
+        <!-- =================================================
+             MIS CASOS
+        ================================================== -->
 
         <a
             href="{{ route('moderator.cases') }}"
-            class="card">
+            class="card"
+        >
 
             <div class="card-icon">
 
@@ -484,14 +573,18 @@
 
             </div>
 
+
             <h2>
                 Mis casos
             </h2>
 
+
             <p>
+
                 Consulta los casos asignados, revisa la
                 información proporcionada por el usuario
                 y realiza el seguimiento correspondiente.
+
             </p>
 
 
@@ -506,11 +599,14 @@
         </a>
 
 
-        {{-- FORO --}}
+        <!-- =================================================
+             FORO
+        ================================================== -->
 
         <a
             href="{{ route('forum.index') }}"
-            class="card">
+            class="card"
+        >
 
             <div class="card-icon">
 
@@ -518,17 +614,20 @@
 
             </div>
 
+
             <h2>
-
                 Foro
-
             </h2>
 
+
             <p>
+
                 Supervisa las publicaciones del foro y
                 restringe contenido ofensivo, delicado,
                 inapropiado o que incite a la violencia.
+
             </p>
+
 
             <div class="card-link">
 
@@ -540,9 +639,73 @@
 
         </a>
 
+
+        <!-- =================================================
+             EVALUACIONES
+        ================================================== -->
+
+        <a
+            href="{{ route('moderator.evaluations') }}"
+            class="card evaluation-card"
+        >
+
+            {{-- NOTIFICACIÓN DE RESULTADOS NUEVOS --}}
+
+            @if(isset($evaluationNotificationsCount) && $evaluationNotificationsCount > 0)
+
+                <div class="new-message-badge">
+
+                    <i class="fas fa-bell"></i>
+
+                    {{ $evaluationNotificationsCount }}
+
+                    {{ $evaluationNotificationsCount == 1
+                        ? 'resultado nuevo'
+                        : 'resultados nuevos'
+                    }}
+
+                </div>
+
+            @endif
+
+
+            <div class="card-icon">
+
+                <i class="fas fa-clipboard-question"></i>
+
+            </div>
+
+
+            <h2>
+                Evaluaciones
+            </h2>
+
+
+            <p>
+
+                Crea, modifica y administra las evaluaciones
+                que estarán disponibles para los usuarios.
+                Puedes definir las preguntas, tipos de respuesta
+                y opciones de cada evaluación.
+
+            </p>
+
+
+            <div class="card-link">
+
+                Gestionar evaluaciones
+
+                <i class="fas fa-arrow-right"></i>
+
+            </div>
+
+        </a>
+
+
     </div>
 
 </main>
+
 
 </body>
 
