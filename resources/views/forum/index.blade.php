@@ -816,31 +816,30 @@
                     </div>
 
 
-                    {{-- MENSAJE OCULTO --}}
+                {{-- MENSAJE OCULTO --}}
 
-                    @if($message->visibility_status === 'HIDDEN')
+@if($message->visibility_status === 'HIDDEN')
 
-                        <div class="hidden-warning">
+    <div class="hidden-warning">
 
-                            ⚠️ Este mensaje fue ocultado por moderación.
+        ⚠️ Este mensaje fue ocultado por moderación.
 
-                        </div>
+    </div>
 
-                    @endif
+@else
+
+    {{-- CONTENIDO DEL MENSAJE VISIBLE --}}
+
+    <div class="message-content">
+
+        {{ $message->content }}
+
+    </div>
+
+@endif
 
 
-                    {{-- CONTENIDO --}}
-
-                    <div class="message-content">
-
-                        {{ $message->content }}
-
-                    </div>
-
-
-                    {{-- ==============================
-                         CONTROLES DE MODERACION
-                    ============================== --}}
+                    {{-- CONTROLES DE MODERACION --}}
 
                     @if(
                         auth()->check() &&

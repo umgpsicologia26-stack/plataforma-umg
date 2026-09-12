@@ -751,8 +751,6 @@
                         'EN_SEGUIMIENTO',
                         'EN SEGUIMIENTO',
                         'SEGUIMIENTO',
-                        'EN PROCESO',
-                        'EN_PROCESO'
                     ]);
 
                 })->count();
@@ -850,8 +848,6 @@
                             'EN_SEGUIMIENTO',
                             'EN SEGUIMIENTO',
                             'SEGUIMIENTO',
-                            'EN_PROCESO',
-                            'EN PROCESO'
                         ])
                     ) {
 

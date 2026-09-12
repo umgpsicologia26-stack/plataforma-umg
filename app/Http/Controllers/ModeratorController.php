@@ -1,12 +1,13 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\CaseFile;
 use App\Models\CaseComment;
+use App\Models\CaseFile;
 use App\Models\CaseNotification;
 use App\Models\ChatConversation;
 use App\Models\ModeratorNotification;
+use App\Models\ChatMessage;
+use App\Models\AuditLog;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,11 +17,7 @@ use Carbon\Carbon;
 
 class ModeratorController extends BaseController
 {
-    /*
-    |--------------------------------------------------------------------------
-    | DASHBOARD DEL MODERADOR
-    |--------------------------------------------------------------------------
-    */
+    /* DASHBOARD DEL MODERADOR */
 
     public function dashboard()
     {
@@ -73,11 +70,7 @@ class ModeratorController extends BaseController
             )
             ->count();
 
-        /*
-        |--------------------------------------------------------------------------
-        | MENSAJES NUEVOS DEL CHAT
-        |--------------------------------------------------------------------------
-        */
+        /* MENSAJES NUEVOS DEL CHAT */
 
         $newConversationsCount = DB::table('chat_messages')
             ->join(
@@ -121,11 +114,7 @@ class ModeratorController extends BaseController
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | RESULTADO DE EVALUACIÓN
-    |--------------------------------------------------------------------------
-    */
+    /* RESULTADO DE EVALUACIÓN */
 
     public function evaluationResult($id)
     {
@@ -148,15 +137,7 @@ class ModeratorController extends BaseController
             )
             ->firstOrFail();
 
-        /*
-        |--------------------------------------------------------------------------
-        | VERIFICACIÓN DE SEGURIDAD
-        |--------------------------------------------------------------------------
-        |
-        | El moderador solamente puede consultar resultados de evaluaciones
-        | creadas por él y vinculadas correctamente con el intento.
-        |
-        */
+        /* VERIFICACIÓN DE SEGURIDAD */
 
         $evaluacion = $notification->evaluacion;
         $attempt = $notification->intento;
@@ -173,11 +154,7 @@ class ModeratorController extends BaseController
             abort(404);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | MARCAR LA NOTIFICACIÓN COMO LEÍDA
-        |--------------------------------------------------------------------------
-        */
+        /* MARCAR LA NOTIFICACIÓN COMO LEÍDA */
 
         $notification->update([
             'read' => true,
@@ -193,11 +170,7 @@ class ModeratorController extends BaseController
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DESCARGAR RESULTADO DE EVALUACIÓN EN PDF
-    |--------------------------------------------------------------------------
-    */
+    /* DESCARGAR RESULTADO DE EVALUACIÓN EN PDF */
 
     public function downloadEvaluationResult($id)
     {
@@ -220,11 +193,7 @@ class ModeratorController extends BaseController
             )
             ->firstOrFail();
 
-        /*
-        |--------------------------------------------------------------------------
-        | VERIFICACIÓN DE SEGURIDAD
-        |--------------------------------------------------------------------------
-        */
+        /* VERIFICACIÓN DE SEGURIDAD */
 
         $evaluacion = $notification->evaluacion;
         $attempt = $notification->intento;
@@ -241,11 +210,7 @@ class ModeratorController extends BaseController
             abort(404);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | GENERAR PDF
-        |--------------------------------------------------------------------------
-        */
+        /* GENERAR PDF */
 
         $pdf = Pdf::loadView(
             'moderator.evaluation-pdf',
@@ -265,11 +230,7 @@ class ModeratorController extends BaseController
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | MARCAR NOTIFICACIÓN DE EVALUACIÓN COMO LEÍDA
-    |--------------------------------------------------------------------------
-    */
+    /* MARCAR NOTIFICACIÓN DE EVALUACIÓN COMO LEÍDA */
 
     public function markEvaluationNotificationAsRead($id)
     {
@@ -301,11 +262,7 @@ class ModeratorController extends BaseController
             );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | LISTAR CASOS DEL MODERADOR
-    |--------------------------------------------------------------------------
-    */
+    /* LISTAR CASOS DEL MODERADOR */
 
     public function cases()
     {
@@ -315,8 +272,10 @@ class ModeratorController extends BaseController
 
         $cases = CaseFile::with([
             'user',
-            'moderator'
+            'moderator',
+            'comments.user'
         ])
+
             ->where(
                 'moderator_uuid',
                 $moderatorUuid
@@ -332,11 +291,7 @@ class ModeratorController extends BaseController
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | VER DETALLE DE UN CASO
-    |--------------------------------------------------------------------------
-    */
+    /* VER DETALLE DE UN CASO */
 
     public function viewCase($id)
     {
@@ -359,89 +314,107 @@ class ModeratorController extends BaseController
             )
             ->firstOrFail();
 
+            $this->authorize('view', $case);
+
         return view(
             'moderator.view-case',
             compact('case')
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ACTUALIZAR CASO
-    |--------------------------------------------------------------------------
-    */
-
+    /* ACTUALIZAR CASO */
     public function updateCase(
-        Request $request,
+    Request $request,
+    $id
+) {
+    $this->checkRole(['MODERATOR']);
+
+    $request->validate([
+    'status' => [
+        'required',
+        'in:Abierto,En seguimiento,Cerrado'
+    ],
+
+    'comment' => [
+        'nullable',
+        'string',
+        'max:5000'
+    ],
+]);
+    
+
+    $moderatorUuid = Auth::user()->uuid;
+
+    $case = CaseFile::where(
+        'id',
         $id
-    ) {
-        $this->checkRole(['MODERATOR']);
-
-        $request->validate([
-            'status' => [
-                'required',
-                'in:Abierto,En seguimiento,Cerrado'
-            ],
-
-            'comment' => [
-                'nullable',
-                'string',
-                'max:5000'
-            ],
-        ]);
-
-        $moderatorUuid = Auth::user()->uuid;
-
-        $case = CaseFile::where(
-            'id',
-            $id
-        )
-            ->where(
-                'moderator_uuid',
-                $moderatorUuid
-            )
-            ->firstOrFail();
-
-        DB::transaction(function () use (
-            $request,
-            $case,
+    )
+        ->where(
+            'moderator_uuid',
             $moderatorUuid
-        ) {
+        )
+        ->firstOrFail();
 
-            $case->status = $request->status;
+        $this->authorize('update', $case);
 
-            $case->save();
+    $oldStatus = $case->status;
 
-            if ($request->filled('comment')) {
+    DB::transaction(function () use (
+        $request,
+        $case,
+        $moderatorUuid,
+        $oldStatus
+    ) {
 
-                CaseComment::create([
-                    'case_id' => $case->id,
-                    'user_id' => $moderatorUuid,
-                    'type' => 'OBSERVACION',
-                    'comment' => trim($request->comment),
-                    'color' => null,
-                ]);
-            }
-        });
+        $case->status = $request->status;
 
-        return redirect()
-            ->route(
-                'moderator.case',
-                [
-                    'id' => $case->id
-                ]
-            )
-            ->with(
-                'success',
-                'Los cambios del caso fueron guardados correctamente.'
-            );
-    }
+        $case->save();
 
-    /*
-    |--------------------------------------------------------------------------
-    | AGREGAR SOLAMENTE UNA RESPUESTA AL CHAT
-    |--------------------------------------------------------------------------
-    */
+        if ($oldStatus !== $case->status) {
+
+            AuditLog::create([
+                'action' => 'update_case_status',
+                'performed_by' => $moderatorUuid,
+                'target_type' => 'CaseFile',
+                'target_id' => (string) $case->id,
+                'changes' => [
+                    'case_number' => $case->case_number,
+                    'type' => $case->type,
+                    'status' => [
+                        'before' => $oldStatus,
+                        'after' => $case->status,
+                    ],
+                ],
+            ]);
+        }
+
+        if ($request->filled('comment')) {
+
+            CaseComment::create([
+                'case_id' => $case->id,
+                'user_id' => $moderatorUuid,
+                'type' => 'OBSERVACION',
+                'comment' => trim($request->comment),
+                'color' => null,
+            ]);
+        }
+    });
+
+    return redirect()
+        ->route(
+            'moderator.case',
+            [
+                'id' => $case->id
+            ]
+        )
+        ->with(
+            'success',
+            'Los cambios del caso fueron guardados correctamente.'
+        );
+}
+
+
+    /* AGREGAR SOLAMENTE UNA RESPUESTA AL CHAT */
 
     public function saveComment(
         Request $request,
@@ -468,6 +441,8 @@ class ModeratorController extends BaseController
                 $moderatorUuid
             )
             ->firstOrFail();
+
+            $this->authorize('update', $case);
 
         DB::transaction(function () use (
             $request,
@@ -519,16 +494,11 @@ class ModeratorController extends BaseController
                     ]);
             }
 
-            DB::table(
-                'chat_messages'
-            )->insert([
-                'uuid' => (string) Str::uuid(),
+            ChatMessage::create([
                 'conversation_id' => $conversationId,
                 'sender_uuid' => $moderatorUuid,
                 'sender_type' => 'MODERATOR',
                 'message' => trim($request->comment),
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
 
             CaseNotification::create([
@@ -556,11 +526,7 @@ class ModeratorController extends BaseController
             );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | LISTAR CONVERSACIONES
-    |--------------------------------------------------------------------------
-    */
+    /* LISTAR CONVERSACIONES */
 
     public function chats()
     {
@@ -609,13 +575,10 @@ class ModeratorController extends BaseController
                 )
                 ->first();
 
-            $conversation->messages = DB::table(
-                'chat_messages'
+            $conversation->messages = ChatMessage::where(
+                'conversation_id',
+                $conversation->id
             )
-                ->where(
-                    'conversation_id',
-                    $conversation->id
-                )
                 ->orderBy(
                     'created_at',
                     'asc'
@@ -649,13 +612,8 @@ class ModeratorController extends BaseController
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | VER CONVERSACIÓN
-    |--------------------------------------------------------------------------
-    */
-
-    public function viewChat($id)
+    /* VER CONVERSACIÓN */
+        public function viewChat($id)
     {
         $this->checkRole(['MODERATOR']);
 
@@ -705,13 +663,10 @@ class ModeratorController extends BaseController
             )
             ->first();
 
-        $messages = DB::table(
-            'chat_messages'
+        $messages = ChatMessage::where(
+            'conversation_id',
+            $id
         )
-            ->where(
-                'conversation_id',
-                $id
-            )
             ->orderBy(
                 'created_at',
                 'asc'
@@ -757,11 +712,7 @@ class ModeratorController extends BaseController
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ENVIAR MENSAJE DEL MODERADOR
-    |--------------------------------------------------------------------------
-    */
+    /* ENVIAR MENSAJE DEL MODERADOR */
 
     public function sendChatMessage(
         Request $request,
@@ -807,16 +758,12 @@ class ModeratorController extends BaseController
             );
         }
 
-        DB::table(
-            'chat_messages'
-        )->insert([
+        ChatMessage::create([
             'uuid' => (string) Str::uuid(),
             'conversation_id' => $id,
             'sender_uuid' => $moderatorUuid,
             'sender_type' => 'MODERATOR',
             'message' => trim($request->message),
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
         DB::table(
@@ -837,12 +784,7 @@ class ModeratorController extends BaseController
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CERRAR CONVERSACIÓN
-    |--------------------------------------------------------------------------
-    */
-
+    /* CERRAR CONVERSACIÓN */
     public function closeChat($id)
     {
         $this->checkRole(['MODERATOR']);

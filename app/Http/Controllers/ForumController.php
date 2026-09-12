@@ -15,7 +15,8 @@ class ForumController extends Controller
     |--------------------------------------------------------------------------
     |
     | USUARIO:
-    | Solo puede ver publicaciones visibles.
+    | Puede recibir publicaciones visibles y ocultas.
+    | La vista determina qué contenido puede mostrarse.
     |
     | MODERADOR / ADMIN:
     | Pueden ver publicaciones visibles y ocultas para poder moderarlas.
@@ -30,37 +31,18 @@ class ForumController extends Controller
             ->orderBy('created_at', 'asc');
 
         /*
-        |--------------------------------------------------------------------------
-        | USUARIO NORMAL
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            !$user ||
-            !in_array(
-                $user->role,
-                ['ADMIN', 'MODERATOR']
-            )
-        ) {
-            $query->where(
-                'visibility_status',
-                'VISIBLE'
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | ADMINISTRADOR / MODERADOR
-        |--------------------------------------------------------------------------
-        |
-        | No agregamos ningún filtro adicional.
-        | Pueden visualizar:
-        |
-        | VISIBLE
-        | HIDDEN
-        |
-        */
-
+    |--------------------------------------------------------------------------
+    | VISIBILIDAD
+    |--------------------------------------------------------------------------
+    |
+    | USUARIO:
+    | Puede recibir publicaciones visibles y ocultas.
+    | La vista determina qué contenido puede mostrarse.
+    |
+    | MODERADOR / ADMIN:
+    | Pueden ver publicaciones visibles y ocultas para poder moderarlas.
+    |
+    */
         $messages = $query->get();
 
         return view(

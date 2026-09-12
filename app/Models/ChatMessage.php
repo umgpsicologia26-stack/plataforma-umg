@@ -17,6 +17,10 @@ class ChatMessage extends Model
         'message',
     ];
 
+    protected $casts = [
+    'message' => 'encrypted',
+];
+
     protected static function booted()
     {
         static::creating(function ($chatMessage) {

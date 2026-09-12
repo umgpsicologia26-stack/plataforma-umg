@@ -35,6 +35,7 @@ class EvaluacionRespuesta extends Model
 }
     protected $casts = [
         'completed_at' => 'datetime',
+        'respuesta' => 'encrypted',
     ];
 
     protected static function boot()

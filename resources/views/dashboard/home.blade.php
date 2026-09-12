@@ -61,28 +61,36 @@
         .nav-center {
             display: flex;
             align-items: center;
-            gap: 30px;
+            gap: 10px;
         }
 
         .nav-center a {
-            display: flex;
+            display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            padding: 12px 20px;
-            background: #f1f5f9;
-            border-radius: 14px;
+            padding: 9px 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
             text-decoration: none;
             color: #334155;
             font-size: 14px;
-            font-weight: 600;
-            transition: .3s ease;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all .2s ease;
+        }
+
+        .nav-center a i {
+            font-size: 14px;
         }
 
         .nav-center a:hover {
             background: #2563eb;
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(37, 99, 235, .25);
+            border-color: #2563eb;
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(37, 99, 235, .18);
         }
 
         .nav-right {
@@ -767,7 +775,141 @@
                 max-width: 82%;
             }
         }
-        
+
+        /* ======================================================= */
+        /* ================  EFECTO 3D (AÑADIDO)  ================= */
+        /* Solo se agregan transformaciones de profundidad y tilt.  */
+        /* No se modifica ningún color ni regla existente arriba.   */
+        /* ======================================================= */
+
+        .info-section,
+        .grid {
+            perspective: 1400px;
+        }
+
+        .info-card,
+        .feature-card {
+            transform-style: preserve-3d;
+            will-change: transform;
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+
+        .info-card:hover,
+        .feature-card:hover {
+            box-shadow: 0 25px 45px rgba(0, 0, 0, .18);
+        }
+
+        .info-card i,
+        .feature-icon,
+        .info-card h3,
+        .feature-title {
+            transform: translateZ(30px);
+            transition: transform .25s ease;
+        }
+
+        .info-card p,
+        .feature-text {
+            transform: translateZ(15px);
+            transition: transform .25s ease;
+        }
+
+        .hero-section {
+            perspective: 1600px;
+        }
+
+        .hero-image {
+            transform-style: preserve-3d;
+            animation: hero3DFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes hero3DFloat {
+            0% {
+                transform: rotateY(-8deg) rotateX(4deg) translateZ(0px);
+            }
+            50% {
+                transform: rotateY(8deg) rotateX(-2deg) translateZ(25px);
+            }
+            100% {
+                transform: rotateY(-8deg) rotateX(4deg) translateZ(0px);
+            }
+        }
+
+        .hero-btn,
+        .admin-btn,
+        .logout-btn,
+        .nav-center a {
+            transform-style: preserve-3d;
+        }
+
+        .hero-btn:hover {
+            transform: translateY(-3px) translateZ(10px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, .18);
+        }
+
+        .hero-btn:active {
+            transform: translateY(0) translateZ(0);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, .15);
+        }
+
+        .admin-btn:hover,
+        .logout-btn:hover {
+            transform: translateY(-3px) translateZ(8px);
+            box-shadow: 0 14px 22px rgba(0, 0, 0, .22);
+        }
+
+        .admin-btn:active,
+        .logout-btn:active {
+            transform: translateY(0) translateZ(0);
+        }
+
+        .navbar {
+            transform-style: preserve-3d;
+            transition: transform .3s ease, box-shadow .3s ease;
+        }
+
+        .chat-floating-button {
+            transform-style: preserve-3d;
+        }
+
+        .chat-floating-button:hover {
+            transform: scale(1.08) translateZ(12px) rotateX(6deg);
+        }
+
+        .floating-chat {
+            transform-origin: bottom right;
+            animation: chat3DOpen .28s ease forwards;
+        }
+
+        @keyframes chat3DOpen {
+            from {
+                transform: perspective(1000px) rotateX(12deg) translateY(20px) scale(.96);
+                opacity: 0;
+            }
+            to {
+                transform: perspective(1000px) rotateX(0deg) translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .floating-bubble {
+            transform-style: preserve-3d;
+            transition: transform .2s ease;
+        }
+
+        .floating-bubble:hover {
+            transform: translateZ(6px);
+        }
+
+        .emergency-bar {
+            transform-style: preserve-3d;
+            transition: transform .3s ease, box-shadow .3s ease;
+        }
+
+        .emergency-bar:hover {
+            transform: translateY(-4px) translateZ(10px);
+            box-shadow: 0 20px 35px rgba(0, 0, 0, .14);
+        }
+
     </style>
 
 </head>
@@ -778,9 +920,7 @@
 
     <button type="button" class="chat-floating-button" id="chatFloatingButton" aria-label="Abrir UMG Xela">
 
-
         <img src="{{ asset('images/umg.png') }}" alt="UMG Xela">
-
 
     </button>
 
@@ -810,13 +950,11 @@
 
             </div>
 
-
             <button type="button" class="chat-close" id="chatClose" aria-label="Cerrar chat">
                 ×
             </button>
 
         </div>
-
 
         {{-- MENSAJES --}}
 
@@ -844,7 +982,6 @@
 
         </div>
 
-
         {{-- FORMULARIO --}}
 
         <form id="floatingChatForm" action="{{ route('chat.message') }}" method="POST" class="floating-chat-form"
@@ -868,6 +1005,7 @@
     {{-- NAVBAR --}}
 
     <nav class="navbar">
+
         <div class="nav-left">
 
             <div class="brand">
@@ -882,29 +1020,89 @@
 
         <div class="nav-center">
 
+            {{-- MI PERFIL: SOLO USUARIOS NO ADMIN --}}
+
+            @if(auth()->check() && auth()->user()->role !== 'ADMIN')
+
+                <a href="{{ route('profile.edit') }}">
+
+                    <i class="fas fa-user"></i>
+
+                    Mi perfil
+
+                </a>
+
+            @endif
+
+            {{-- FORO --}}
+
             <a href="/forum">
+
                 <i class="fas fa-comments"></i>
+
                 Foro Anónimo
+
             </a>
+
+            {{-- EVALUACIÓN --}}
 
             <a href="/evaluation">
+
                 <i class="fas fa-brain"></i>
+
                 Evaluación
+
             </a>
+
+            {{-- BOTÓN DE PÁNICO --}}
 
             <a href="/panic-button">
+
                 <i class="fas fa-triangle-exclamation"></i>
+
                 Botón de Pánico
+
             </a>
 
-            <a href="/cases">
-                <i class="fas fa-folder-open"></i>
-                Seguimiento de Casos
-            </a>
+            {{-- SEGUIMIENTO DE CASOS --}}
+
+            @if(auth()->user()->role === 'ADMIN')
+
+                <a href="/admin/cases">
+
+                    <i class="fas fa-folder-open"></i>
+
+                    Seguimiento de Casos
+
+                </a>
+
+            @elseif(auth()->user()->role === 'MODERATOR')
+
+                <a href="/moderator/cases">
+
+                    <i class="fas fa-folder-open"></i>
+
+                    Seguimiento de Casos
+
+                </a>
+
+            @else
+
+                <a href="/cases">
+
+                    <i class="fas fa-folder-open"></i>
+
+                    Seguimiento de Casos
+
+                </a>
+
+            @endif
 
         </div>
 
         <div class="nav-right">
+
+            {{-- BOTÓN ADMIN: SOLO ADMINISTRADOR --}}
 
             @if(auth()->check() && auth()->user()->role === 'ADMIN')
 
@@ -918,6 +1116,8 @@
 
             @endif
 
+            {{-- CERRAR SESIÓN --}}
+
             @auth
 
                 <form method="POST" action="{{ url('/logout') }}" style="margin:0;">
@@ -927,20 +1127,29 @@
                     <button type="submit" class="logout-btn">
 
                         <i class="fas fa-sign-out-alt"></i>
+
                         Cerrar sesión
+
                     </button>
+
                 </form>
+
             @endauth
+
         </div>
+
     </nav>
 
-    {{--HERO--}}
+    {{-- HERO --}}
 
     <section class="hero-section">
+
         <div class="hero-content">
+
             <h1>
                 Tu bienestar es nuestra prioridad
             </h1>
+
             <p>
                 Plataforma segura y anónima para reportar casos
                 de abuso sexual, riesgo suicida y situaciones que
@@ -950,6 +1159,7 @@
             </p>
 
             <div class="hero-buttons">
+
                 <a href="/panic-button" class="hero-btn hero-btn-primary">
                     Reportar Caso
                 </a>
@@ -957,15 +1167,21 @@
                 <a href="/panic-button" class="hero-btn hero-btn-secondary">
                     Pedir Ayuda
                 </a>
+
             </div>
+
         </div>
 
         <div class="hero-image">
+
             <img src="{{ asset('images/logo2.png') }}" alt="Logo UMG Xela">
+
         </div>
 
         <div class="wave">
+
             <svg viewBox="0 0 1440 320">
+
                 <path fill="#f8fafc"
                     d="M0,256L60,266.7C120,277,240,299,360,293.3C480,288,600,256,720,229.3C840,203,960,181,1080,192C1200,203,1320,245,1380,266.7L1440,288L1440,320L0,320Z">
                 </path>
@@ -1025,7 +1241,6 @@
                 Todos los servicios de esta plataforma son completamente
                 gratuitos. Puedes denunciar, solicitar ayuda y recibir
                 apoyo sin ningún costo.
-
             </p>
 
         </div>
@@ -1039,7 +1254,6 @@
         <h2 class="services-title">
             Herramientas de Apoyo
         </h2>
-
 
         <div class="grid">
 
@@ -1056,7 +1270,6 @@
                 <div class="feature-text">
                     Comparte pensamientos y emociones de manera anónima
                     en un entorno protegido.
-
                 </div>
 
             </div>
@@ -1074,7 +1287,6 @@
                 <div class="feature-text">
                     Accede a evaluaciones emocionales y recomendaciones
                     inteligentes.
-
                 </div>
 
             </div>
@@ -1092,7 +1304,6 @@
                 <div class="feature-text">
                     Utiliza el botón de pánico para solicitar apoyo
                     rápidamente en situaciones críticas.
-
                 </div>
 
             </div>
@@ -1110,7 +1321,6 @@
                 <div class="feature-text">
                     Tu información se mantiene protegida mediante
                     sistemas de seguridad y anonimato.
-
                 </div>
 
             </div>
@@ -1142,9 +1352,10 @@
             </strong>
 
         </div>
+
     </div>
 
-    {{--JAVASCRIPT CHAT --}}
+    {{-- JAVASCRIPT CHAT --}}
 
     <script>
 
@@ -1159,7 +1370,6 @@
             const messages = document.getElementById('floatingChatMessages');
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
 
             // VERIFICAR ELEMENTOS
 
@@ -1177,17 +1387,26 @@
             }
 
             // CARGAR HISTORIAL Y ACTIVAR ACTUALIZACIÓN AUTOMÁTICA
-            // Esto permite que los mensajes del MODERADOR
-            // aparezcan aquí sin recargar la página.
 
             loadFloatingMessages(true);
 
-            setInterval(function () {
+            const floatingMessagesInterval = setInterval(function () {
                 loadFloatingMessages(false);
             }, 3000);
 
+            const logoutForm = document.querySelector('form[action="{{ url('/logout') }}"]');
 
-            //ABRIR CHAT
+            if (logoutForm) {
+
+                logoutForm.addEventListener('submit', function () {
+
+                    clearInterval(floatingMessagesInterval);
+
+                });
+
+            }
+
+            // ABRIR CHAT
 
             button.addEventListener('click', function (event) {
 
@@ -1201,14 +1420,16 @@
                     scrollMessages();
 
                     setTimeout(function () {
+
                         textarea.focus();
+
                     }, 100);
 
                 }
 
             });
 
-            //CERRAR CHAT
+            // CERRAR CHAT
 
             closeButton.addEventListener('click', function (event) {
 
@@ -1219,8 +1440,7 @@
 
             });
 
-
-            //NO CERRAR AL HACER CLICK DENTRO
+            // NO CERRAR AL HACER CLICK DENTRO
 
             chat.addEventListener('click', function (event) {
 
@@ -1228,8 +1448,7 @@
 
             });
 
-
-            //CERRAR AL HACER CLICK AFUERA
+            // CERRAR AL HACER CLICK AFUERA
 
             document.addEventListener('click', function (event) {
 
@@ -1248,7 +1467,7 @@
 
             });
 
-            //ENVIAR MENSAJE
+            // ENVIAR MENSAJE
 
             form.addEventListener('submit', async function (event) {
 
@@ -1258,30 +1477,32 @@
                 const message = textarea.value.trim();
 
                 if (!message) {
+
                     textarea.focus();
+
                     return;
+
                 }
 
-
-                //MOSTRAR CHAT
+                // MOSTRAR CHAT
 
                 chat.classList.add('active');
 
-
-                //DESACTIVAR BOTÓN
+                // DESACTIVAR BOTÓN
 
                 sendButton.disabled = true;
 
-                //QUITAR BIENVENIDA
+                // QUITAR BIENVENIDA
 
                 const welcome = document.getElementById('chatWelcome');
 
                 if (welcome) {
+
                     welcome.remove();
+
                 }
 
-
-                //MOSTRAR MENSAJE DEL USUARIO
+                // MOSTRAR MENSAJE DEL USUARIO
 
                 const localUserElement = addMessage(
                     'user',
@@ -1290,13 +1511,12 @@
                     getCurrentTime()
                 );
 
-                //LIMPIAR INPUT
+                // LIMPIAR INPUT
 
                 textarea.value = '';
                 textarea.style.height = '42px';
 
                 scrollMessages();
-
 
                 // ENVIAR A LARAVEL MEDIANTE FETCH
 
@@ -1310,19 +1530,25 @@
                             credentials: 'same-origin',
 
                             headers: {
+
                                 'Accept': 'application/json',
+
                                 'Content-Type': 'application/json',
+
                                 'X-CSRF-TOKEN': csrfToken,
+
                                 'X-Requested-With': 'XMLHttpRequest'
+
                             },
 
                             body: JSON.stringify({
                                 message: message
                             })
+
                         }
                     );
 
-                    //OBTENER RESPUESTA
+                    // OBTENER RESPUESTA
 
                     const contentType =
                         response.headers.get('content-type') || '';
@@ -1338,7 +1564,7 @@
 
                     const data = await response.json();
 
-                    //VERIFICAR RESPUESTA
+                    // VERIFICAR RESPUESTA
 
                     if (!response.ok || !data.success) {
 
@@ -1349,9 +1575,7 @@
 
                     }
 
-
-                    // MARCAR EL MENSAJE DEL USUARIO CON SU ID REAL
-                    // (evita que se duplique cuando llegue el polling)
+                    // MARCAR MENSAJE DEL USUARIO CON SU ID REAL
 
                     if (
                         data.user_message &&
@@ -1366,8 +1590,7 @@
 
                     }
 
-
-                    //RESPUESTA DEL BOT
+                    // RESPUESTA DEL BOT
 
                     if (
                         data.bot_message &&
@@ -1395,19 +1618,15 @@
 
                     }
 
-
                     // SINCRONIZAR
-                    // (por si el moderador ya respondió mientras tanto)
 
                     loadFloatingMessages(true);
-
 
                     // SCROLL
 
                     scrollMessages();
 
                 }
-
 
                 catch (error) {
 
@@ -1416,7 +1635,6 @@
                         error
                     );
 
-
                     addMessage(
                         'bot',
                         'UMG Xela',
@@ -1424,11 +1642,9 @@
                         getCurrentTime()
                     );
 
-
                     scrollMessages();
 
                 }
-
 
                 finally {
 
@@ -1442,8 +1658,7 @@
 
             });
 
-
-            //ENTER PARA ENVIAR
+            // ENTER PARA ENVIAR
 
             textarea.addEventListener('keydown', function (event) {
 
@@ -1466,8 +1681,7 @@
 
             });
 
-
-            //AUTO-ALTURA TEXTAREA
+            // AUTO-ALTURA TEXTAREA
 
             textarea.addEventListener('input', function () {
 
@@ -1481,8 +1695,7 @@
 
             });
 
-
-            //AGREGAR MENSAJE
+            // AGREGAR MENSAJE
 
             function addMessage(
                 type,
@@ -1497,13 +1710,11 @@
                 container.className =
                     'floating-message ' + type;
 
-
                 const wrapper =
                     document.createElement('div');
 
                 wrapper.className =
                     'floating-message-wrapper';
-
 
                 const senderElement =
                     document.createElement('span');
@@ -1514,7 +1725,6 @@
                 senderElement.textContent =
                     sender;
 
-
                 const bubble =
                     document.createElement('span');
 
@@ -1524,7 +1734,6 @@
                 bubble.textContent =
                     message;
 
-
                 const timeElement =
                     document.createElement('span');
 
@@ -1533,7 +1742,6 @@
 
                 timeElement.textContent =
                     time;
-
 
                 wrapper.appendChild(
                     senderElement
@@ -1559,13 +1767,7 @@
 
             }
 
-
             // OBTENER MENSAJES DESDE EL SERVIDOR
-            //
-            // Se usa tanto al abrir la página (para cargar el
-            // historial) como cada pocos segundos (para que los
-            // mensajes del MODERADOR aparezcan automáticamente,
-            // igual que en la vista de chat de página completa).
 
             async function loadFloatingMessages(forceScroll) {
 
@@ -1575,12 +1777,16 @@
                         "{{ route('chat.messages') }}",
                         {
                             method: 'GET',
+
                             credentials: 'same-origin',
+
                             headers: {
                                 'Accept': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest'
                             },
+
                             cache: 'no-store'
+
                         }
                     );
 
@@ -1600,6 +1806,7 @@
                     );
 
                 }
+
                 catch (error) {
 
                     console.error(
@@ -1611,8 +1818,7 @@
 
             }
 
-
-            //RENDERIZAR MENSAJES DEL SERVIDOR
+            // RENDERIZAR MENSAJES DEL SERVIDOR
 
             function renderFloatingMessages(serverMessages, forceScroll) {
 
@@ -1649,12 +1855,16 @@
                     let type = 'bot';
 
                     if (message.sender_type === 'USER') {
+
                         type = 'user';
                         senderName = 'Tú';
+
                     }
                     else if (message.sender_type === 'MODERATOR') {
+
                         type = 'moderator';
                         senderName = 'Moderador';
+
                     }
 
                     const element = addMessage(
@@ -1674,7 +1884,9 @@
                 });
 
                 if (addedNew || forceScroll) {
+
                     scrollMessages();
+
                 }
 
             }
@@ -1696,9 +1908,8 @@
 
             }
 
+            // SCROLL
 
-            //SCROLL
-            
             function scrollMessages() {
 
                 setTimeout(function () {
@@ -1711,7 +1922,81 @@
             }
 
         });
+
     </script>
-    
+
+    {{-- JAVASCRIPT EFECTO 3D (AÑADIDO) --}}
+    {{-- Tilt de profundidad que sigue el cursor en las tarjetas.  --}}
+    {{-- No toca ni interfiere con el script del chat de arriba.   --}}
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const tiltCards = document.querySelectorAll('.info-card, .feature-card');
+
+            tiltCards.forEach(function (card) {
+
+                card.addEventListener('mousemove', function (event) {
+
+                    const rect = card.getBoundingClientRect();
+
+                    const x = event.clientX - rect.left;
+                    const y = event.clientY - rect.top;
+
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+
+                    const rotateX = ((y - centerY) / centerY) * -8;
+                    const rotateY = ((x - centerX) / centerX) * 8;
+
+                    card.style.transform =
+                        'perspective(1000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-5px)';
+
+                });
+
+                card.addEventListener('mouseleave', function () {
+
+                    card.style.transform =
+                        'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0)';
+
+                });
+
+            });
+
+            // NAVBAR: leve inclinación 3D al mover el mouse cerca
+
+            const navbar = document.querySelector('.navbar');
+
+            if (navbar) {
+
+                navbar.addEventListener('mousemove', function (event) {
+
+                    const rect = navbar.getBoundingClientRect();
+
+                    const x = event.clientX - rect.left;
+                    const centerX = rect.width / 2;
+
+                    const rotateY = ((x - centerX) / centerX) * 1.5;
+
+                    navbar.style.transform =
+                        'perspective(1200px) rotateY(' + rotateY + 'deg)';
+
+                });
+
+                navbar.addEventListener('mouseleave', function () {
+
+                    navbar.style.transform =
+                        'perspective(1200px) rotateY(0deg)';
+
+                });
+
+            }
+
+        });
+
+    </script>
+
 </body>
+
 </html>

@@ -29,111 +29,7 @@
             overflow-x: hidden;
         }
 
-        /* =========================
-           NAVBAR
-        ========================== */
-
-        .navbar {
-            width: 95%;
-            max-width: 1400px;
-            margin: 20px auto;
-            padding: 18px 35px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(15px);
-            border-radius: 35px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
-            position: relative;
-            z-index: 1000;
-        }
-
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .brand h2 {
-            font-size: 26px;
-            font-weight: 800;
-            color: #2563eb;
-        }
-
-        .nav-center {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .nav-center a {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 16px;
-            background: #f1f5f9;
-            border-radius: 14px;
-            text-decoration: none;
-            color: #334155;
-            font-size: 13px;
-            font-weight: 600;
-            transition: .3s ease;
-        }
-
-        .nav-center a:hover {
-            background: #2563eb;
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logout-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 12px 22px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .profile-btn {
-            background: #2563eb;
-            color: white;
-            text-decoration: none;
-            padding: 12px 18px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 700;
-        }
-
-        .admin-btn {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            color: white;
-            text-decoration: none;
-            padding: 12px 18px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 700;
-        }
-
-        /* =========================
-           CONTENEDOR
-        ========================== */
+        /* CONTENEDOR */
 
         .page-container {
             width: 95%;
@@ -157,9 +53,7 @@
             font-size: 1rem;
         }
 
-        /* =========================
-           ALERTAS
-        ========================== */
+        /* ALERTAS */
 
         .alert {
             border-radius: 15px;
@@ -184,9 +78,7 @@
             margin: 8px 0 0 20px;
         }
 
-        /* =========================
-           TARJETAS
-        ========================== */
+        /* TARJETAS */
 
         .profile-grid {
             display: grid;
@@ -224,9 +116,7 @@
             padding: 30px;
         }
 
-        /* =========================
-           FORMULARIOS
-        ========================== */
+        /* FORMULARIOS */
 
         .form-grid {
             display: grid;
@@ -347,34 +237,103 @@
             background: #f1f5f9;
         }
 
-        /* =========================
-           RESPONSIVE
-        ========================== */
+        .profile-error-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
 
-        @media (max-width: 1000px) {
+.profile-error-modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 35px 30px 30px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    animation: profileErrorAppear 0.25s ease-out;
+}
 
-            .navbar {
-                flex-direction: column;
-                gap: 18px;
-                padding: 20px;
-            }
+.profile-error-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    border: none;
+    background: transparent;
+    font-size: 28px;
+    color: #64748b;
+    cursor: pointer;
+}
 
-            .nav-center {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
+.profile-error-close:hover {
+    color: #1e293b;
+}
 
-            .nav-right {
-                width: 100%;
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-        }
+.profile-error-icon {
+    width: 65px;
+    height: 65px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fef3c7;
+    color: #d97706;
+    font-size: 28px;
+}
 
+.profile-error-modal-content h3 {
+    margin: 0 0 12px;
+    font-size: 22px;
+    color: #1e293b;
+}
+
+.profile-error-modal-content p {
+    margin: 0 auto 25px;
+    max-width: 360px;
+    line-height: 1.6;
+    color: #475569;
+    font-size: 15px;
+}
+
+.profile-error-button {
+    border: none;
+    border-radius: 10px;
+    padding: 11px 25px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.profile-error-button:hover {
+    background: #1d4ed8;
+}
+
+@keyframes profileErrorAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-15px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+        /* RESPONSIVE */
         @media (max-width: 700px) {
-
             .page-container {
                 width: 92%;
+                margin-top: 25px;
             }
 
             .page-header h1 {
@@ -397,22 +356,6 @@
                 padding: 20px 22px;
             }
 
-            .nav-center a {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .nav-right {
-                flex-direction: column;
-            }
-
-            .profile-btn,
-            .admin-btn,
-            .logout-btn {
-                width: 100%;
-                justify-content: center;
-            }
-
             .form-actions {
                 justify-content: stretch;
             }
@@ -422,88 +365,13 @@
                 justify-content: center;
             }
         }
+        
     </style>
 </head>
 
 <body>
 
-    {{-- =========================
-         NAVBAR
-    ========================== --}}
-
-    <nav class="navbar">
-
-        <div class="nav-left">
-            <div class="brand">
-                <h2>UMG</h2>
-            </div>
-        </div>
-
-        <div class="nav-center">
-
-            <a href="{{ url('/dashboard') }}">
-                <i class="fas fa-home"></i>
-                Inicio
-            </a>
-
-            <a href="{{ url('/forum') }}">
-                <i class="fas fa-comments"></i>
-                Foro
-            </a>
-
-            <a href="{{ url('/evaluation') }}">
-                <i class="fas fa-brain"></i>
-                Evaluación
-            </a>
-
-            <a href="{{ url('/cases') }}">
-                <i class="fas fa-folder-open"></i>
-                Casos
-            </a>
-
-            <a href="{{ route('profile.edit') }}">
-                <i class="fas fa-user"></i>
-                Mi perfil
-            </a>
-
-        </div>
-
-        <div class="nav-right">
-
-            @if(auth()->check() && auth()->user()->role === 'ADMIN')
-
-                <a href="{{ url('/admin-access') }}" class="admin-btn">
-                    <i class="fas fa-shield-halved"></i>
-                    Admin
-                </a>
-
-            @endif
-
-            @auth
-
-                <form method="POST"
-                      action="{{ route('logout') }}"
-                      style="margin:0;">
-
-                    @csrf
-
-                    <button type="submit" class="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Cerrar sesión
-                    </button>
-
-                </form>
-
-            @endauth
-
-        </div>
-
-    </nav>
-
-
-    {{-- =========================
-         CONTENIDO
-    ========================== --}}
+    {{-- CONTENIDO DEL PERFIL --}}
 
     <main class="page-container">
 
@@ -528,9 +396,36 @@
                 <i class="fas fa-circle-check"></i>
                 {{ session('success') }}
             </div>
-
         @endif
 
+        {{-- MENSAJE DE ERROR --}}
+        @if(session('error'))
+    <div id="profileErrorModal" class="profile-error-modal">
+        <div class="profile-error-modal-content">
+            <button type="button"
+                    class="profile-error-close"
+                    onclick="closeProfileErrorModal()">
+                &times;
+            </button>
+
+            <div class="profile-error-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+
+            <h3>Actualización no disponible</h3>
+
+            <p>
+                {{ session('error') }}
+            </p>
+
+            <button type="button"
+                    class="profile-error-button"
+                    onclick="closeProfileErrorModal()">
+                Entendido
+            </button>
+        </div>
+    </div>
+@endif
 
         {{-- ÉXITO CONTRASEÑA --}}
 
@@ -574,9 +469,7 @@
         <div class="profile-grid">
 
 
-            {{-- =========================
-                 INFORMACIÓN PERSONAL
-            ========================== --}}
+            {{-- INFORMACIÓN PERSONAL --}}
 
             <section class="card">
 
@@ -593,7 +486,7 @@
                 <div class="card-body">
 
                     <form action="{{ route('profile.update') }}"
-                          method="POST">
+                        method="POST">
 
                         @csrf
                         @method('PUT')
@@ -671,15 +564,20 @@
                                 <input
                                     type="email"
                                     id="email"
-                                    class="form-control"
-                                    value="{{ $user->email }}"
-                                    disabled
+                                    name="email"
+                                    class="form-control @error('email') is-invalid @enderror"
+                                    value="{{ old('email', $user->email) }}"
+                                    maxlength="150"
+                                    required
                                 >
 
-                                <span class="help-text">
-                                    El correo electrónico no puede modificarse desde esta sección.
-                                </span>
+                                @error('email')
 
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+
+                                @enderror
                             </div>
 
 
@@ -712,9 +610,7 @@
 
 
                             {{-- NICKNAME --}}
-
                             <div class="form-group">
-
                                 <label for="anonymous_nickname">
                                     Nickname anónimo
                                 </label>
@@ -734,7 +630,6 @@
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>
-
                                 @enderror
 
                                 <span class="help-text">
@@ -766,9 +661,7 @@
             </section>
 
 
-            {{-- =========================
-                 CAMBIO DE CONTRASEÑA
-            ========================== --}}
+            {{-- CAMBIO DE CONTRASEÑA --}}
 
             <section class="card">
 
@@ -785,7 +678,7 @@
                 <div class="card-body">
 
                     <form action="{{ route('profile.password.update') }}"
-                          method="POST">
+                        method="POST">
 
                         @csrf
                         @method('PUT')
@@ -897,22 +790,43 @@
         </div>
 
 
-        {{-- VOLVER --}}
+        {{-- VOLVER SEGÚN ROL --}}
 
         <div class="back-container">
 
-            <a href="{{ url('/dashboard') }}"
-               class="btn btn-back">
+            @if(auth()->check() && auth()->user()->role === 'ADMIN')
 
-                <i class="fas fa-arrow-left"></i>
+                {{-- ADMIN REGRESA AL ADMIN PANEL --}}
 
-                Volver al inicio
+                <a href="{{ url('/admin-panel') }}"
+                    class="btn btn-back">
 
-            </a>
+                    <i class="fas fa-arrow-left"></i>
 
+                    Volver
+
+                </a>
+
+            @else
+
+                {{-- USUARIO / MODERADOR REGRESA AL DASHBOARD --}}
+
+                <a href="{{ url('/dashboard') }}"
+                    class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver al inicio
+                </a>
+            @endif
         </div>
-
     </main>
+    <script>
+    function closeProfileErrorModal() {
+        const modal = document.getElementById('profileErrorModal');
 
+        if (modal) {
+            modal.remove();
+        }
+    }
+</script>
 </body>
 </html>

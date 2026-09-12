@@ -14,6 +14,7 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     </head>
         <body>
+
     <!-- HEADER MÓVIL
         SOLO APARECE EN CELULARES -->
     <header class="mobile-header">
@@ -54,14 +55,14 @@
     <!--OPCIONES-->
             <ul class="menu">
 
-                <!-- INICIO -->
-                <li>
-                    <a href="/admin-panel">
-                        <i class="fas fa-house"></i>
-                        <span>Inicio</span>
-                    </a>
-                </li>
-                
+            <!-- PERFIL -->
+<li>
+    <a href="{{ route('profile.edit') }}">
+        <i class="fas fa-user"></i>
+        <span>Perfil</span>
+    </a>
+</li>
+
                 <!-- NOTIFICACIONES -->
                 <li>
                     <a href="{{ url('/admin/notifications') }}">
@@ -141,11 +142,6 @@
                     <h1>
                         Panel Administrativo
                     </h1>
-
-                    <p>
-                        Bienvenida,
-                        {{ Auth::user()->first_name }}
-                    </p>
                 </div>
             </div>
 

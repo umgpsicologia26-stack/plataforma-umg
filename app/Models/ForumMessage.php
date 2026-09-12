@@ -24,6 +24,7 @@ class ForumMessage extends Model
     protected $casts = [
         'is_anonymous' => 'boolean',
         'ai_flagged' => 'boolean',
+        'content' => 'encrypted',
     ];
 
     /**

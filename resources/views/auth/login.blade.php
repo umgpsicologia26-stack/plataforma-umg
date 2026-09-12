@@ -41,16 +41,20 @@
                 action="/login">
                 @csrf
                 <div class="input-field">
-                    <label>Email</label>
+                    <label for="login_email">Email</label>
                     <input type="email"
                         name="email"
+                        id="login_email"
+                        autocomplete="email"
                         required>
 
                     </div>
                 <div class="input-field">
-                    <label>Contraseña</label>
+                    <label for="login_password">Contraseña</label>
                     <input type="password"
                         name="password"
+                        id="login_password"
+                        autocomplete="current-password"
                         required>
                     
                 </div>
@@ -117,57 +121,71 @@
                 @csrf
 
                 <div class="input-field">
-                    <label>Nombre</label>
+                    <label for="register_first_name">Nombre</label>
                     <input type="text"
                         name="first_name"
+                        id="register_first_name"
+                        autocomplete="given-name"
                         required>
                     
                 </div>
 
                 <div class="input-field">
-                    <label>Apellido</label>
+                    <label for="register_last_name">Apellido</label>
                     <input type="text"
                         name="last_name"
+                        id="register_last_name"
+                        autocomplete="family-name"
                         required>                    
                 </div>
 
                 <div class="input-field">
-            <label>Nickname</label>
+            <label for="register_nickname">Nickname</label>
             <input
-                type="text"
-                name="anonymous_nickname"
-                maxlength="80"
-                required
-                placeholder="Elige tu nickname">
+    type="text"
+    name="anonymous_nickname"
+    id="register_nickname"
+    autocomplete="off"
+    maxlength="80"
+    required
+    placeholder="Elige tu nickname">
                 <small>
     Este nickname podrá utilizarse de forma anónima en el foro.
 </small>
         </div>
                 <div class="input-field">
-                    <label>Fecha Nacimiento</label>
+                    <label for="register_birth_date">Fecha Nacimiento</label>
                     <input type="date"
-                        name="birth_date"
-                        required>
+                    name="birth_date"
+                    id="register_birth_date"
+                    autocomplete="off"
+                    required>
                 </div>
 
                 <div class="input-field">
-                    <label>Celular</label>
+                    <label for="register_phone">Celular</label>
                     <input type="text"
                         name="phone"
+                        id="register_phone"
+                        autocomplete="tel"
                         required>                   
                 </div>
 
                 <div class="input-field">
-                    <label>Correo</label>
+                    <label for="register_email">Correo</label>
                     <input type="email"
                         name="email"
+                        id="register_email"
+                        autocomplete="email"
                         required>
                 </div>
 
                 <div class="input-field">
-                    <label>Contraseña</label>
+                    <label for="register_password">Contraseña</label>
                     <input type="password"
                         name="password"
+                        id="register_password"
+                        autocomplete="new-password"
                         required>
                 </div>
 
@@ -194,145 +212,145 @@
 
     <!-- FIREBASE -->
         <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script>
-        const firebaseConfig = {
-    apiKey: "AIzaSyCtmqJGlHhehKOAmWrfEpuxB5gFhW1Bw10",
-    authDomain: "plataformaumg.firebaseapp.com",
-    projectId: "plataformaumg",
-    storageBucket: "plataformaumg.firebasestorage.app",
-    messagingSenderId: "2360835961",
-    appId: "1:2360835961:web:7c57c82f0028bf9621b9a8"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-    /*GOOGLE LOGIN*/
-async function googleLogin() {
-
-    const provider =
-        new firebase.auth.GoogleAuthProvider();
-
-    provider.setCustomParameters({
-        prompt: 'select_account'
-    });
-
-    try {
-
-        /*
-         * Abrir ventana de Google.
-         */
-        const result =
-            await firebase
-                .auth()
-                .signInWithPopup(provider);
-
-        /*
-         * Obtener usuario autenticado.
-         */
-        const user =
-            result.user;
-
-        /*
-         * Obtener ID Token de Firebase.
-         */
-        const idToken =
-            await user.getIdToken();
-
-        /*
-         * Enviar el token a Laravel.
-         */
-        const response =
-            await fetch(
-                '{{ route("google.login") }}',
-                {
-                    method: 'POST',
-
-                    headers: {
-                        'Content-Type':
-                            'application/json',
-
-                        'Accept':
-                            'application/json',
-
-                        'X-CSRF-TOKEN':
-                            document
-                                .querySelector(
-                                    'meta[name="csrf-token"]'
-                                )
-                                .getAttribute('content')
-                    },
-
-                    body: JSON.stringify({
-                        idToken: idToken
-                    })
-                }
-            );
-
-        const data =
-            await response.json();
-
-        /*
-         * Si Laravel rechazó el inicio
-         * de sesión.
-         */
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                'No fue posible iniciar sesión con Google.'
-            );
-        }
-
-        /*
-         * Laravel creó correctamente
-         * la sesión.
-         */
-        if (data.success) {
-
-            window.location.href =
-                data.redirect;
-        }
-
-    } catch (error) {
-
-        console.error(
-            'Error en inicio de sesión con Google:',
-            error
-        );
-
-        alert(
-            error.message ||
-            'No fue posible iniciar sesión con Google.'
-        );
-    }
-}
-    /*MOSTRAR REGISTRO*/
-function toggleRegisterForm(){
-    const login =
-        document.getElementById(
-            'loginContainer'
-        );
-    const register =
-        document.getElementById(
-            'registerForm'
-        );
-    login.style.display = 'none';
-    register.style.display = 'block';
-}
-    /*REGRESAR LOGIN*/
-function backToLogin(){
-    const register =
-        document.getElementById(
-            'registerForm'
-        );
-    const login =
-        document.getElementById(
-            'loginContainer'
-        );
-    register.style.display = 'none';
-    login.style.display = 'block';
-}
-    </script>
-        </body>
+        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script> 
+    <script> 
+        const firebaseConfig = { 
+    apiKey: "AIzaSyCtmqJGlHhehKOAmWrfEpuxB5gFhW1Bw10", 
+    authDomain: "plataformaumg.firebaseapp.com", 
+    projectId: "plataformaumg", 
+    storageBucket: "plataformaumg.firebasestorage.app", 
+    messagingSenderId: "2360835961", 
+    appId: "1:2360835961:web:7c57c82f0028bf9621b9a8" 
+}; 
+ 
+firebase.initializeApp(firebaseConfig); 
+ 
+    /*GOOGLE LOGIN*/ 
+async function googleLogin() { 
+ 
+    const provider = 
+        new firebase.auth.GoogleAuthProvider(); 
+ 
+    provider.setCustomParameters({ 
+        prompt: 'select_account' 
+    }); 
+ 
+    try { 
+ 
+        /* 
+         * Abrir ventana de Google. 
+         */ 
+        const result = 
+            await firebase 
+                .auth() 
+                .signInWithPopup(provider); 
+ 
+        /* 
+         * Obtener usuario autenticado. 
+         */ 
+        const user = 
+            result.user; 
+ 
+        /* 
+         * Obtener ID Token de Firebase. 
+         */ 
+        const idToken = 
+            await user.getIdToken(); 
+ 
+        /* 
+         * Enviar el token a Laravel. 
+         */ 
+        const response = 
+            await fetch( 
+                '{{ route("google.login") }}', 
+                { 
+                    method: 'POST', 
+ 
+                    headers: { 
+                        'Content-Type': 
+                            'application/json', 
+ 
+                        'Accept': 
+                            'application/json', 
+ 
+                        'X-CSRF-TOKEN': 
+                            document 
+                                .querySelector( 
+                                    'meta[name="csrf-token"]' 
+                                ) 
+                                .getAttribute('content') 
+                    }, 
+ 
+                    body: JSON.stringify({ 
+                        idToken: idToken 
+                    }) 
+                } 
+            ); 
+ 
+        const data = 
+            await response.json(); 
+ 
+        /* 
+         * Si Laravel rechazó el inicio 
+         * de sesión. 
+         */ 
+        if (!response.ok) { 
+ 
+            throw new Error( 
+                data.message || 
+                'No fue posible iniciar sesión con Google.' 
+            ); 
+        } 
+ 
+        /* 
+         * Laravel creó correctamente 
+         * la sesión. 
+         */ 
+        if (data.success) { 
+ 
+            window.location.href = 
+                data.redirect; 
+        } 
+ 
+    } catch (error) { 
+ 
+        console.error( 
+            'Error en inicio de sesión con Google:', 
+            error 
+        ); 
+ 
+        alert( 
+            error.message || 
+            'No fue posible iniciar sesión con Google.' 
+        ); 
+    } 
+} 
+    /*MOSTRAR REGISTRO*/ 
+function toggleRegisterForm(){ 
+    const login = 
+        document.getElementById( 
+            'loginContainer' 
+        ); 
+    const register = 
+        document.getElementById( 
+            'registerForm' 
+        ); 
+    login.style.display = 'none'; 
+    register.style.display = 'block'; 
+} 
+    /*REGRESAR LOGIN*/ 
+function backToLogin(){ 
+    const register = 
+        document.getElementById( 
+            'registerForm' 
+        ); 
+    const login = 
+        document.getElementById( 
+            'loginContainer' 
+        ); 
+    register.style.display = 'none'; 
+    login.style.display = 'block'; 
+} 
+    </script> 
+        </body> 
     </html>

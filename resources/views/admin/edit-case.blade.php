@@ -295,10 +295,10 @@
     <!--VOLVER-->
 
     <a
-        href="{{ url('/admin-panel') }}"
+        href="{{ url('/admin/cases') }}"
         class="back-button">
         <i class="fas fa-arrow-left"></i>
-        Volver al panel
+        Volver a casos
     </a>
 
     <!--MENSAJES-->
@@ -400,19 +400,6 @@
                 </span>
             </div>
 
-            <div class="info-item">
-                <span class="info-label">
-                    Aprobación administrativa
-                </span>
-                <span class="info-value">
-                    {{ $case->admin_approved
-                        ? 'Aprobado'
-                        : 'Pendiente'
-                    }}
-                </span>
-            </div>
-        </div>
-
         <!-- DESCRIPCIÓN -->
 
         <div class="description">
@@ -447,54 +434,36 @@
                     Estado del caso
                 </label>
 
-                <select
-                    name="status"
-                    id="status"
-                    required>
+        <select
+    name="status"
+    id="status"
+    required>
 
-                    <option
-                        value="Abierto"
-                        {{ $case->status == 'Abierto'
-                            ? 'selected'
-                            : '' }}>
-                        Abierto
+    <option
+        value="Abierto"
+        {{ $case->status === 'Abierto'
+            ? 'selected'
+            : '' }}>
+        Abierto
+    </option>
 
-                    </option>
+    <option
+        value="En seguimiento"
+        {{ $case->status === 'En seguimiento'
+            ? 'selected'
+            : '' }}>
+        En seguimiento
+    </option>
 
+    <option
+        value="Cerrado"
+        {{ $case->status === 'Cerrado'
+            ? 'selected'
+            : '' }}>
+        Cerrado
+    </option>
 
-                    <option
-                        value="En_proceso"
-                        {{ $case->status == 'En_proceso'
-                            ? 'selected'
-                            : '' }}>
-
-                        En Proceso
-                    </option>
-
-                    <option
-                        value="Terminado"
-                        {{ $case->status == 'Terminado'
-                            ? 'selected'
-                            : '' }}>
-                        Terminado
-                    </option>
-
-                    <option
-                        value="Pendiente_Aprobacion"
-                        {{ $case->status == 'Pendiente_Aprobacion'
-                            ? 'selected'
-                            : '' }}>
-                        Pendiente de aprobación
-                    </option>
-
-                    <option
-                        value="Cerrado"
-                        {{ $case->status == 'Cerrado'
-                            ? 'selected'
-                            : '' }}>
-                        Cerrado
-                    </option>
-                </select>
+</select>
             </div>
 
             <div class="actions">

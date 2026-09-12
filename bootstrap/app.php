@@ -17,10 +17,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.verified' => \App\Http\Middleware\AdminVerified::class,
             'must.change.password' => \App\Http\Middleware\MustChangePassword::class,
             'maintenance' => \App\Http\Middleware\MaintenanceMode::class,
-            ]);
+        ]);
+
+        $middleware->append(
+            \App\Http\Middleware\SecurityHeaders::class
+        );
 
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })
     ->create();
+

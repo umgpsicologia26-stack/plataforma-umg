@@ -1150,7 +1150,7 @@
                 ->filter(fn($item) => strtolower($item->status ?? '') === 'abierto')
                 ->count();
 
-            $followUpCases = $cases
+            $inProcessCases = $cases
                 ->filter(fn($item) => strtolower($item->status ?? '') === 'en seguimiento')
                 ->count();
 
@@ -1223,7 +1223,7 @@
                         </span>
 
                         <div class="stat-number">
-                            {{ $followUpCases }}
+                            {{ $inProcessCases }}
                         </div>
 
                     </div>
@@ -1295,49 +1295,29 @@
             @if($cases->count() > 0)
 
                 @php
-
-                    $typeGroups = [
-
-                        [
-                            'key'   => 'Suicidio',
-                            'label' => 'Casos de suicidio',
-                            'sub'   => 'Casos reportados por riesgo de suicidio.',
-                            'icon'  => 'fa-heart-pulse',
-                            'class' => 'suicide',
-                            'cases' => $cases->filter(
-                                fn($c) => strtoupper(trim($c->type ?? '')) === 'SUICIDIO'
-                            )->values(),
-                        ],
-
-                        [
-                            'key'   => 'Abuso sexual',
-                            'label' => 'Casos de abuso sexual',
-                            'sub'   => 'Casos reportados por abuso sexual.',
-                            'icon'  => 'fa-shield-heart',
-                            'class' => 'abuse',
-                            'cases' => $cases->filter(
-                                fn($c) => strtoupper(trim($c->type ?? '')) === 'ABUSO SEXUAL'
-                            )->values(),
-                        ],
-
-                        [
-                            'key'   => 'Otro',
-                            'label' => 'Otros casos',
-                            'sub'   => 'Casos sin un tipo reconocido.',
-                            'icon'  => 'fa-folder',
-                            'class' => 'other',
-                            'cases' => $cases->reject(
-                                fn($c) => in_array(
-                                    strtoupper(trim($c->type ?? '')),
-                                    ['Suicidio', 'Abuso sexual']
-                                )
-                            )->values(),
-                        ],
-
-                    ];
-
-                @endphp
-
+    $typeGroups = [
+        [
+            'key'   => 'Suicidio',
+            'label' => 'Casos de suicidio',
+            'sub'   => 'Casos reportados por riesgo de suicidio.',
+            'icon'  => 'fa-heart-pulse',
+            'class' => 'suicide',
+            'cases' => $cases->filter(
+                fn($c) => strtoupper(trim($c->type ?? '')) === 'SUICIDIO'
+            )->values(),
+        ],
+        [
+            'key'   => 'Abuso sexual',
+            'label' => 'Casos de abuso sexual',
+            'sub'   => 'Casos reportados por abuso sexual.',
+            'icon'  => 'fa-shield-heart',
+            'class' => 'abuse',
+            'cases' => $cases->filter(
+                fn($c) => strtoupper(trim($c->type ?? '')) === 'ABUSO SEXUAL'
+            )->values(),
+        ],
+    ];
+@endphp
                 @foreach($typeGroups as $group)
 
                     @continue($group['cases']->isEmpty())
@@ -1400,7 +1380,7 @@
 
                             @foreach($casesByUser as $userKey => $userCases)
 
-                                @if($userCases->count() > 1)
+                                @if($userCases->count() >= 1)
 
                                     @php
 
@@ -2030,91 +2010,95 @@
 
                 <div class="form-card">
 
-                    <form
-                        method="POST"
-                        action="{{ route('moderator.case.update', ['id' => $case->id]) }}"
+                    @can('update', $case)
+
+    <form
+        method="POST"
+        action="{{ route('moderator.case.update', ['id' => $case->id]) }}"
+    >
+
+        @csrf
+
+        @method('PUT')
+
+        <div class="form-grid">
+
+            <!-- ESTADO -->
+
+            <div class="form-group">
+
+                <label for="status">
+                    Estado
+                </label>
+
+                <select
+                    name="status"
+                    id="status"
+                    required
+                >
+
+                    <option
+                        value="Abierto"
+                        {{ strtolower($case->status ??'') === 'abierto' ? 'selected' : '' }}
                     >
+                        Abierto
+                    </option>
 
-                        @csrf
+                    <option
+                        value="En seguimiento"
+                        {{ strtolower($case->status ??'') === 'en seguimiento' ? 'selected' : '' }}
+                    >
+                        En seguimiento
+                    </option>
 
-                        @method('PUT')
+                    <option
+                        value="Cerrado"
+                        {{ strtolower($case->status ??'') === 'cerrado' ? 'selected' : '' }}
+                    >
+                        Cerrado
+                    </option>
 
-                        <div class="form-grid">
+                </select>
 
-                            <!-- ESTADO -->
-
-                            <div class="form-group">
-
-                                <label for="status">
-                                    Estado
-                                </label>
-
-                                <select
-                                    name="status"
-                                    id="status"
-                                    required
-                                >
-
-                                    <option
-                                        value="Abierto"
-                                        {{ strtolower($case->status ?? '') === 'abierto' ? 'selected' : '' }}
-                                    >
-                                        Abierto
-                                    </option>
-
-                                    <option
-                                        value="En seguimiento"
-                                        {{ strtolower($case->status ?? '') === 'en seguimiento' ? 'selected' : '' }}
-                                    >
-                                        En seguimiento
-                                    </option>
-
-                                    <option
-                                        value="Cerrado"
-                                        {{ strtolower($case->status ?? '') === 'cerrado' ? 'selected' : '' }}
-                                    >
-                                        Cerrado
-                                    </option>
-
-                                </select>
-
-                            </div>
+            </div>
 
 
-                            <!-- COMENTARIO -->
+            <!-- COMENTARIO -->
 
-                            <div class="form-group full">
+            <div class="form-group full">
 
-                                <label for="comment">
-                                    Comentario de seguimiento
-                                </label>
+                <label for="comment">
+                    Comentario de seguimiento
+                </label>
 
-                                <textarea
-                                    name="comment"
-                                    id="comment"
-                                    placeholder="Escribe las observaciones, acciones realizadas o información relevante del seguimiento..."
-                                ></textarea>
+                <textarea
+                    name="comment"
+                    id="comment"
+                    placeholder="Escribe las observaciones, acciones realizadas o información relevante del seguimiento..."
+                ></textarea>
 
-                            </div>
+            </div>
 
-                        </div>
+        </div>
 
-                        <div class="form-actions">
+        <div class="form-actions">
 
-                            <button
-                                type="submit"
-                                class="btn-save"
-                            >
+            <button
+                type="submit"
+                class="btn-save"
+            >
 
-                                <i class="fas fa-save"></i>
+                <i class="fas fa-save"></i>
 
-                                Guardar cambios
+                Guardar cambios
 
-                            </button>
+            </button>
 
-                        </div>
+        </div>
 
-                    </form>
+    </form>
+
+@endcan
 
                 </div>
 

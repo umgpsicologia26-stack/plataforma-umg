@@ -29,105 +29,178 @@ class UserController extends BaseController
         return view('admin.users', compact('users'));
     }
 
-    //CREAR// 
-    public function store(Request $request)
-    {
-        $this->checkRole(['ADMIN', 'MODERATOR']);
+    // CREAR
+public function store(Request $request)
+{
+    $this->checkRole(['ADMIN', 'MODERATOR']);
 
-        $request->validate([
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'email' => 'required|email|unique:users'
-        ]);
+    $request->validate([
+        'first_name' => 'required',
+        'last_name' => 'required',
+        'email' => 'required|email|unique:users'
+    ]);
 
-        User::create([
+    $user = User::create([
+        'uuid' => (string) Str::uuid(),
+        'firebase_uid' => (string) Str::uuid(),
+        'first_name' => $request->first_name,
+        'last_name' => $request->last_name,
+        'email' => $request->email,
+        'anonymous_nickname' => 'User' . rand(1000, 9999),
+        'password_hash' => bcrypt('12345678'),
+        'role' => 'USER',
+        'status' => 'Activo'
+    ]);
+
+    AuditLog::create([
+        'action' => 'create_user',
+        'performed_by' => Auth::user()->uuid,
+        'target_type' => 'User',
+        'target_id' => $user->uuid,
+        'changes' => [
+            'created_fields' => [
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'status' => $user->status,
+            ],
+        ],
+    ]);
+
+    return back()->with('success', 'Usuario creado');
+}
+
+    // UPDATE
+public function update(Request $request, $id)
+{
+    $this->checkRole(['ADMIN', 'MODERATOR']);
+
+    $user = User::findOrFail($id);
+
+    $oldNickname = $user->anonymous_nickname;
+
+    $request->validate([
+        'first_name' => 'required|string|max:150',
+        'last_name' => 'required|string|max:100',
+        'email' => [
+            'required',
+            'email',
+            'max:150',
+            Rule::unique('users', 'email')->ignore($user->uuid, 'uuid')
+        ],
+        'phone' => 'nullable|string|max:20',
+        'birth_date' => 'nullable|date',
+        'anonymous_nickname' => [
+            'required',
+            'string',
+            'max:80',
+            Rule::unique('users', 'anonymous_nickname')
+                ->ignore($user->uuid, 'uuid')
+        ],
+
+            'role' => [
+            'nullable',
+    Rule::in(['USER', 'MODERATOR', 'ADMIN', 'PSYCHOLOGIST']),
+],
+    ]);
+
+    // Guardamos únicamente los campos que pueden ser auditados.
+    $oldData = [
+        'first_name' => $user->first_name,
+        'last_name' => $user->last_name,
+        'email' => $user->email,
+        'phone' => $user->phone,
+        'birth_date' => $user->birth_date?->format('Y-m-d'),
+        'anonymous_nickname' => $user->anonymous_nickname,
+        'role' => $user->role,
+    ];
+
+    $user->update([
+        'first_name' => $request->first_name,
+        'last_name' => $request->last_name,
+        'email' => $request->email,
+        'phone' => $request->phone,
+        'birth_date' => $request->birth_date,
+        'anonymous_nickname' => $request->anonymous_nickname,
+        'role' => Auth::user()->role === 'ADMIN'
+            ? ($request->role ?? $user->role)
+            : $user->role,
+    ]);
+
+    if ($oldNickname !== $user->anonymous_nickname) {
+        NicknameHistory::create([
             'uuid' => (string) Str::uuid(),
-            'firebase_uid' => (string) Str::uuid(),
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'anonymous_nickname' => 'User' . rand(1000,9999),
-            'password_hash' => bcrypt('12345678'),
-            'role' => 'USER',
-            'status' => 'ACTIVO'
+            'user_uuid' => $user->uuid,
+            'old_nickname' => $oldNickname,
+            'new_nickname' => $user->anonymous_nickname,
+            'changed_at' => now(),
         ]);
-
-        return back()->with('success', 'Usuario creado');
     }
 
-    //UPDATE// 
-    public function update(Request $request, $id)
-    {
-        $this->checkRole(['ADMIN', 'MODERATOR']);
+    $user->refresh();
 
-        $user = User::findOrFail($id);
-        $oldData = $user->toArray();
-        $oldNickname = $user->anonymous_nickname;
+    $newData = [
+        'first_name' => $user->first_name,
+        'last_name' => $user->last_name,
+        'email' => $user->email,
+        'phone' => $user->phone,
+        'birth_date' => $user->birth_date?->format('Y-m-d'),
+        'anonymous_nickname' => $user->anonymous_nickname,
+        'role' => $user->role,
+    ];
 
-        $request->validate([
-            'first_name' => 'required|string|max:150',
-            'last_name' => 'required|string|max:100',
-            'email' => [
-                'required',
-                'email',
-                'max:150',
-                Rule::unique('users', 'email')->ignore($user->uuid, 'uuid')
-            ],
-            'phone' => 'nullable|string|max:20',
-            'birth_date' => 'nullable|date',
-            'anonymous_nickname' => [
-                'required',
-                'string',
-                'max:80',
-                Rule::unique('users', 'anonymous_nickname')
-                    ->ignore($user->uuid, 'uuid')
-            ],
-        ]);
+    $changes = [];
 
-        $user->update([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'birth_date' => $request->birth_date,
-            'anonymous_nickname' => $request->anonymous_nickname,
-            'role' => Auth::user()->role === 'ADMIN'
-                ? ($request->role ?? $user->role)
-                : $user->role,
-        ]);
-
-        if ($oldNickname !== $user->anonymous_nickname) {
-            NicknameHistory::create([
-                'uuid' => (string) Str::uuid(),
-                'user_uuid' => $user->uuid,
-                'old_nickname' => $oldNickname,
-                'new_nickname' => $user->anonymous_nickname,
-                'changed_at' => now(),
-            ]);
+    foreach ($oldData as $field => $oldValue) {
+        if ($oldValue != $newData[$field]) {
+            $changes[$field] = [
+                'before' => $oldValue,
+                'after' => $newData[$field],
+            ];
         }
+    }
 
+    // Solo crear auditoría si realmente hubo cambios.
+    if (!empty($changes)) {
         AuditLog::create([
-            'action' => 'update',
+            'action' => 'update_user',
             'performed_by' => Auth::user()->uuid,
-            'target_user' => $user->uuid,
-            'changes' => json_encode([
-                'before' => $oldData,
-                'after' => $user->fresh()->toArray()
-            ])
+            'target_type' => 'User',
+            'target_id' => $user->uuid,
+            'changes' => $changes,
         ]);
-
-        return back()->with('success', 'Usuario actualizado');
     }
 
-    //DELETE// 
-    public function destroy($id)
-    {
-        $this->checkRole(['ADMIN']);
+    return back()->with('success', 'Usuario actualizado');
+}
 
-        User::findOrFail($id)->delete();
+    // DELETE
+public function destroy($id)
+{
+    $this->checkRole(['ADMIN']);
 
-        return back()->with('success', 'Usuario eliminado');
-    }
+    $user = User::findOrFail($id);
+
+    $userUuid = $user->uuid;
+
+    $user->delete();
+
+    AuditLog::create([
+        'action' => 'delete_user',
+        'performed_by' => Auth::user()->uuid,
+        'target_type' => 'User',
+        'target_id' => $userUuid,
+        'changes' => [
+            'status' => [
+                'before' => $user->status,
+                'after' => 'DELETED',
+            ],
+        ],
+    ]);
+
+    return back()->with('success', 'Usuario eliminado');
+}
 
     //ENVIAR CÓDIGO DE RECUPERACIÓN// 
 public function sendResetCode(Request $request)
@@ -184,6 +257,14 @@ public function sendResetCode(Request $request)
             'expires_at' => Carbon::now()->addMinutes(3),
         ]);
 
+        // Limpiar límite de intentos del código anterior.
+        RateLimiter::clear(
+            'password-reset-code:' .
+            $user->uuid .
+            '|' .
+            $request->ip()
+        );
+
         // Enviar código por correo.
         Mail::to($user->email)->send(
             new PasswordResetCodeMail($code)
@@ -238,7 +319,7 @@ public function resetPassword(Request $request)
 
     $user = User::find($uuid);
 
-    if (!$user || $user->status !== 'ACTIVO') {
+    if (!$user || $user->status !== 'Activo') {
 
         session()->forget([
             'reset_user_uuid',
@@ -287,16 +368,30 @@ public function resetPassword(Request $request)
         ->with('code_expired', true);
 }
 
+    $codeKey = 'password-reset-code:' . $user->uuid . '|' . $request->ip();
+
+    if (RateLimiter::tooManyAttempts($codeKey, 5)) {
+        return redirect('/reset-password')
+            ->with(
+                'error',
+                'Demasiados intentos incorrectos. Solicita un nuevo código de recuperación.'
+            );
+    }
+
     // CÓDIGO INCORRECTO// 
     if (!Hash::check($request->code, $reset->code_hash)) {
 
-        return back()
-            ->withInput()
-            ->with(
-                'error',
-                'El código ingresado es incorrecto.'
-            );
-    }
+    RateLimiter::hit($codeKey, 300);
+
+    $attemptsLeft = 5 - RateLimiter::attempts($codeKey);
+
+    return back()
+        ->withInput()
+        ->with(
+            'error',
+            'El código ingresado es incorrecto. Intentos restantes: ' . max($attemptsLeft, 0)
+        );
+}
 
     //CAMBIAR CONTRASEÑA//
     DB::transaction(function () use ($user, $reset, $request) {
@@ -318,6 +413,9 @@ public function resetPassword(Request $request)
         'reset_email_masked',
         'demo_recovery_code'
     ]);
+
+    // Limpiar límite de intentos del código
+    RateLimiter::clear($codeKey);
 
     // Limpiar límite de recuperación
     RateLimiter::clear(
@@ -342,7 +440,8 @@ public function showChangePassword()
 
 
     //CAMBIAR CONTRASEÑA//
-public function changePassword(Request $request)
+
+    public function changePassword(Request $request)
 {
     $request->validate([
         'password' => [
@@ -362,6 +461,9 @@ public function changePassword(Request $request)
     $user->must_change_password = false;
 
     $user->save();
+
+    // Regenerar la sesión después del cambio de contraseña
+    $request->session()->regenerate();
 
     return redirect('/dashboard')
         ->with(
@@ -384,7 +486,8 @@ public function changePassword(Request $request)
 
     if (strlen($name) <= 2) {
         $maskedName = substr($name, 0, 1) . '***';
-    } 
+    }
+
     else 
         {
         $maskedName =

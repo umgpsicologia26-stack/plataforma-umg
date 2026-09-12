@@ -9,8 +9,13 @@ class AuditLog extends Model
     protected $fillable = [
         'action',
         'performed_by',
-        'target_user',
-        'changes'
+        'target_type',
+        'target_id',
+        'changes',
+    ];
+
+    protected $casts = [
+        'changes' => 'array',
     ];
 
     public function performedBy()
@@ -18,15 +23,6 @@ class AuditLog extends Model
         return $this->belongsTo(
             User::class,
             'performed_by',
-            'uuid'
-        );
-    }
-
-    public function targetUser()
-    {
-        return $this->belongsTo(
-            User::class,
-            'target_user',
             'uuid'
         );
     }

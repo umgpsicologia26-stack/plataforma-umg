@@ -43,6 +43,7 @@
                 type="password"
                 name="password"
                 placeholder="Ingrese la contraseña"
+                autocomplete="current-password"
                 required>
 
         </div>

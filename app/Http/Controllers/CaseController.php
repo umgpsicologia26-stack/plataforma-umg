@@ -1,469 +1,490 @@
-<?php
-
-namespace App\Http\Controllers;
-
-use App\Models\CaseFile;
-use App\Models\CaseComment;
-use App\Models\CaseNotification;
-use App\Models\ChatConversation;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-
-class CaseController extends BaseController
-{
-    /* CREAR CASO DE SUICIDIO */
-
-    public function createSuicideCase(Request $request)
-    {
-        $this->checkRole(['USER']);
-
-        $request->validate([
-            'description' => [
-                'required',
-                'string',
-                'max:5000'
-            ],
-        ]);
-
-        /* VERIFICAR CONFIGURACIÓN */
-
-        $settings = DB::table('system_settings')->first();
-
-        if (
-            $settings &&
-            isset($settings->case_creation_enabled) &&
-            !$settings->case_creation_enabled
-        ) {
-            return back()->with(
-                'error',
-                'Actualmente la creación de casos se encuentra deshabilitada.'
-            );
-        }
-
-        /* USUARIO */
-
-        $user = Auth::user();
-
-        /* BUSCAR MODERADOR DISPONIBLE */
-
-        $moderator = DB::table('users')
-            ->where('role', 'MODERATOR')
-            ->where('status', 'ACTIVO')
-            ->orderBy('created_at', 'asc')
-            ->first();
-
-        /* NÚMERO DE CASO */
-
-        $caseNumber = $this->generateCaseNumber();
-
-        /* CREAR CASO */
-
-        $case = CaseFile::create([
-            'case_number'   => $caseNumber,
-            'type'          => 'Suicidio',
-            'description'   => trim($request->description),
-            'user_uuid'     => $user->uuid,
-            'moderator_uuid'=> $moderator?->uuid,
-            'status'        => 'Abierto',
-            'admin_approved'=> false,
-        ]);
-
-        /* NOTIFICAR AL MODERADOR */
-
-        if ($moderator) {
-
-            
-            $columns = DB::getSchemaBuilder()
-                ->getColumnListing('case_notifications');
-
-            if (in_array('moderator_uuid', $columns)) {
-
-                DB::table('case_notifications')->insert([
-                    'user_uuid'      => $user->uuid,
-                    'moderator_uuid' => $moderator->uuid,
-                    'case_id'        => $case->id,
-                    'message'        =>
-                        'Se ha asignado un nuevo caso de tipo Suicidio: ' .
-                        $case->case_number,
-                    'read_at'        => null,
-                    'created_at'     => now(),
-                    'updated_at'     => now(),
-                ]);
-            }
-        }
-
-        return redirect()
-            ->route('cases.tracking')
-            ->with(
-                'success',
-                'Tu caso fue registrado correctamente. Número de caso: ' .
-                $case->case_number
-            );
-    }
-
-
-    /* CREAR CASO DE ABUSO SEXUAL */
-
-    public function createAbuseCase(Request $request)
-    {
-        $this->checkRole(['USER']);
-
-        $request->validate([
-            'description' => [
-                'required',
-                'string',
-                'max:5000'
-            ],
-        ]);
-
-        /* VERIFICAR CONFIGURACIÓN */
-
-        $settings = DB::table('system_settings')->first();
-
-        if (
-            $settings &&
-            isset($settings->case_creation_enabled) &&
-            !$settings->case_creation_enabled
-        ) {
-            return back()->with(
-                'error',
-                'Actualmente la creación de casos se encuentra deshabilitada.'
-            );
-        }
-
-        /* USUARIO */
-
-        $user = Auth::user();
-
-        /* BUSCAR MODERADOR DISPONIBLE */
-
-        $moderator = DB::table('users')
-            ->where('role', 'MODERATOR')
-            ->where('status', 'ACTIVO')
-            ->orderBy('created_at', 'asc')
-            ->first();
-
-        /* NÚMERO DE CASO */
-
-        $caseNumber = $this->generateCaseNumber();
-
-        /* CREAR CASO */
-
-        $case = CaseFile::create([
-            'case_number'   => $caseNumber,
-            'type'          => 'Abuso sexual',
-            'description'   => trim($request->description),
-            'user_uuid'     => $user->uuid,
-            'moderator_uuid'=> $moderator?->uuid,
-            'status'        => 'Abierto',
-            'admin_approved'=> false,
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | NOTIFICAR AL MODERADOR
-        |--------------------------------------------------------------------------
-        */
-
-        if ($moderator) {
-
-            $columns = DB::getSchemaBuilder()
-                ->getColumnListing('case_notifications');
-
-            if (in_array('moderator_uuid', $columns)) {
-
-                DB::table('case_notifications')->insert([
-                    'user_uuid' => $user->uuid,
-                    'moderator_uuid' => $moderator->uuid,
-                    'case_id'        => $case->id,
-                    'message'        =>
-                        'Se ha asignado un nuevo caso de tipo Abuso sexual: ' .
-                        $case->case_number,
-                    'read_at'        => null,
-                    'created_at'     => now(),
-                    'updated_at'     => now(),
-                ]);
-            }
-        }
-
-        return redirect()
-            ->route('cases.tracking')
-            ->with(
-                'success',
-                'Tu caso fue registrado correctamente. Número de caso: ' .
-                $case->case_number
-            );
-    }
-
+<?php 
+ 
+namespace App\Http\Controllers; 
+ 
+use App\Models\CaseFile; 
+use App\Models\CaseComment; 
+use App\Models\CaseNotification; 
+use App\Models\ChatConversation; 
+use App\Models\AuditLog; 
+use Illuminate\Http\Request; 
+use Illuminate\Support\Facades\Auth; 
+use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Str; 
+ 
+class CaseController extends BaseController 
+{ 
+    /* CREAR CASO DE SUICIDIO */ 
+
+    public function createSuicideCase(Request $request) 
+    { 
+        $this->checkRole(['USER']); 
+
+        $request->validate([ 
+            'description' => [ 
+                'required', 
+                'string', 
+                'max:5000' 
+            ], 
+        ]); 
+
+        /* VERIFICAR CONFIGURACIÓN */ 
+
+        $settings = DB::table('system_settings')->first(); 
+
+        if ( 
+            $settings && 
+            isset($settings->case_creation_enabled) && 
+            !$settings->case_creation_enabled 
+        ) { 
+            return back()->with( 
+                'error', 
+                'Actualmente la creación de casos se encuentra deshabilitada.' 
+            ); 
+        } 
+
+        /* USUARIO */ 
+
+        $user = Auth::user(); 
+
+        /* BUSCAR MODERADOR DISPONIBLE */ 
+
+        $moderator = DB::table('users') 
+            ->where('role', 'MODERATOR') 
+            ->where('status', 'Activo') 
+            ->orderBy('created_at', 'asc') 
+            ->first(); 
+
+        /* NÚMERO DE CASO */ 
+
+        $caseNumber = $this->generateCaseNumber(); 
+
+        /* CREAR CASO */ 
+
+        $case = CaseFile::create([ 
+            'case_number'   => $caseNumber, 
+            'type'          => 'Suicidio', 
+            'description'   => trim($request->description), 
+            'user_uuid'     => $user->uuid, 
+            'moderator_uuid'=> $moderator?->uuid, 
+            'status'        => 'Abierto', 
+        ]); 
+
+        AuditLog::create([ 
+            'action' => 'create_case', 
+            'performed_by' => $user->uuid, 
+            'target_type' => 'CaseFile', 
+            'target_id' => (string) $case->id, 
+            'changes' => [ 
+                'case_number' => $case->case_number, 
+                'type' => $case->type, 
+                'status' => $case->status, 
+            ], 
+        ]); 
+
+        /* NOTIFICAR AL MODERADOR */ 
+
+        if ($moderator) { 
+
+            $columns = DB::getSchemaBuilder() 
+                ->getColumnListing('case_notifications'); 
+
+            if (in_array('moderator_uuid', $columns)) { 
+
+                DB::table('case_notifications')->insert([ 
+                    'user_uuid'      => $user->uuid, 
+                    'moderator_uuid' => $moderator->uuid, 
+                    'case_id'        => $case->id, 
+                    'message'        => 
+                        'Se ha asignado un nuevo caso de tipo Suicidio: ' . 
+                        $case->case_number, 
+                    'read_at'        => null, 
+                    'created_at'     => now(), 
+                    'updated_at'     => now(), 
+                ]); 
+            } 
+        } 
+
+        return redirect() 
+            ->route('cases.tracking') 
+            ->with( 
+                'success', 
+                'Tu caso fue registrado correctamente. Número de caso: ' . 
+                $case->case_number 
+            ); 
+    } 
+
+
+    /* CREAR CASO DE ABUSO SEXUAL */ 
+
+    public function createAbuseCase(Request $request) 
+    { 
+        $this->checkRole(['USER']); 
+
+        $request->validate([ 
+            'description' => [ 
+                'required', 
+                'string', 
+                'max:5000' 
+            ], 
+        ]); 
+
+        /* VERIFICAR CONFIGURACIÓN */ 
+
+        $settings = DB::table('system_settings')->first(); 
+
+        if ( 
+            $settings && 
+            isset($settings->case_creation_enabled) && 
+            !$settings->case_creation_enabled 
+        ) { 
+            return back()->with( 
+                'error', 
+                'Actualmente la creación de casos se encuentra deshabilitada.' 
+            ); 
+        } 
+
+        /* USUARIO */ 
+
+        $user = Auth::user(); 
+
+        /* BUSCAR MODERADOR DISPONIBLE */ 
+
+        $moderator = DB::table('users') 
+            ->where('role', 'MODERATOR') 
+            ->where('status', 'Activo') 
+            ->orderBy('created_at', 'asc') 
+            ->first(); 
+
+        /* NÚMERO DE CASO */ 
+
+        $caseNumber = $this->generateCaseNumber(); 
+
+        /* CREAR CASO */ 
+
+        $case = CaseFile::create([ 
+            'case_number'   => $caseNumber, 
+            'type'          => 'Abuso sexual', 
+            'description'   => trim($request->description), 
+            'user_uuid'     => $user->uuid, 
+            'moderator_uuid'=> $moderator?->uuid, 
+            'status'        => 'Abierto', 
+        ]); 
+
+        AuditLog::create([ 
+            'action' => 'create_case', 
+            'performed_by' => $user->uuid, 
+            'target_type' => 'CaseFile', 
+            'target_id' => (string) $case->id, 
+            'changes' => [ 
+                'case_number' => $case->case_number, 
+                'type' => $case->type, 
+                'status' => $case->status, 
+            ], 
+        ]); 
+
+        /* 
+        |-------------------------------------------------------------------------- 
+        | NOTIFICAR AL MODERADOR 
+        |-------------------------------------------------------------------------- 
+        */ 
+
+        if ($moderator) { 
+
+            $columns = DB::getSchemaBuilder() 
+                ->getColumnListing('case_notifications'); 
+
+            if (in_array('moderator_uuid', $columns)) { 
+
+                DB::table('case_notifications')->insert([ 
+                    'user_uuid' => $user->uuid, 
+                    'moderator_uuid' => $moderator->uuid, 
+                    'case_id'        => $case->id, 
+                    'message'        => 
+                        'Se ha asignado un nuevo caso de tipo Abuso sexual: ' . 
+                        $case->case_number, 
+                    'read_at'        => null, 
+                    'created_at'     => now(), 
+                    'updated_at'     => now(), 
+                ]); 
+            } 
+        } 
+
+        return redirect() 
+            ->route('cases.tracking') 
+            ->with( 
+                'success', 
+                'Tu caso fue registrado correctamente. Número de caso: ' . 
+                $case->case_number 
+            ); 
+    } 
+
+
+    /* GENERAR NÚMERO DE CASO */ 
+
+    private function generateCaseNumber() 
+    { 
+        do { 
+
+            $number = random_int(1, 9999); 
+
+            $caseNumber = 
+                'VS-' . 
+                date('Y') . 
+                '-' . 
+                str_pad( 
+                    $number, 
+                    4, 
+                    '0', 
+                    STR_PAD_LEFT 
+                ); 
 
-    /* GENERAR NÚMERO DE CASO */
+        } while ( 
+            CaseFile::where( 
+                'case_number', 
+                $caseNumber 
+            )->exists() 
+        ); 
 
-    private function generateCaseNumber()
-    {
-        do {
+        return $caseNumber; 
+    } 
 
-            $number = random_int(1, 9999);
 
-            $caseNumber =
-                'VS-' .
-                date('Y') .
-                '-' .
-                str_pad(
-                    $number,
-                    4,
-                    '0',
-                    STR_PAD_LEFT
-                );
+    /* SEGUIMIENTO DE CASOS DEL USUARIO */ 
 
-        } while (
-            CaseFile::where(
-                'case_number',
-                $caseNumber
-            )->exists()
-        );
+    public function tracking() 
+    { 
+        $this->checkRole(['USER']); 
 
-        return $caseNumber;
-    }
+        $userUuid = Auth::user()->uuid; 
 
+        /* OBTENER TODOS LOS CASOS DEL USUARIO */ 
 
-    /* SEGUIMIENTO DE CASOS DEL USUARIO */
+        $cases = CaseFile::with([ 
+            'user', 
+            'moderator', 
+            'comments.user' 
+        ]) 
+            ->where( 
+                'user_uuid', 
+                $userUuid 
+            ) 
+            ->orderByDesc( 
+                'created_at' 
+            ) 
+            ->get(); 
 
-    public function tracking()
-    {
-        $this->checkRole(['USER']);
+        /* CARGAR RESPUESTAS DEL MODERADOR DESDE EL CHAT */ 
 
-        $userUuid = Auth::user()->uuid;
+        $conversations = ChatConversation::with([ 
+            'messages.sender' 
+        ]) 
+            ->where('user_uuid', $userUuid) 
+            ->get(); 
 
-        /* OBTENER TODOS LOS CASOS DEL USUARIO */
+        foreach ($cases as $case) { 
 
-        $cases = CaseFile::with([
-            'user',
-            'moderator',
-            'comments.user'
-        ])
-            ->where(
-                'user_uuid',
-                $userUuid
-            )
-            ->orderByDesc(
-                'created_at'
-            )
-            ->get();
+            $conversation = $conversations->first(function ($conversation) use ($case) { 
 
-            /* CARGAR RESPUESTAS DEL MODERADOR DESDE EL CHAT */
+                return $conversation->moderator_uuid === $case->moderator_uuid; 
 
-$conversations = ChatConversation::with([
-    'messages.sender'
-])
-    ->where('user_uuid', $userUuid)
-    ->get();
+            }); 
 
-foreach ($cases as $case) {
+            $case->moderator_messages = $conversation 
+                ? $conversation->messages 
+                : collect(); 
+        } 
 
-    $conversation = $conversations->first(function ($conversation) use ($case) {
+        /* SEPARAR POR TIPO */ 
 
-        return $conversation->moderator_uuid === $case->moderator_uuid;
+        $suicideCases = $cases 
+            ->filter(function ($case) { 
 
-    });
+                return strtolower( 
+                    trim($case->type) 
+                ) === 'suicidio'; 
 
-    $case->moderator_messages = $conversation
-        ? $conversation->messages
-        : collect();
-}
+            }); 
 
-        /* SEPARAR POR TIPO */
+        $abuseCases = $cases 
+            ->filter(function ($case) { 
 
-        $suicideCases = $cases
-            ->filter(function ($case) {
+                $type = strtolower( 
+                    trim($case->type) 
+                ); 
 
-                return strtolower(
-                    trim($case->type)
-                ) === 'suicidio';
+                return $type === 'abuso sexual' 
+                    || $type === 'abusosexual' 
+                    || $type === 'abuso_sexual'; 
 
-            });
+            }); 
 
-        $abuseCases = $cases
-            ->filter(function ($case) {
 
-                $type = strtolower(
-                    trim($case->type)
-                );
+        /* SUICIDIO - ABIERTOS */ 
 
-                return $type === 'abuso sexual'
-                    || $type === 'abusosexual'
-                    || $type === 'abuso_sexual';
+        $suicideOpen = $suicideCases 
+            ->filter(function ($case) { 
 
-            });
+                return strtolower( 
+                    trim($case->status) 
+                ) === 'abierto'; 
 
+            }); 
 
-        /* SUICIDIO - ABIERTOS */
 
-        $suicideOpen = $suicideCases
-            ->filter(function ($case) {
+        /* SUICIDIO - EN SEGUIMIENTO */ 
 
-                return strtolower(
-                    trim($case->status)
-                ) === 'abierto';
+        $suicideFollowUp = $suicideCases 
+            ->filter(function ($case) { 
 
-            });
+                return strtolower( 
+                    trim($case->status) 
+                ) === 'en seguimiento'; 
 
+            }); 
 
-        /* SUICIDIO - EN SEGUIMIENTO */
 
-        $suicideFollowUp = $suicideCases
-            ->filter(function ($case) {
+        /* SUICIDIO - CERRADOS */ 
 
-                return strtolower(
-                    trim($case->status)
-                ) === 'en seguimiento';
+        $suicideClosed = $suicideCases 
+            ->filter(function ($case) { 
 
-            });
+                return strtolower( 
+                    trim($case->status) 
+                ) === 'cerrado'; 
 
+            }); 
 
-        /* SUICIDIO - CERRADOS */
 
-        $suicideClosed = $suicideCases
-            ->filter(function ($case) {
+        /* ABUSO SEXUAL - ABIERTOS */ 
 
-                return strtolower(
-                    trim($case->status)
-                ) === 'cerrado';
+        $abuseOpen = $abuseCases 
+            ->filter(function ($case) { 
 
-            });
+                return strtolower( 
+                    trim($case->status) 
+                ) === 'abierto'; 
 
+            }); 
 
-        /* ABUSO SEXUAL - ABIERTOS */
 
-        $abuseOpen = $abuseCases
-            ->filter(function ($case) {
+        /* ABUSO SEXUAL - EN SEGUIMIENTO */ 
 
-                return strtolower(
-                    trim($case->status)
-                ) === 'abierto';
+        $abuseFollowUp = $abuseCases 
+            ->filter(function ($case) { 
 
-            });
+                return strtolower( 
+                    trim($case->status) 
+                ) === 'en seguimiento'; 
 
+            }); 
 
-        /* ABUSO SEXUAL - EN SEGUIMIENTO */
 
-        $abuseFollowUp = $abuseCases
-            ->filter(function ($case) {
+        /* ABUSO SEXUAL - CERRADOS */ 
 
-                return strtolower(
-                    trim($case->status)
-                ) === 'en seguimiento';
+        $abuseClosed = $abuseCases 
+            ->filter(function ($case) { 
 
-            });
+                return strtolower( 
+                    trim($case->status) 
+                ) === 'cerrado'; 
 
+            }); 
 
-        /* ABUSO SEXUAL - CERRADOS */
 
-        $abuseClosed = $abuseCases
-            ->filter(function ($case) {
+        /* CONTADORES */ 
 
-                return strtolower(
-                    trim($case->status)
-                ) === 'cerrado';
+        $totalCases = $cases->count(); 
 
-            });
+        $totalSuicide = $suicideCases->count(); 
 
+        $totalAbuse = $abuseCases->count(); 
 
-        /* CONTADORES */
+        $totalOpen = 
+            $suicideOpen->count() + 
+            $abuseOpen->count(); 
 
-        $totalCases = $cases->count();
+        $totalFollowUp = 
+            $suicideFollowUp->count() + 
+            $abuseFollowUp->count(); 
 
-        $totalSuicide = $suicideCases->count();
+        $totalClosed = 
+            $suicideClosed->count() + 
+            $abuseClosed->count(); 
 
-        $totalAbuse = $abuseCases->count();
 
-        $totalOpen =
-            $suicideOpen->count() +
-            $abuseOpen->count();
+        /* MARCAR NOTIFICACIONES COMO LEÍDAS */ 
 
-        $totalFollowUp =
-            $suicideFollowUp->count() +
-            $abuseFollowUp->count();
+        if ($cases->isNotEmpty()) { 
 
-        $totalClosed =
-            $suicideClosed->count() +
-            $abuseClosed->count();
+            $caseIds = $cases 
+                ->pluck('id') 
+                ->toArray(); 
 
+            CaseNotification::where( 
+                'user_uuid', 
+                $userUuid 
+            ) 
+                ->whereIn( 
+                    'case_id', 
+                    $caseIds 
+                ) 
+                ->whereNull( 
+                    'read_at' 
+                ) 
+                ->update([ 
+                    'read_at' => now() 
+                ]); 
+        }  
 
-        /* MARCAR NOTIFICACIONES COMO LEÍDAS */
+        /* MOSTRAR VISTA */ 
 
-        if ($cases->isNotEmpty()) {
+        return view( 
+            'cases', 
+            compact( 
+                'cases', 
 
-            $caseIds = $cases
-                ->pluck('id')
-                ->toArray();
+                'suicideCases', 
+                'suicideOpen', 
+                'suicideFollowUp', 
+                'suicideClosed', 
 
-            CaseNotification::where(
-                'user_uuid',
-                $userUuid
-            )
-                ->whereIn(
-                    'case_id',
-                    $caseIds
-                )
-                ->whereNull(
-                    'read_at'
-                )
-                ->update([
-                    'read_at' => now()
-                ]);
-        }
+                'abuseCases', 
+                'abuseOpen', 
+                'abuseFollowUp', 
+                'abuseClosed', 
 
+                'totalCases', 
+                'totalSuicide', 
+                'totalAbuse', 
+                'totalOpen', 
+                'totalFollowUp', 
+                'totalClosed' 
+            ) 
+        ); 
+    } 
 
-        /* MOSTRAR VISTA */
 
-        return view(
-            'cases',
-            compact(
-                'cases',
+    /* MARCAR NOTIFICACIÓN COMO LEÍDA */ 
 
-                'suicideCases',
-                'suicideOpen',
-                'suicideFollowUp',
-                'suicideClosed',
+    public function markNotificationAsRead($id) 
+    { 
+        $this->checkRole(['USER']); 
 
-                'abuseCases',
-                'abuseOpen',
-                'abuseFollowUp',
-                'abuseClosed',
+        $notification = CaseNotification::where( 
+            'id', 
+            $id 
+        ) 
+            ->where( 
+                'user_uuid', 
+                Auth::user()->uuid 
+            ) 
+            ->firstOrFail(); 
 
-                'totalCases',
-                'totalSuicide',
-                'totalAbuse',
-                'totalOpen',
-                'totalFollowUp',
-                'totalClosed'
-            )
-        );
-    }
+        $notification->update([ 
+            'read_at' => now() 
+        ]); 
 
-
-    /* MARCAR NOTIFICACIÓN COMO LEÍDA */
-
-    public function markNotificationAsRead($id)
-    {
-        $this->checkRole(['USER']);
-
-        $notification = CaseNotification::where(
-            'id',
-            $id
-        )
-            ->where(
-                'user_uuid',
-                Auth::user()->uuid
-            )
-            ->firstOrFail();
-
-        $notification->update([
-            'read_at' => now()
-        ]);
-
-        return back();
-    }
+        return back(); 
+    } 
 }

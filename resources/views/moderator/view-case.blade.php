@@ -705,15 +705,15 @@
 
             <span class="info-value">
 
-                @if($case->status === 'En seguimiento')
+                @if($case->status === 'en seguimiento')
 
-                    <span class="badge badge-follow">
+                <span class="badge badge-follow">
 
-                        <i class="fas fa-spinner"></i>
+                <i class="fas fa-spinner"></i>
 
-                        En seguimiento
+                En seguimiento
 
-                    </span>
+                </span>
 
                 @elseif($case->status === 'Cerrado')
 
@@ -864,7 +864,7 @@
 
     </div>
 
-
+@can('update', $case)
     <form
         method="POST"
         action="{{ route('moderator.case.update', $case->id) }}">
@@ -952,13 +952,11 @@
         </button>
 
     </form>
-
+@endcan
 </div>
 
 
-{{-- ========================================================= --}}
 {{-- HISTORIAL --}}
-{{-- ========================================================= --}}
 
 <div class="card">
 

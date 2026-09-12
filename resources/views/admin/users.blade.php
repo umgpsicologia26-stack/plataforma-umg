@@ -335,17 +335,6 @@
             color: #6b7280;
         }
 
-        .empty i {
-            font-size: 35px;
-            color: #cbd5e1;
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .empty p {
-            font-size: 14px;
-        }
-
     /*RESPONSIVE*/
         @media (max-width: 700px) {
             .container {
@@ -367,6 +356,8 @@
                 flex-direction: column;
             }
         }
+
+
     </style>
 </head>
 <body>
@@ -482,19 +473,19 @@
 
     <!-- ESTADO -->
         <td>
-            @if($user->status === 'ACTIVE')
+            @if($user->status === 'Activo')
                 <span class="status active">
                     <span class="status-dot"></span>
                     Activo
                         </span>
 
-            @elseif($user->status === 'BLOCKED')
+            @elseif($user->status === 'Bloqueado')
                 <span class="status blocked">
                     <span class="status-dot"></span>
                     Bloqueado
                         </span>
 
-            @elseif($user->status === 'PENDING')
+            @elseif($user->status === 'Pendiente')
                 <span class="status pending">
                     <span class="status-dot"></span>
                     Pendiente
@@ -520,42 +511,88 @@
     <!-- ACCIONES -->
         <td>
             <div class="actions">
-                <a
-                    href="/admin/user/{{ $user->id }}/activate"
-                    class="action-button activate"
-                    title="Activar usuario">
 
-        <i class="fas fa-check"></i>
+    <form
+        action="/admin/user/{{ $user->uuid  }}/activate"
+        method="POST"
+        style="display:inline;">
+
+        @csrf
+        @method('PATCH')
+
+        <button
+            type="submit"
+            class="action-button activate"
+            title="Activar usuario">
+
+            <i class="fas fa-check"></i>
             Activar
-        </a>
+        </button>
+    </form>
 
-        <a
-            href="/admin/user/{{ $user->id }}/suspend"
+    <form
+        action="/admin/user/{{ $user->uuid }}/suspend"
+        method="POST"
+        style="display:inline;">
+
+        @csrf
+        @method('PATCH')
+
+        <button
+            type="submit"
             class="action-button suspend"
             title="Suspender usuario">
 
             <i class="fas fa-ban"></i>
-                Suspender
-                </a>
+            Suspender
+        </button>
+    </form>
 
-        <a
-            href="/admin/user/{{ $user->id }}/delete"
+    <form
+        action="/admin/user/{{ $user->uuid }}/delete"
+        method="POST"
+        style="display:inline;">
+
+        @csrf
+        @method('DELETE')
+
+        <button
+            type="submit"
             class="action-button delete"
             title="Eliminar usuario">
 
             <i class="fas fa-trash"></i>
-                Eliminar
-        </a>
+            Eliminar
+        </button>
+    </form>
 
-        <a
-            href="/admin/user/{{ $user->id }}/restore"
+    <form
+        action="/admin/user/{{ $user->uuid }}/restore"
+        method="POST"
+        style="display:inline;">
+
+        @csrf
+        @method('PATCH')
+
+        <button
+            type="submit"
             class="action-button restore"
             title="Restaurar usuario">
 
             <i class="fas fa-rotate-left"></i>
-                Restaurar
-        </a>
-            </div>
+            Restaurar
+        </button>
+    </form>
+        <a
+    href="{{ route('admin.user.profile-changes', $user->uuid) }}"
+    class="action-button view"
+    title="Ver último cambio de perfil">
+
+    <i class="fas fa-eye"></i>
+    Ver cambios
+</a>
+
+</div>
         </td>
             </tr>
                 @empty

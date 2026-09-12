@@ -351,7 +351,7 @@
         </div>
     </div>
 
-    <!--FILTRO-->
+       <!--FILTRO-->
     <div class="filter-card">
         <div class="section-title">
             <i class="fas fa-filter"></i>
@@ -362,24 +362,26 @@
             class="filter-form"
             method="GET">
             <div class="field">
-                <label>
+                <label for="start_date">
                     Fecha inicial
                 </label>
 
                 <input
                     type="date"
+                    id="start_date"
                     name="from"
                     class="date-input"
                     value="{{ request('from') }}">
             </div>
 
             <div class="field">
-                <label>
+                <label for="end_date">
                     Fecha final
                 </label>
 
                 <input
                     type="date"
+                    id="end_date"
                     name="to"
                     class="date-input"
                     value="{{ request('to') }}">
@@ -492,14 +494,14 @@
         </div>
         <div class="export-buttons">
             <a
-                href="/admin/reports/pdf"
+                href="/admin/reports/pdf?from={{ request('from') }}&to={{ request('to') }}"
                 class="export-btn pdf-btn">
                 <i class="fas fa-file-pdf"></i>
                 Exportar PDF
             </a>
 
             <a
-                href="/admin/reports/excel"
+                href="/admin/reports/excel?from={{ request('from') }}&to={{ request('to') }}"
                 class="export-btn excel-btn">
                 <i class="fas fa-file-excel"></i>
                 Exportar Excel

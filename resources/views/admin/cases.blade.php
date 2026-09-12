@@ -4,13 +4,9 @@
 <head>
 
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Casos | UMG</title>
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
         * {
@@ -26,25 +22,23 @@
                 "Segoe UI",
                 sans-serif;
             background:
-                linear-gradient(
-                    135deg,
+                linear-gradient(135deg,
                     #eef4ff,
-                    #f8fbff
-                );
+                    #f8fbff);
             min-height: 100vh;
             color: #1f2937;
         }
 
-    /* CONTENEDOR */
-    .container {
+        /* CONTENEDOR */
+        .container {
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
             padding: 35px 20px 50px;
         }
 
-    /* BOTÓN VOLVER */
-    .back-button {
+        /* BOTÓN VOLVER */
+        .back-button {
             display: inline-flex;
             align-items: center;
             gap: 9px;
@@ -57,26 +51,26 @@
             font-size: 14px;
             font-weight: 600;
             margin-bottom: 20px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
             transition: all .2s ease;
         }
 
-    .back-button:hover {
+        .back-button:hover {
             background: #f3f4f6;
             transform: translateX(-2px);
         }
 
-    /* ENCABEZADO */
-    .page-header {
+        /* ENCABEZADO */
+        .page-header {
             background: #ffffff;
             border-radius: 18px;
             padding: 25px 30px;
             margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
             border: 1px solid #e8edf5;
         }
 
-    .title {
+        .title {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -85,27 +79,27 @@
             color: #1f2937;
         }
 
-    .title i {
+        .title i {
             color: #2563eb;
         }
 
-    .subtitle {
+        .subtitle {
             margin-top: 7px;
             color: #6b7280;
             font-size: 14px;
         }
 
-    /* TARJETA */
-    .card {
+        /* TARJETA */
+        .card {
             background: #ffffff;
             border-radius: 18px;
             padding: 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
             border: 1px solid #e8edf5;
         }
 
-    /* ENCABEZADO DE TABLA */
-    .table-header {
+        /* ENCABEZADO DE TABLA */
+        .table-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -113,7 +107,7 @@
             margin-bottom: 22px;
         }
 
-    .table-title {
+        .table-title {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -122,12 +116,12 @@
             color: #1f2937;
         }
 
-    .table-title i {
+        .table-title i {
             color: #2563eb;
         }
 
 
-    .count {
+        .count {
             background: #eff6ff;
             color: #2563eb;
             border: 1px solid #dbeafe;
@@ -137,20 +131,20 @@
             font-weight: 700;
         }
 
-    /* TABLA */
-    .table-container {
+        /* TABLA */
+        .table-container {
             width: 100%;
             overflow-x: auto;
         }
 
-    table {
+        table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
             min-width: 850px;
         }
 
-    th {
+        th {
             background: #f8fafc;
             color: #6b7280;
             font-size: 12px;
@@ -163,7 +157,7 @@
             border-bottom: 1px solid #e5e7eb;
         }
 
-    th:first-child {
+        th:first-child {
             border-left: 1px solid #e5e7eb;
             border-radius: 10px 0 0 10px;
         }
@@ -189,8 +183,8 @@
             background: #f8fafc;
         }
 
-    /* NÚMERO DE CASO */
-    .case-number {
+        /* NÚMERO DE CASO */
+        .case-number {
             display: inline-flex;
             align-items: center;
             gap: 7px;
@@ -199,8 +193,8 @@
             font-size: 13px;
         }
 
-    /* TEMA */
-    .topic {
+        /* TEMA */
+        .topic {
             display: inline-flex;
             align-items: center;
             gap: 7px;
@@ -275,7 +269,7 @@
             background: #64748b;
         }
 
-    /* ACCIONES */
+        /* ACCIONES */
         .actions {
             display: flex;
             align-items: center;
@@ -293,7 +287,7 @@
             transition: all .2s ease;
         }
 
-    /* VISUALIZAR */
+        /* VISUALIZAR */
         .view-btn {
             background: #eff6ff;
             color: #2563eb;
@@ -306,7 +300,7 @@
             transform: translateY(-1px);
         }
 
-    /* EDITAR */
+        /* EDITAR */
         .edit-btn {
             background: #fffbeb;
             color: #d97706;
@@ -319,7 +313,7 @@
             transform: translateY(-1px);
         }
 
-    /* ELIMINAR */
+        /* ELIMINAR */
         .delete-btn {
             background: #fef2f2;
             color: #dc2626;
@@ -333,7 +327,7 @@
         }
 
 
-    /* VACÍO */
+        /* VACÍO */
         .empty {
             text-align: center;
             padding: 45px 20px;
@@ -350,7 +344,7 @@
             font-size: 14px;
         }
 
-    /* RESPONSIVE */
+        /* RESPONSIVE */
         @media (max-width: 700px) {
             .container {
                 padding:
@@ -373,202 +367,193 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <!-- VOLVER -->
-    <a
-        href="/admin-panel"
-            class="back-button">
-                <i class="fas fa-arrow-left"></i>
-        Volver al panel
-    </a>
+        <!-- VOLVER -->
+        <a href="/admin-panel" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Volver al panel
+        </a>
 
-    <!-- ENCABEZADO -->
-    <div class="page-header">
-        <div class="title">
-            <i class="fas fa-folder-open"></i>
-            Gestión de Casos
-        </div>
-        <div class="subtitle">
-            Consulta, visualiza, modifica y administra
-            los casos registrados en UMG.
-        </div>
-    </div>
-
-    <!-- TABLA -->
-    <div class="card">
-        <div class="table-header">
-            <div class="table-title">
-                <i class="fas fa-folder-tree"></i>
-                Casos registrados
+        <!-- ENCABEZADO -->
+        <div class="page-header">
+            <div class="title">
+                <i class="fas fa-folder-open"></i>
+                Gestión de Casos
             </div>
-            <span class="count">
-                {{ $cases->count() }}
-                {{ $cases->count() == 1
-                    ? 'caso'
-                    : 'casos'
+            <div class="subtitle">
+                Consulta, visualiza, modifica y administra
+                los casos registrados en UMG.
+            </div>
+        </div>
+
+        <!-- TABLA -->
+        <div class="card">
+            <div class="table-header">
+                <div class="table-title">
+                    <i class="fas fa-folder-tree"></i>
+                    Casos registrados
+                </div>
+                <span class="count">
+                    {{ $cases->count() }}
+                    {{ $cases->count() == 1
+    ? 'caso'
+    : 'casos'
                 }}
-            </span>
-        </div>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>
-                            Número
-                        </th>
-
-                        <th>
-                            Tema
-                        </th>
-
-                        <th>
-                            Moderador
-                        </th>
-
-                        <th>
-                            Fecha
-                        </th>
-
-                        <th>
-                            Estado
-                        </th>
-
-                        <th>
-                            Acciones
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($cases as $case)
+                </span>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
                         <tr>
-    <!-- NÚMERO -->
-    <td>
-        <span class="case-number">
-            <i class="fas fa-hashtag"></i>
-                {{ $case->case_number }}
-        </span>
-    </td>
+                            <th>
+                                Número
+                            </th>
 
-    <!-- TEMA -->
-    <td>
-        <span class="topic">
-                @if($case->topic === 'Suicidio')
-            <i class="fas fa-heart-pulse"></i>
-                Suicidio
-                @elseif($case->topic === 'Abuso sexual')
-            <i class="fas fa-shield-heart"></i>
-                Abuso sexual
-                    @else
-            <i class="fas fa-folder"></i>
-                {{ $case->topic }}
-                    @endif
-        </span>
-    </td>
+                            <th>
+                                Tema
+                            </th>
 
-    <!-- MODERADOR -->
-    <td>
-        {{ $case->moderator
-        ? $case->moderator->first_name
-        . ' '
-        . $case->moderator->last_name
-        : 'No asignado'
-        }}
-    </td>
+                            <th>
+                                Moderador
+                            </th>
 
-    <!-- FECHA -->
-    <td>
-        {{ $case->created_at->format('d/m/Y') }}
-    </td>
+                            <th>
+                                Fecha
+                            </th>
 
-    <!-- ESTADO -->
-    <td>
-        @if($case->status === 'ABIERTO')
-        <span class="status status-open">
-            <span class="status-dot"></span>
-            Abierto
-            </span>
-        @elseif($case->status === 'EN_PROCESO')
-        <span class="status status-process">
-            <span class="status-dot"></span>
-,,         En proceso
-            </span>
+                            <th>
+                                Estado
+                            </th>
 
-        @elseif($case->status === 'TERMINADO')
-        <span class="status status-finished">
-            <span class="status-dot"></span>
-            Terminado
-            </span>
-
-        @elseif($case->status === 'PENDIENTE_APROBACION')
-        <span class="status status-pending">
-            <span class="status-dot"></span>
-            Pendiente aprobación
-            </span>
-
-        @elseif($case->status === 'CERRADO')
-        <span class="status status-closed">
-            <span class="status-dot"></span>
-            Cerrado
-        </span>
-
-        @else
-        <span class="status status-process">
-            <span class="status-dot"></span>
-                {{ $case->status }}
-            </span>
-        @endif
-            </td>
-
-    <!-- ACCIONES -->
-            <td>
-                <div class="actions">
-
-    <!-- VISUALIZAR -->
-    <a
-        href="/admin/case/{{ $case->id }}"
-        class="action-btn view-btn"
-        title="Visualizar caso">
-            <i class="fas fa-eye"></i>
-    </a>
-
-    <!-- EDITAR -->
-    <a
-        href="/admin/case/edit/{{ $case->id }}"
-        class="action-btn edit-btn"
-        title="Editar caso">
-            <i class="fas fa-pen"></i>
-    </a>
-
-    <!-- ELIMINAR -->
-    <a
-        href="/admin/case/delete/{{ $case->id }}"
-        class="action-btn delete-btn"
-        title="Eliminar caso"
-        onclick="return confirm('¿Está seguro de eliminar este caso?');">
-            <i class="fas fa-trash"></i>
-    </a>
-        </div>
-            </td>
-                </tr>
-                    @empty
-                        <tr>
-                            <td
-                                colspan="6"
-                                class="empty">
-                                <i class="fas fa-folder-open"></i>
-                                <p>
-                                    No hay casos registrados.
-                                </p>
-                            </td>
+                            <th>
+                                Acciones
+                            </th>
                         </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @forelse($cases as $case)
+                                            <tr>
+                                                <!-- NÚMERO -->
+                                                <td>
+                                                    <span class="case-number">
+                                                        <i class="fas fa-hashtag"></i>
+                                                        {{ $case->case_number }}
+                                                    </span>
+                                                </td>
+
+                                                <!-- TEMA -->
+                                                <td>
+                                                    <span class="topic">
+                                                        @if($case->topic === 'Suicidio')
+                                                            <i class="fas fa-heart-pulse"></i>
+                                                            Suicidio
+                                                        @elseif($case->topic === 'Abuso sexual')
+                                                            <i class="fas fa-shield-heart"></i>
+                                                            Abuso sexual
+                                                        @else
+                                                            <i class="fas fa-folder"></i>
+                                                            {{ $case->topic }}
+                                                        @endif
+                                                    </span>
+                                                </td>
+
+                                                <!-- MODERADOR -->
+                                                <td>
+                                                    {{ $case->moderator
+                            ? $case->moderator->first_name
+                            . ' '
+                            . $case->moderator->last_name
+                            : 'No asignado'
+                            }}
+                                                </td>
+
+                                                <!-- FECHA -->
+                                                <td>
+                                                    {{ $case->created_at->format('d/m/Y') }}
+                                                </td>
+
+                                                <!-- ESTADO -->
+                                                <td>
+                                                    @if($case->status === 'Abierto')
+                                                        <span class="status status-open">
+                                                            <span class="status-dot"></span>
+                                                            Abierto
+                                                        </span>
+
+                                                    @elseif($case->status === 'En seguimiento')
+                                                        <span class="status status-process">
+                                                            <span class="status-dot"></span>
+                                                            En seguimiento
+                                                        </span>
+
+                                                    @elseif($case->status === 'Cerrado')
+
+                                                        <span class="status status-closed">
+                                                            <span class="status-dot"></span>
+                                                            Cerrado
+                                                        </span>
+
+                                                    @else
+
+                                                        <span class="status status-process">
+                                                            <span class="status-dot"></span>
+                                                            {{ $case->status }}
+                                                        </span>
+                                                    @endif
+                                                </td>
+
+                                                <!-- ACCIONES -->
+                                                <td>
+                                                    <div class="actions">
+
+                                                        <!-- VISUALIZAR -->
+                                                        <a href="/admin/case/{{ $case->id }}" class="action-btn view-btn"
+                                                            title="Visualizar caso">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+
+                                                        <!-- EDITAR -->
+@can('update', $case)
+    <a href="/admin/case/edit/{{ $case->id }}" class="action-btn edit-btn"
+        title="Editar caso">
+        <i class="fas fa-pen"></i>
+    </a>
+@endcan
+
+<!-- ELIMINAR -->
+@can('delete', $case)
+    <form action="/admin/case/delete/{{ $case->id }}" method="POST"
+        style="display: inline;"
+        onsubmit="return confirm('¿Está seguro de eliminar este caso?');">
+
+        @csrf
+        @method('DELETE')
+
+        <button type="submit" class="action-btn delete-btn" title="Eliminar caso">
+            <i class="fas fa-trash"></i>
+        </button>
+
+    </form>
+@endcan
+                        @empty
+                            <tr>
+                                <td colspan="6" class="empty">
+                                    <i class="fas fa-folder-open"></i>
+                                    <p>
+                                        No hay casos registrados.
+                                    </p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 </body>
+
 </html>

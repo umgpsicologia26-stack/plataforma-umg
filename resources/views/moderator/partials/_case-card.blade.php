@@ -60,10 +60,10 @@
 
             @elseif($status === 'en seguimiento')
 
-                <span class="badge badge-follow">
-                    <i class="fas fa-spinner"></i>
-                    En seguimiento
-                </span>
+            <span class="badge badge-follow">
+                <i class="fas fa-spinner"></i>
+            En seguimiento
+        </span>
 
             @elseif($status === 'cerrado')
 
@@ -263,6 +263,33 @@
 
     </div>
 
+    {{-- ÚLTIMA OBSERVACIÓN --}}
+
+@if($caseItem->comments && $caseItem->comments->count() > 0)
+
+    @php
+        $lastComment = $caseItem->comments->sortByDesc('created_at')->first();
+    @endphp
+
+    <div class="description">
+
+        <div class="description-title">
+
+            <i class="fas fa-comment-dots"></i>
+
+            Última observación
+
+        </div>
+
+        <div class="description-text">
+
+            {{ $lastComment->comment }}
+
+        </div>
+
+    </div>
+
+@endif
 
     {{-- FOOTER --}}
 

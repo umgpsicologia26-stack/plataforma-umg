@@ -16,8 +16,10 @@ class CaseFile extends Model
         'user_uuid',
         'moderator_uuid',
         'status',
-        'admin_approved'
+    ];
 
+    protected $casts = [
+        'description' => 'encrypted',
     ];
 
     public function comments()

@@ -24,12 +24,12 @@
 
 @foreach($moderators as $mod)
 <div>
-    {{ $mod->name }} - {{ $mod->email }}
+    {{ $mod->first_name }} {{ $mod->last_name }} - {{ $mod->email }}
 
-    <form method="POST" action="/moderator/{{ $mod->id }}">
+    <form method="POST" action="/moderator/{{ $mod->uuid }}">
         @csrf
         @method('DELETE')
-        <button>Eliminar</button>
+        <button type="submit">Eliminar</button>
     </form>
 </div>
 @endforeach
@@ -47,14 +47,14 @@
         @method('PUT')
 
         <select name="status">
-            <option>En seguimiento</option>
-            <option>Terminado</option>
+            <option value="Abierto">Abierto</option>
+            <option value="En seguimiento">En seguimiento</option>
+            <option value="Cerrado">Cerrado</option>
         </select>
 
         <button>Actualizar</button>
     </form>
 </div>
 @endforeach
-
 </body>
 </html>

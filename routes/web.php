@@ -428,38 +428,30 @@ Route::middleware([
             [AdminController::class, 'users']
         );
 
-        Route::get(
+        Route::patch(
             '/admin/user/{id}/activate',
             [AdminController::class, 'activateUser']
         );
 
-        Route::get(
+        Route::patch(
             '/admin/user/{id}/suspend',
             [AdminController::class, 'suspendUser']
         );
 
-        Route::get(
+        Route::delete(
             '/admin/user/{id}/delete',
             [AdminController::class, 'deleteUser']
         );
 
-        Route::get(
+        Route::patch(
             '/admin/user/{id}/restore',
             [AdminController::class, 'restoreUser']
         );
 
-        /* EDITAR USUARIOS */
-
         Route::get(
-            '/admin/edit/{id}',
-            [UserController::class, 'edit']
-        );
-
-        Route::post(
-            '/admin/update/{id}',
-            [UserController::class, 'update']
-        );
-
+            '/admin/user/{id}/profile-changes',
+            [AdminController::class, 'viewProfileChange']
+        )->name('admin.user.profile-changes');
 
         /* MODERADORES */
 
@@ -505,19 +497,19 @@ Route::middleware([
             [AdminController::class, 'editCase']
         );
 
-        Route::get(
+        Route::delete(
             '/admin/case/delete/{id}',
             [AdminController::class, 'deleteCase']
-        );
-
-        Route::get(
-            '/admin/case/{id}/approve',
-            [AdminController::class, 'approveCase']
         );
 
         Route::post(
             '/admin/case/comment/{id}',
             [AdminController::class, 'saveComment']
+        );
+
+        Route::post(
+            '/admin/case/{id}/finish',
+            [AdminController::class, 'finishCase']
         );
 
         /* REPORTES */
@@ -552,7 +544,7 @@ Route::middleware([
 
         /* ELIMINAR USUARIO */
 
-        Route::get(
+        Route::delete(
             '/admin/delete/{id}',
             [UserController::class, 'destroy']
         );

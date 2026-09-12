@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
 
     <title>Reporte de Casos - UMG Xela</title>
 
     <style>
-
         @page {
             margin: 32px 30px;
         }
@@ -111,7 +111,6 @@
             color: #94a3b8;
             font-size: 9px;
         }
-
     </style>
 </head>
 
@@ -152,7 +151,7 @@
                 <div class="summary-box">
 
                     <div class="summary-number">
-                        {{ $cases->where('status', 'ABIERTO')->count() }}
+                        {{ $cases->where('status', 'Abierto')->count() }}
                     </div>
 
                     <div class="summary-label">
@@ -168,7 +167,7 @@
                 <div class="summary-box">
 
                     <div class="summary-number">
-                        {{ $cases->where('status', 'CERRADO')->count() }}
+                        {{ $cases->where('status', 'Cerrado')->count() }}
                     </div>
 
                     <div class="summary-label">
@@ -199,59 +198,52 @@
 
             @forelse($cases as $case)
 
-                <tr>
+                    <tr>
 
-                    <td>
-                        <span class="case-number">
-                            {{ $case->case_number }}
-                        </span>
-                    </td>
+                        <td>
+                            <span class="case-number">
+                                {{ $case->case_number }}
+                            </span>
+                        </td>
 
-                    <td>
-                        @if($case->type === 'SUICIDIO')
-                            Suicidio
-                        @elseif($case->type === 'ABUSO_SEXUAL')
-                            Abuso sexual
-                        @else
-                            {{ $case->type }}
-                        @endif
-                    </td>
+                        <td>
+                            @if($case->type === 'SUICIDIO')
+                                Suicidio
+                            @elseif($case->type === 'ABUSO_SEXUAL')
+                                Abuso sexual
+                            @else
+                                {{ $case->type }}
+                            @endif
+                        </td>
 
-                    <td>
+                        <td>
 
-                        @if($case->status === 'ABIERTO')
-                            <span class="status open">Abierto</span>
+                            @if($case->status === 'Abierto')
+                                <span class="status open">Abierto</span>
 
-                        @elseif($case->status === 'EN_PROCESO')
-                            <span class="status process">En proceso</span>
+                            @elseif($case->status === 'En seguimiento')
+                                <span class="status process"> En seguimiento</span>
 
-                        @elseif($case->status === 'TERMINADO')
-                            <span class="status finished">Terminado</span>
+                            @elseif($case->status === 'Cerrado')
+                                <span class="status closed">Cerrado</span>
 
-                        @elseif($case->status === 'PENDIENTE_APROBACION')
-                            <span class="status pending">Pendiente aprobación</span>
+                            @else
+                                {{ $case->status }}
+                            @endif
+                        </td>
 
-                        @elseif($case->status === 'CERRADO')
-                            <span class="status closed">Cerrado</span>
+                        <td>
+                            {{ $case->moderator
+                ? $case->moderator->first_name . ' ' . $case->moderator->last_name
+                : 'No asignado'
+                                }}
+                        </td>
 
-                        @else
-                            {{ $case->status }}
-                        @endif
+                        <td>
+                            {{ $case->created_at->format('d/m/Y') }}
+                        </td>
 
-                    </td>
-
-                    <td>
-                        {{ $case->moderator
-                            ? $case->moderator->first_name . ' ' . $case->moderator->last_name
-                            : 'No asignado'
-                        }}
-                    </td>
-
-                    <td>
-                        {{ $case->created_at->format('d/m/Y') }}
-                    </td>
-
-                </tr>
+                    </tr>
 
             @empty
 
@@ -272,4 +264,5 @@
     </div>
 
 </body>
+
 </html>

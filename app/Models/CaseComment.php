@@ -14,6 +14,10 @@ class CaseComment extends Model
         'color'
     ];
 
+    protected $casts = [
+    'comment' => 'encrypted',
+];
+
     public function caseFile()
     {
         return $this->belongsTo(

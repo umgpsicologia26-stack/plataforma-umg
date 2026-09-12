@@ -3,14 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle del Caso | UMG</title>
 
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
         * {
@@ -22,16 +18,14 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             background:
-                linear-gradient(
-                    135deg,
+                linear-gradient(135deg,
                     #eef4ff,
-                    #f8fbff
-                );
+                    #f8fbff);
             min-height: 100vh;
             color: #1f2937;
         }
 
-    /*CONTENEDOR*/
+        /*CONTENEDOR*/
         .container {
             width: 100%;
             max-width: 900px;
@@ -39,7 +33,7 @@
             padding: 35px 20px 50px;
         }
 
-    /*BOTÓN VOLVER*/
+        /*BOTÓN VOLVER*/
         .back-button {
             display: inline-flex;
             align-items: center;
@@ -53,7 +47,7 @@
             font-size: 14px;
             font-weight: 600;
             margin-bottom: 20px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
             transition: all .2s ease;
         }
 
@@ -62,13 +56,13 @@
             transform: translateX(-2px);
         }
 
-    /*ENCABEZADO*/
+        /*ENCABEZADO*/
         .page-header {
             background: #ffffff;
             border-radius: 18px;
             padding: 25px 30px;
             margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
             border: 1px solid #e8edf5;
         }
 
@@ -102,13 +96,13 @@
             color: #2563eb;
         }
 
-    /*TARJETAS*/
+        /*TARJETAS*/
         .card {
             background: #ffffff;
             border-radius: 18px;
             padding: 30px;
             margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
             border: 1px solid #e8edf5;
         }
 
@@ -126,7 +120,7 @@
             color: #2563eb;
         }
 
-    /*INFORMACIÓN*/
+        /*INFORMACIÓN*/
         .info-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -155,7 +149,7 @@
             color: #1f2937;
         }
 
-    /*ESTADO*/
+        /*ESTADO*/
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -169,7 +163,7 @@
         }
 
 
-    /*DESCRIPCIÓN*/
+        /*DESCRIPCIÓN*/
         .description {
             padding: 18px;
             background: #f8fafc;
@@ -180,7 +174,7 @@
             white-space: pre-line;
         }
 
-    /*LÍNEA DE TIEMPO*/
+        /*LÍNEA DE TIEMPO*/
         .timeline {
             position: relative;
             padding-left: 28px;
@@ -231,7 +225,7 @@
             color: #6b7280;
         }
 
-    /*FORMULARIOS*/
+        /*FORMULARIOS*/
         textarea {
             width: 100%;
             min-height: 120px;
@@ -247,7 +241,7 @@
 
         textarea:focus {
             border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
         }
 
         select {
@@ -266,7 +260,7 @@
             border-color: #2563eb;
         }
 
-    /*BOTONES*/
+        /*BOTONES*/
         .btn {
             display: inline-flex;
             align-items: center;
@@ -302,18 +296,8 @@
             transform: translateY(-1px);
         }
 
-        .btn-approve {
-            background: #16a34a;
-            color: white;
-        }
 
-
-        .btn-approve:hover {
-            background: #15803d;
-            transform: translateY(-1px);
-        }
-
-    /*COLORES DE CORRECCIÓN*/
+        /*COLORES DE CORRECCIÓN*/
         .colors {
             display: flex;
             gap: 12px;
@@ -325,7 +309,7 @@
             height: 38px;
             border-radius: 50%;
             border: 3px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
             cursor: pointer;
         }
 
@@ -345,7 +329,7 @@
             background: #3b82f6;
         }
 
-    /*COMENTARIOS*/
+        /*COMENTARIOS*/
         .comment-card {
             background: #f8fafc;
             border: 1px solid #e5e7eb;
@@ -399,7 +383,7 @@
             color: #6b7280;
         }
 
-    /*NOTIFICACIONES*/
+        /*NOTIFICACIONES*/
         .notification {
             background: #eff6ff;
             border: 1px solid #dbeafe;
@@ -410,29 +394,14 @@
             font-size: 14px;
         }
 
-    /*APROBADO*/
-        .approved-stamp {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 15px;
-            padding: 9px 15px;
-            border-radius: 10px;
-            background: #ecfdf5;
-            color: #15803d;
-            border: 1px solid #bbf7d0;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-    /*MODAL*/
+        /*MODAL*/
         .modal {
             display: none;
             position: fixed;
             z-index: 1000;
             inset: 0;
             background:
-                rgba(15,23,42,.45);
+                rgba(15, 23, 42, .45);
         }
 
         .modal-content {
@@ -442,7 +411,7 @@
             padding: 30px;
             border-radius: 18px;
             box-shadow:
-                0 20px 50px rgba(0,0,0,.2);
+                0 20px 50px rgba(0, 0, 0, .2);
         }
 
         .close {
@@ -452,7 +421,7 @@
             color: #6b7280;
         }
 
-    /*RESPONSIVE*/
+        /*RESPONSIVE*/
         @media (max-width: 650px) {
             .container {
                 padding:
@@ -487,412 +456,341 @@
         }
     </style>
 </head>
+
 <body>
-<div class="container">
+    <div class="container">
 
-    <!--VOLVER AL PANEL-->
-    <a
-        href="{{ url('/admin-panel') }}"
-        class="back-button">
-        <i class="fas fa-arrow-left"></i>
-        Volver al panel
-    </a>
+        <!--VOLVER AL PANEL-->
+        <a href="{{ url('/admin/cases') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Volver a casos
+        </a>
 
-    <!--ENCABEZADO-->
-    <div class="page-header">
-        <div class="title-row">
-            <div>
-                <div class="title">
-                    <i class="fas fa-folder-open"></i>
-                    Detalle del caso
-                </div>
-
-                <div class="case-number">
-                    Número de caso:
-                    <strong>
-                        {{ $case->case_number }}
-                    </strong>
-                </div>
-            </div>
-
-            <div>
-                @if($case->status === 'ABIERTO')
-                    <span class="status-badge">
+        <!--ENCABEZADO-->
+        <div class="page-header">
+            <div class="title-row">
+                <div>
+                    <div class="title">
                         <i class="fas fa-folder-open"></i>
-                        Abierto
-                    </span>
+                        Detalle del caso
+                    </div>
 
-                @elseif($case->status === 'EN_PROCESO')
-                    <span class="status-badge">
-                        <i class="fas fa-spinner"></i>
-                        En proceso
-                    </span>
+                    <div class="case-number">
+                        Número de caso:
+                        <strong>
+                            {{ $case->case_number }}
+                        </strong>
+                    </div>
+                </div>
 
-                @elseif($case->status === 'TERMINADO')
-                    <span class="status-badge">
-                        <i class="fas fa-check"></i>
-                        Terminado
-                    </span>
+                <div>
+                    @if($case->status === 'Abierto')
+                        <span class="status-badge">
+                            <i class="fas fa-folder-open"></i>
+                            Abierto
+                        </span>
 
-                @elseif($case->status === 'PENDIENTE_APROBACION')
-                    <span class="status-badge">
-                        <i class="fas fa-clock"></i>
-                        Pendiente de aprobación
-                    </span>
+                    @elseif($case->status === 'En seguimiento')
+                        <span class="status-badge">
+                            <i class="fas fa-spinner"></i>
+                            En seguimiento
+                        </span>
 
-                @elseif($case->status === 'CERRADO')
-                    <span class="status-badge">
-                        <i class="fas fa-lock"></i>
-                        Cerrado
-                    </span>
+                    @elseif($case->status === 'Cerrado')
+                        <span class="status-badge">
+                            <i class="fas fa-check"></i>
+                            Cerrado
+                        </span>
 
-                @else
-                    <span class="status-badge">
-                        {{ $case->status }}
-                    </span>
-                @endif
+                    @else
+                        <span class="status-badge">
+                            {{ $case->status }}
+                        </span>
+                    @endif
+                </div>
             </div>
         </div>
-    </div>
 
-    <!--INFORMACIÓN DEL CASO-->
-    <div class="card">
-        <div class="card-title">
-            <i class="fas fa-circle-info"></i>
-            Información del caso
-        </div>
-
-        <div class="info-grid">
-            <div class="info-item">
-                <span class="info-label">
-                    Número
-                </span>
-                <span class="info-value">
-                    {{ $case->case_number }}
-                </span>
+        <!--INFORMACIÓN DEL CASO-->
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-circle-info"></i>
+                Información del caso
             </div>
 
-            <div class="info-item">
-                <span class="info-label">
-                    Tema
-                </span>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">
+                        Número
+                    </span>
+                    <span class="info-value">
+                        {{ $case->case_number }}
+                    </span>
+                </div>
 
-                <span class="info-value">
-                    @if($case->type === 'SUICIDIO')
-                        Suicidio
+                <div class="info-item">
+                    <span class="info-label">
+                        Tema
+                    </span>
+
+                    <span class="info-value">
+                        @if($case->type === 'SUICIDIO')
+                            Suicidio
 
                         @elseif($case->type === 'ABUSO_SEXUAL')
-                        Abuso sexual
-                    @else
-                        {{ $case->type }}
-                    @endif
-                </span>
-            </div>
+                            Abuso sexual
+                        @else
+                            {{ $case->type }}
+                        @endif
+                    </span>
+                </div>
 
-            <div class="info-item">
-                <span class="info-label">
-                    Prioridad
-                </span>
+                <div class="info-item">
+                    <span class="info-label">
+                        Moderador
+                    </span>
 
-                <span class="info-value">
-                    {{ $case->priority ?? 'No especificada' }}
-                </span>
-            </div>
-
-            <div class="info-item">
-                <span class="info-label">
-                    Moderador
-                </span>
-
-                <span class="info-value">
-                    {{ $case->moderator
-                        ? $case->moderator->first_name . ' ' .
-                        $case->moderator->last_name
-                        : 'No asignado'
+                    <span class="info-value">
+                        {{ $case->moderator
+    ? $case->moderator->first_name . ' ' .
+    $case->moderator->last_name
+    : 'No asignado'
                     }}
-                </span>
-            </div>
+                    </span>
+                </div>
 
-            <div class="info-item">
-                <span class="info-label">
-                    Fecha de creación
-                </span>
+                <div class="info-item">
+                    <span class="info-label">
+                        Fecha de creación
+                    </span>
 
-                <span class="info-value">
-                    {{ $case->created_at->format('d/m/Y H:i') }}
-                </span>
-            </div>
+                    <span class="info-value">
+                        {{ $case->created_at->format('d/m/Y H:i') }}
+                    </span>
+                </div>
 
-            <div class="info-item">
-                <span class="info-label">
-                    Última actualización
-                </span>
+                <div class="info-item">
+                    <span class="info-label">
+                        Última actualización
+                    </span>
 
-                <span class="info-value">
-                    {{ $case->updated_at->format('d/m/Y H:i') }}
-                </span>
-            </div>
-        </div>
-    </div>
-
-
-    <!--DESCRIPCIÓN-->
-    <div class="card">
-        <div class="card-title">
-            <i class="fas fa-align-left"></i>
-            Descripción del caso
-        </div>
-
-        <div class="description">
-            {{ $case->description }}
-        </div>
-    </div>
-
-    <!--LÍNEA DE TIEMPO-->
-    <div class="card">
-        <div class="card-title">
-            <i class="fas fa-clock"></i>
-            Línea de tiempo
-        </div>
-
-        <div class="timeline">
-            <div class="timeline-item">
-                <i class="fas fa-file-circle-plus"></i>
-                <strong>
-                    Caso creado
-                </strong>
-                <br>
-                <span class="timeline-date">
-                    {{ $case->created_at->format('d/m/Y H:i') }}
-                </span>
-            </div>
-
-            <div class="timeline-item">
-                <i class="fas fa-pen"></i>
-                <strong>
-                    Última actualización
-                </strong>
-                <br>
-                <span class="timeline-date">
-                    {{ $case->updated_at->format('d/m/Y H:i') }}
-                </span>
+                    <span class="info-value">
+                        {{ $case->updated_at->format('d/m/Y H:i') }}
+                    </span>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!--OBSERVACIONES-->
-    <div class="card">
-        <div class="card-title">
-            <i class="fas fa-comment-medical"></i>
-            Observaciones del administrador
+
+        <!--DESCRIPCIÓN-->
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-align-left"></i>
+                Descripción del caso
+            </div>
+
+            <div class="description">
+                {{ $case->description }}
+            </div>
         </div>
 
-        <form
-            action="/admin/case/comment/{{ $case->id }}"
-            method="POST">
-            @csrf
+        <!--LÍNEA DE TIEMPO-->
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-clock"></i>
+                Línea de tiempo
+            </div>
 
-            <textarea
-                name="comment"
-                placeholder="Escribir observación..."
-                required>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <i class="fas fa-file-circle-plus"></i>
+                    <strong>
+                        Caso creado
+                    </strong>
+                    <br>
+                    <span class="timeline-date">
+                        {{ $case->created_at->format('d/m/Y H:i') }}
+                    </span>
+                </div>
+
+                <div class="timeline-item">
+                    <i class="fas fa-pen"></i>
+                    <strong>
+                        Última actualización
+                    </strong>
+                    <br>
+                    <span class="timeline-date">
+                        {{ $case->updated_at->format('d/m/Y H:i') }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!--OBSERVACIONES-->
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-comment-medical"></i>
+                Observaciones del administrador
+            </div>
+
+            <form action="/admin/case/comment/{{ $case->id }}" method="POST">
+                @csrf
+
+                <textarea name="comment" placeholder="Escribir observación..." required>
         </textarea>
 
 
-            <select name="color">
-                <option value="red">
-                    Error crítico
-                </option>
+                <select name="color">
+                    <option value="red">
+                        Error crítico
+                    </option>
 
-                <option value="yellow">
-                    Revisar
-                </option>
+                    <option value="yellow">
+                        Revisar
+                    </option>
 
-                <option value="green">
-                    Correcto
-                </option>
+                    <option value="green">
+                        Correcto
+                    </option>
 
-                <option value="blue">
-                    Observación
-                </option>
+                    <option value="blue">
+                        Observación
+                    </option>
 
-            </select>
+                </select>
 
-            <button
-                class="btn btn-save"
-                type="submit">
+                <button class="btn btn-save" type="submit">
 
-                <i class="fas fa-save"></i>
-                Guardar observación
-            </button>
-        </form>
-    </div>
-
-    <!--CORRECCIÓN-->
-    <div class="card">
-        <div class="card-title">
-            <i class="fas fa-clipboard-check"></i>
-            Corrección del moderador
+                    <i class="fas fa-save"></i>
+                    Guardar observación
+                </button>
+            </form>
         </div>
 
-        <div class="colors">
-            <button
-                type="button"
-                class="color red"
-                title="Error">
-        </button>
+        <!--CORRECCIÓN-->
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-clipboard-check"></i>
+                Corrección del moderador
+            </div>
 
-            <button
-                type="button"
-                class="color yellow"
-                title="Revisar">
-        </button>
+            <div class="colors">
+                <button type="button" class="color red" title="Error">
+                </button>
 
-            <button
-                type="button"
-                class="color green"
-                title="Correcto">
-        </button>
+                <button type="button" class="color yellow" title="Revisar">
+                </button>
 
-            <button
-                type="button"
-                class="color blue"
-                title="Información">
-        </button>
+                <button type="button" class="color green" title="Correcto">
+                </button>
 
-        </div>
-        <a
-            href="/admin/case/{{ $case->id }}/finish"
-            class="btn btn-finish">
+                <button type="button" class="color blue" title="Información">
+                </button>
+
+            </div>
+            @can('update', $case)
+    <form action="/admin/case/{{ $case->id }}/finish" method="POST" style="display: inline;">
+        @csrf
+        <button type="submit" class="btn btn-finish">
             <i class="fas fa-check"></i>
-            Marcar como terminado
-        </a>
-    </div>
-
-    <!--HISTORIAL-->
-    <div class="card">
-        <div class="card-title">
-            <i class="fas fa-history"></i>
-            Historial de correcciones
+            Marcar como cerrado
+        </button>
+    </form>
+@endcan
         </div>
 
-        @forelse($comments as $comment)
-            <div class="comment-card">
-                <div class="comment-top">
-                    <span
-                        class="badge {{ $comment->color }}"
-                    ></span>
+        <!--HISTORIAL-->
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-history"></i>
+                Historial de correcciones
+            </div>
 
-                    <strong>
-                        {{ $comment->user->first_name
-                            ?? 'Administrador'
-                        }}
-                    </strong>
+            @forelse($comments as $comment)
+                        <div class="comment-card">
+                            <div class="comment-top">
+                                <span class="badge {{ $comment->color }}"></span>
+
+                                <strong>
+                                    {{ $comment->user->first_name
+                    ?? 'Administrador'
+                                    }}
+                                </strong>
+                            </div>
+
+                            <p>
+                                {{ $comment->comment }}
+                            </p>
+
+                            <small>
+                                {{ $comment->created_at->format(
+                    'd/m/Y H:i'
+                ) }}
+                            </small>
+
+                        </div>
+            @empty
+                <p style="color:#6b7280;">
+                    No hay correcciones registradas.
+                </p>
+            @endforelse
+        </div>
+
+        <!--NOTIFICACIONES-->
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-bell"></i>
+                Notificaciones
+            </div>
+
+            @forelse($notifications as $notification)
+                <div class="notification">
+                    <i class="fas fa-circle-info"></i>
+                    {{ $notification->message }}
                 </div>
 
-                <p>
-                    {{ $comment->comment }}
-                </p>
-
-                <small>
-                    {{ $comment->created_at->format(
-                        'd/m/Y H:i'
-                    ) }}
-                </small>
-
-            </div>
-        @empty
-            <p style="color:#6b7280;">
-                No hay correcciones registradas.
-            </p>
-        @endforelse
-    </div>
-
-    <!--NOTIFICACIONES-->
-    <div class="card">
-        <div class="card-title">
-            <i class="fas fa-bell"></i>
-            Notificaciones
-        </div>
-
-        @forelse($notifications as $notification)
-            <div class="notification">
-                <i class="fas fa-circle-info"></i>
-                {{ $notification->message }}
-            </div>
-
             @empty
-            <p style="color:#6b7280;">
-                No hay notificaciones.
-            </p>
-        @endforelse
-    </div>
-
-    <!--APROBACIÓN-->
-    <div class="card">
-        <div class="card-title">
-            <i class="fas fa-shield-check"></i>
-            Confirmación administrativa
+                <p style="color:#6b7280;">
+                    No hay notificaciones.
+                </p>
+            @endforelse
         </div>
-
-        @if(!$case->admin_approved)
-            <a
-                href="/admin/case/{{ $case->id }}/approve"
-                class="btn btn-approve">
-
-                <i class="fas fa-check"></i>
-                Confirmar caso
-            </a>
-        @else
-
-        <div class="approved-stamp">
-                <i class="fas fa-circle-check"></i>
-                CASO APROBADO
-            </div>
-        @endif
-    </div>
-</div>
 
     <!--MODAL-->
-<div
-    id="reviewModal"
-    class="modal">
+    <div id="reviewModal" class="modal">
 
-    <div class="modal-content">
-        <span
-            class="close"
-            onclick="closeModal()">
-            &times;
-        </span>
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">
+                &times;
+            </span>
 
-        <h2>
-            Revisión del caso
-        </h2>
+            <h2>
+                Revisión del caso
+            </h2>
 
-        <br>
-        <p>
-            Revise cuidadosamente la información
-            antes de aprobar el caso.
-        </p>
+            <br>
+            <p>
+                Revise cuidadosamente la información
+                antes de aprobar el caso.
+            </p>
+        </div>
     </div>
-</div>
 
-<script>
-function openModal()
-{
-    document
-        .getElementById('reviewModal')
-        .style.display = 'block';
-}
+    <script>
+        function openModal() {
+            document
+                .getElementById('reviewModal')
+                .style.display = 'block';
+        }
 
 
-function closeModal()
-{
-    document
-        .getElementById('reviewModal')
-        .style.display = 'none';
-}
+        function closeModal() {
+            document
+                .getElementById('reviewModal')
+                .style.display = 'none';
+        }
 
-</script>
+    </script>
 </body>
+
 </html>
