@@ -118,7 +118,6 @@ class AuthController extends Controller
             );
     }
 
-
 public function login(Request $request)
 {
     /*
@@ -137,7 +136,6 @@ public function login(Request $request)
 
     ]);
 
-
     /*
      * Clave utilizada para controlar
      * intentos fallidos.
@@ -146,7 +144,6 @@ public function login(Request $request)
     $key = Str::lower(
         $request->email . '|' . $request->ip()
     );
-
 
     /*
      * Máximo 3 intentos.
@@ -165,24 +162,25 @@ public function login(Request $request)
             );
     }
 
-
-    //Buscar usuario
+    /*
+     * Buscar usuario
+     */
     $user = User::where(
         'email',
         $request->email
     )->first();
 
-
-    //Verificar credenciales
+    /*
+     * Verificar credenciales
+     */
     if (
         !$user ||
         !Hash::check(
             $request->password,
             $user->password_hash
         )
-    ) 
-    
-    {
+    ) {
+
         RateLimiter::hit(
             $key,
             300
@@ -198,9 +196,10 @@ public function login(Request $request)
         );
     }
 
-
-    //Verificar estado de la cuenta
-        if ($user->status !== 'Activo') {
+    /*
+     * Verificar estado de la cuenta
+     */
+    if ($user->status !== 'Activo') {
 
         return back()->with(
             'error',
@@ -208,11 +207,71 @@ public function login(Request $request)
         );
     }
 
-
-    //Login correcto
+    /*
+     * Credenciales correctas.
+     */
     RateLimiter::clear($key);
-    Auth::login($user);
 
+    /*
+     * ADMIN y MODERATOR requieren
+     * un segundo factor antes de
+     * crear la sesión autenticada.
+     */
+    if (in_array($user->role, ['ADMIN', 'MODERATOR'])) {
+
+        /*
+         * Regenerar la sesión antes de
+         * almacenar el estado temporal.
+         */
+        $request->session()->regenerate();
+
+        /*
+         * Guardar únicamente el UUID del usuario
+         * que está pendiente de completar 2FA.
+         *
+         * No se crea todavía una sesión Laravel
+         * autenticada.
+         */
+        $request->session()->put(
+            '2fa_pending_user_uuid',
+            $user->uuid
+        );
+
+        /*
+         * Limpiar cualquier verificación administrativa
+         * anterior.
+         */
+        $request->session()->forget([
+            'admin_verified',
+            'admin_verified_user'
+        ]);
+
+        /*
+         * Si todavía no tiene 2FA configurado,
+         * debe realizar la configuración inicial.
+         */
+        if (!$user->google2fa_enabled) {
+
+            return redirect()->route(
+                'two-factor.setup'
+            );
+        }
+
+        /*
+         * Si ya tiene 2FA configurado,
+         * solicitar el código TOTP.
+         */
+        return redirect()->route(
+            'two-factor.verify'
+        );
+    }
+
+    /*
+     * Usuario normal.
+     *
+     * USER no utiliza 2FA.
+     */
+    Auth::login($user);
 
     /*
      * Regenerar sesión para evitar
@@ -220,36 +279,19 @@ public function login(Request $request)
      */
     $request->session()->regenerate();
 
-
     /*
      * Eliminar cualquier verificación
      * administrativa anterior.
      */
     $request->session()->forget([
         'admin_verified',
-        'admin_verified_user'
+        'admin_verified_user',
+        '2fa_pending_user_uuid'
     ]);
 
-
-    /*
-     * MODERADOR NUEVO
-     * Si el administrador creó esta cuenta
-     * y todavía no ha cambiado la contraseña,
-     * debe hacerlo antes de continuar.
-     */
-    if (
-        $user->role === 'MODERATOR' &&
-        $user->must_change_password
-    ) 
-
-    {
-        return redirect('/change-password');
-    }
-
-
-    //Usuario normal, psicólogo o administrador.
-        return redirect('/dashboard');
+    return redirect('/dashboard');
 }
+
     //LOGOUT
 
     public function logout(Request $request)

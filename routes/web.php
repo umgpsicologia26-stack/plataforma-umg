@@ -13,7 +13,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EvaluacionController;
-
+use App\Http\Controllers\TwoFactorController;
 
     /* HOME */
 
@@ -53,6 +53,35 @@ Route::post(
     [AuthController::class, 'googleLogin']
 )->name('google.login');
 
+    /* Autenticación de dos factores */
+
+Route::middleware('guest')->group(function () {
+
+    Route::get('/two-factor/setup', [
+        TwoFactorController::class,
+        'showSetup'
+    ])->name('two-factor.setup');
+
+    Route::post('/two-factor/enable', [
+        TwoFactorController::class,
+        'enable'
+    ])->name('two-factor.enable');
+
+    Route::get('/two-factor/verify', [
+        TwoFactorController::class,
+        'showVerify'
+    ])->name('two-factor.verify');
+
+    Route::post('/two-factor/verify', [
+        TwoFactorController::class,
+        'verify'
+    ])->name('two-factor.verify.submit');
+
+    Route::get('/two-factor/cancel', [
+        TwoFactorController::class,
+        'cancel'
+    ])->name('two-factor.cancel');
+});
 
     /* RECUPERACIÓN DE CONTRASEÑA */
 

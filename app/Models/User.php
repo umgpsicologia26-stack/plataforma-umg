@@ -33,7 +33,9 @@ class User extends Authenticatable
         'profile_image',
         'status',
         'role',
-        'must_change_password',     
+        'must_change_password',
+        'google2fa_secret',
+        'google2fa_enabled',     
     ];
 
     protected $hidden = ['password_hash'];
@@ -42,7 +44,9 @@ class User extends Authenticatable
         'birth_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime'
+        'deleted_at' => 'datetime',
+        'google2fa_secret' => 'encrypted',
+        'google2fa_enabled' => 'boolean',
     ];
 
     public function getAuthPassword()
