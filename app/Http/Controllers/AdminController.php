@@ -1,7 +1,6 @@
 <?php 
- 
 namespace App\Http\Controllers; 
- 
+
 use Illuminate\Http\Request; 
 use App\Models\User; 
 use App\Models\CaseFile; 
@@ -9,7 +8,9 @@ use App\Models\SystemSetting;
 use App\Models\AdminNotification; 
 use App\Models\CaseComment; 
 use App\Models\AuditLog; 
+use App\Exports\ReporteCasosExport;
 use Barryvdh\DomPDF\Facade\Pdf; 
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Str; 
 use Illuminate\Support\Facades\Hash; 
 use Illuminate\Support\Facades\Auth; 
@@ -462,79 +463,28 @@ public function updateCase(
         ); 
     } 
 
-    // EXPORTAR EXCEL 
-    public function exportExcel() 
-    { 
-        $cases = CaseFile::with([ 
-            'user', 
-            'moderator' 
-        ]) 
-        ->latest() 
-        ->get(); 
+    // EXPORTAR EXCEL
+public function exportExcel(Request $request)
+{
+    $request->validate([
+        'from' => 'nullable|date',
+        'to'   => 'nullable|date|after_or_equal:from',
+    ]);
 
-        return response()->streamDownload( 
-            function () use ($cases) { 
+    $cases = CaseFile::with('moderator')
+        ->when($request->from, fn ($q, $f) => $q->whereDate('created_at', '>=', $f))
+        ->when($request->to,   fn ($q, $t) => $q->whereDate('created_at', '<=', $t))
+        ->latest()
+        ->get();
 
-                $handle = fopen( 
-                    'php://output', 
-                    'w' 
-                ); 
+    $spreadsheet = (new ReporteCasosExport($cases))->build();
 
-                // Permite que Excel reconozca correctamente los caracteres UTF-8 
-
-                fprintf( 
-                    $handle, 
-                    chr(0xEF) . 
-                    chr(0xBB) . 
-                    chr(0xBF) 
-                ); 
-
-                // ENCABEZADOS 
-
-                fputcsv($handle, [ 
-                    'Número de Caso', 
-                    'Tipo', 
-                    'Descripción', 
-                    'Estado', 
-                    'Usuario', 
-                    'Moderador', 
-                    'Fecha' 
-                ]); 
-
-                // DATOS 
-                foreach ($cases as $case) { 
-
-                    fputcsv($handle, [ 
-                        $case->case_number, 
-                        $case->type, 
-                        $case->description, 
-                        $case->status, 
-
-                        $case->user 
-                            ? $case->user->full_name 
-                            : 'No asignado', 
-
-                        $case->moderator 
-                            ? $case->moderator->full_name 
-                            : 'No asignado', 
-
-                        $case->created_at 
-                            ? $case->created_at->format( 
-                                'd/m/Y H:i' 
-                            ) 
-                            : '' 
-                    ]); 
-                } 
-
-                fclose($handle); 
-            }, 
-            'reporte_casos.csv', 
-            [ 
-                'Content-Type' => 
-                    'text/csv; charset=UTF-8', 
-            ] 
-        ); 
-    } 
+    return response()->streamDownload(function () use ($spreadsheet) {
+        (new Xlsx($spreadsheet))->save('php://output');
+    }, 'reporte-casos-' . now()->format('Y-m-d_His') . '.xlsx', [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ]);
+}
 
     // USUARIOS 
     public function users() 
