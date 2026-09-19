@@ -487,20 +487,34 @@ public function exportExcel(Request $request)
 }
 
     // USUARIOS 
-    public function users() 
-    { 
-        $users = User::where( 
-            'role', 
-            'USER' 
-        ) 
-        ->latest() 
-        ->get(); 
+// USUARIOS  
+public function users()  
+{  
+    // USUARIOS REGISTRADOS  
+    $users = User::where(  
+        'role',  
+        'USER'  
+    )  
+    ->latest()  
+    ->get();  
 
-        return view( 
-            'admin.users', 
-            compact('users') 
-        ); 
-    } 
+    // USUARIOS ELIMINADOS  
+    $deletedUsers = User::onlyTrashed()  
+        ->where(  
+            'role',  
+            'USER'  
+        )  
+        ->latest('deleted_at')  
+        ->get();  
+
+    return view(  
+        'admin.users',  
+        compact(  
+            'users',  
+            'deletedUsers'  
+        )  
+    );  
+}
 
     // VER ÚLTIMO CAMBIO DE PERFIL 
 public function viewProfileChange($id) 
@@ -586,6 +600,47 @@ public function viewProfileChange($id)
             'Usuario restaurado correctamente' 
         ); 
     } 
+    // RESTAURAR USUARIOS SELECCIONADOS  
+public function restoreUsers(Request $request)  
+{  
+    $request->validate([  
+        'users' => [  
+            'required',  
+            'array',  
+            'min:1'  
+        ],  
+        'users.*' => [  
+            'required',  
+            'string'  
+        ],  
+    ]);  
+
+    $userUuids = $request->input('users');  
+
+    $users = User::onlyTrashed()  
+        ->where(  
+            'role',  
+            'USER'  
+        )  
+        ->whereIn(  
+            'uuid',  
+            $userUuids  
+        )  
+        ->get();  
+
+    foreach ($users as $user) {  
+        $user->restore();  
+        $user->status = 'Activo';  
+        $user->save();  
+    }  
+
+    return back()->with(  
+        'success',  
+        $users->count() === 1  
+            ? 'Usuario restaurado correctamente'  
+            : 'Usuarios restaurados correctamente'  
+    );  
+}
 
     // CONFIGURACIÓN 
     public function configuration() 

@@ -504,6 +504,83 @@ margin-bottom: 20px;
     font-size:16px;
 }
 
+    /* VENTANA DE AVISO CELULAR */
+
+.phone-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.phone-modal.show {
+    display: flex;
+}
+
+.phone-modal-box {
+    width: 340px;
+    max-width: 90%;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 25px 22px;
+    text-align: center;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+    animation: phoneModalAppear 0.2s ease;
+}
+
+.phone-modal-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e8f7f5;
+    color: #159a91;
+    font-size: 21px;
+}
+
+.phone-modal-box h3 {
+    margin: 5px 0 10px;
+    font-size: 19px;
+}
+
+.phone-modal-box p {
+    margin: 0 0 20px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.phone-modal-box button {
+    border: none;
+    border-radius: 8px;
+    padding: 9px 25px;
+    cursor: pointer;
+    font-size: 14px;
+    background: #159a91;
+    color: white;
+}
+
+.phone-modal-box button:hover {
+    opacity: 0.9;
+}
+
+@keyframes phoneModalAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
     /*LOGIN RESPONSIVE PARA CELULARES*/
 @media (max-width: 700px){
     body{
@@ -594,5 +671,4 @@ margin-bottom: 20px;
         min-height:50px;
         font-size:15px;
     }
-
 }

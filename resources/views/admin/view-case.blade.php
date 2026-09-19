@@ -667,38 +667,6 @@
             </form>
         </div>
 
-        <!--CORRECCIÓN-->
-        <div class="card">
-            <div class="card-title">
-                <i class="fas fa-clipboard-check"></i>
-                Corrección del moderador
-            </div>
-
-            <div class="colors">
-                <button type="button" class="color red" title="Error">
-                </button>
-
-                <button type="button" class="color yellow" title="Revisar">
-                </button>
-
-                <button type="button" class="color green" title="Correcto">
-                </button>
-
-                <button type="button" class="color blue" title="Información">
-                </button>
-
-            </div>
-            @can('update', $case)
-    <form action="/admin/case/{{ $case->id }}/finish" method="POST" style="display: inline;">
-        @csrf
-        <button type="submit" class="btn btn-finish">
-            <i class="fas fa-check"></i>
-            Marcar como cerrado
-        </button>
-    </form>
-@endcan
-        </div>
-
         <!--HISTORIAL-->
         <div class="card">
             <div class="card-title">

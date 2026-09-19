@@ -163,22 +163,27 @@
                 </div>
 
                 <div class="input-field">
-                    <label for="register_phone">Celular</label>
-                    <input type="text"
-                        name="phone"
-                        id="register_phone"
-                        autocomplete="tel"
-                        required>                   
-                </div>
+    <label for="register_phone">Celular</label>
+    <input type="text"
+        name="phone"
+        id="register_phone"
+        autocomplete="tel"
+        inputmode="tel"
+        maxlength="20"
+        required>
+</div>
 
                 <div class="input-field">
-                    <label for="register_email">Correo</label>
-                    <input type="email"
-                        name="email"
-                        id="register_email"
-                        autocomplete="email"
-                        required>
-                </div>
+    <label for="register_email">Correo</label>
+    <input type="email"
+        name="email"
+        id="register_email"
+        autocomplete="email"
+        required>
+    <small id="emailError" style="display:none;">
+        Ingresa un correo válido. Ejemplo: juanperez03@gmail.com
+    </small>
+</div>
 
                 <div class="input-field">
                     <label for="register_password">Contraseña</label>
@@ -210,147 +215,685 @@
     </div>
     </div>
 
+<!-- VENTANA DE AVISO CELULAR -->
+
+<div
+    id="phoneModal"
+    class="phone-modal">
+
+    <div class="phone-modal-box">
+
+        <div class="phone-modal-icon">
+
+            <i class="fas fa-mobile-alt"></i>
+
+        </div>
+
+
+        <h3>
+            Celular no válido
+        </h3>
+
+
+        <p>
+
+            El celular solo puede contener
+            números, espacios y el signo +.
+            No se permiten letras ni guiones.
+
+            <br><br>
+
+            Ejemplo:
+
+            <br>
+
+            <strong>
+                +502 57896578
+            </strong>
+
+            o
+
+            <strong>
+                57896578
+            </strong>
+
+        </p>
+
+
+        <button
+            type="button"
+            id="phoneModalAccept">
+
+            Aceptar
+
+        </button>
+
+    </div>
+
+</div>
+
+<!-- VENTANA DE AVISO CORREO -->
+<div id="emailModal" class="phone-modal">
+
+    <div class="phone-modal-box">
+
+        <div class="phone-modal-icon">
+            <i class="fas fa-envelope"></i>
+        </div>
+
+        <h3>Correo no válido</h3>
+
+        <p id="emailModalMessage">
+            Ingresa un correo válido.
+            <br>
+            Ejemplo:
+            <strong>juanperez03@gmail.com</strong>
+        </p>
+
+        <button type="button" id="emailModalAccept">
+            Aceptar
+        </button>
+
+    </div>
+
+</div>
+
     <!-- FIREBASE -->
         <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script> 
-    <script> 
-        const firebaseConfig = { 
-    apiKey: "AIzaSyCtmqJGlHhehKOAmWrfEpuxB5gFhW1Bw10", 
-    authDomain: "plataformaumg.firebaseapp.com", 
-    projectId: "plataformaumg", 
-    storageBucket: "plataformaumg.firebasestorage.app", 
-    messagingSenderId: "2360835961", 
-    appId: "1:2360835961:web:7c57c82f0028bf9621b9a8" 
-}; 
- 
-firebase.initializeApp(firebaseConfig); 
- 
-    /*GOOGLE LOGIN*/ 
-async function googleLogin() { 
- 
-    const provider = 
-        new firebase.auth.GoogleAuthProvider(); 
- 
-    provider.setCustomParameters({ 
-        prompt: 'select_account' 
-    }); 
- 
-    try { 
- 
-        /* 
-         * Abrir ventana de Google. 
-         */ 
-        const result = 
-            await firebase 
-                .auth() 
-                .signInWithPopup(provider); 
- 
-        /* 
-         * Obtener usuario autenticado. 
-         */ 
-        const user = 
-            result.user; 
- 
-        /* 
-         * Obtener ID Token de Firebase. 
-         */ 
-        const idToken = 
-            await user.getIdToken(); 
- 
-        /* 
-         * Enviar el token a Laravel. 
-         */ 
-        const response = 
-            await fetch( 
-                '{{ route("google.login") }}', 
-                { 
-                    method: 'POST', 
- 
-                    headers: { 
-                        'Content-Type': 
-                            'application/json', 
- 
-                        'Accept': 
-                            'application/json', 
- 
-                        'X-CSRF-TOKEN': 
-                            document 
-                                .querySelector( 
-                                    'meta[name="csrf-token"]' 
-                                ) 
-                                .getAttribute('content') 
-                    }, 
- 
-                    body: JSON.stringify({ 
-                        idToken: idToken 
-                    }) 
-                } 
-            ); 
- 
-        const data = 
-            await response.json(); 
- 
-        /* 
-         * Si Laravel rechazó el inicio 
-         * de sesión. 
-         */ 
-        if (!response.ok) { 
- 
-            throw new Error( 
-                data.message || 
-                'No fue posible iniciar sesión con Google.' 
-            ); 
-        } 
- 
-        /* 
-         * Laravel creó correctamente 
-         * la sesión. 
-         */ 
-        if (data.success) { 
- 
-            window.location.href = 
-                data.redirect; 
-        } 
- 
-    } catch (error) { 
- 
-        console.error( 
-            'Error en inicio de sesión con Google:', 
-            error 
-        ); 
- 
-        alert( 
-            error.message || 
-            'No fue posible iniciar sesión con Google.' 
-        ); 
-    } 
-} 
-    /*MOSTRAR REGISTRO*/ 
-function toggleRegisterForm(){ 
-    const login = 
-        document.getElementById( 
-            'loginContainer' 
-        ); 
-    const register = 
-        document.getElementById( 
-            'registerForm' 
-        ); 
-    login.style.display = 'none'; 
-    register.style.display = 'block'; 
-} 
-    /*REGRESAR LOGIN*/ 
-function backToLogin(){ 
-    const register = 
-        document.getElementById( 
-            'registerForm' 
-        ); 
-    const login = 
-        document.getElementById( 
-            'loginContainer' 
-        ); 
-    register.style.display = 'none'; 
-    login.style.display = 'block'; 
-} 
-    </script> 
-        </body> 
-    </html>
+        <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>  
+    <script>  
+        const firebaseConfig = {  
+    apiKey: "AIzaSyCtmqJGlHhehKOAmWrfEpuxB5gFhW1Bw10",  
+    authDomain: "plataformaumg.firebaseapp.com",  
+    projectId: "plataformaumg",  
+    storageBucket: "plataformaumg.firebasestorage.app",  
+    messagingSenderId: "2360835961",  
+    appId: "1:2360835961:web:7c57c82f0028bf9621b9a8"  
+};  
+
+firebase.initializeApp(firebaseConfig);  
+
+    /*GOOGLE LOGIN*/  
+async function googleLogin() {  
+
+    const provider =  
+        new firebase.auth.GoogleAuthProvider();  
+
+    provider.setCustomParameters({  
+        prompt: 'select_account'  
+    });  
+
+    try {  
+
+        const result =  
+            await firebase  
+                .auth()  
+                .signInWithPopup(provider);  
+
+        const user =  
+            result.user;  
+
+        const idToken =  
+            await user.getIdToken();   
+        const response =  
+            await fetch(  
+                '{{ route("google.login") }}',  
+                {  
+                    method: 'POST',  
+
+                    headers: {  
+                        'Content-Type':  
+                            'application/json',  
+
+                        'Accept':  
+                            'application/json',  
+
+                        'X-CSRF-TOKEN':  
+                            document  
+                                .querySelector(  
+                                    'meta[name="csrf-token"]'  
+                                )  
+                                .getAttribute('content')  
+                    },  
+
+                    body: JSON.stringify({  
+                        idToken: idToken  
+                    })  
+                }  
+            );  
+
+        const data =  
+            await response.json();  
+
+        if (!response.ok) {  
+
+            throw new Error(  
+                data.message ||  
+                'No fue posible iniciar sesión con Google.'  
+            );  
+        }  
+
+        if (data.success) {  
+
+            window.location.href =  
+                data.redirect;  
+        }  
+
+    } catch (error) {  
+
+        console.error(  
+            'Error en inicio de sesión con Google:',  
+            error  
+        );  
+
+        alert(  
+            error.message ||  
+            'No fue posible iniciar sesión con Google.'  
+        );  
+    }  
+}  
+
+    /*MOSTRAR REGISTRO*/  
+function toggleRegisterForm(){  
+    const login =  
+        document.getElementById(  
+            'loginContainer'  
+        );  
+    const register =  
+        document.getElementById(  
+            'registerForm'  
+        );  
+    login.style.display = 'none';  
+    register.style.display = 'block';  
+}  
+
+    /*REGRESAR LOGIN*/  
+function backToLogin(){  
+    const register =  
+        document.getElementById(  
+            'registerForm'  
+        );  
+    const login =  
+        document.getElementById(  
+            'loginContainer'  
+        );  
+    register.style.display = 'none';  
+    login.style.display = 'block';  
+}
+
+/* ========================= */
+/* VALIDACIONES */
+/* ========================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const registerForm =
+            document.getElementById("registerForm");
+
+        const phoneInput =
+            document.getElementById("register_phone");
+
+        const emailInput =
+            document.getElementById("register_email");
+
+        const phoneModal =
+            document.getElementById("phoneModal");
+
+        const phoneModalAccept =
+            document.getElementById("phoneModalAccept");
+
+        const emailModal =
+            document.getElementById("emailModal");
+
+        const emailModalAccept =
+            document.getElementById("emailModalAccept");
+
+        const emailModalMessage =
+            document.getElementById("emailModalMessage");
+
+
+        /* ========================= */
+        /* CERRAR VENTANA CELULAR */
+        /* ========================= */
+
+        if (phoneModalAccept) {
+
+            phoneModalAccept.addEventListener(
+                "click",
+                function () {
+
+                    phoneModal.classList.remove("show");
+
+                    if (phoneInput) {
+                        phoneInput.focus();
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* ========================= */
+        /* CERRAR VENTANA CORREO */
+        /* ========================= */
+
+        if (emailModalAccept) {
+
+            emailModalAccept.addEventListener(
+                "click",
+                function () {
+
+                    emailModal.classList.remove("show");
+
+                    if (emailInput) {
+                        emailInput.focus();
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* ========================= */
+        /* CELULAR - BLOQUEO */
+        /* ========================= */
+
+        if (phoneInput) {
+
+            phoneInput.addEventListener(
+                "beforeinput",
+                function (event) {
+
+                    if (
+                        event.inputType === "insertText" &&
+                        event.data
+                    ) {
+
+                        const texto = event.data;
+
+                        /*
+                         * Solo números,
+                         * espacios y signo +.
+                         */
+
+                        if (!/^[0-9+ ]+$/.test(texto)) {
+
+                            event.preventDefault();
+
+                            phoneModal.classList.add("show");
+
+                            return;
+                        }
+
+
+                        /*
+                         * El signo + solamente
+                         * puede estar al inicio.
+                         */
+
+                        if (
+                            texto.includes("+") &&
+                            this.value.length > 0
+                        ) {
+
+                            event.preventDefault();
+
+                            phoneModal.classList.add("show");
+
+                            return;
+                        }
+
+                    }
+
+                }
+            );
+
+
+            /* ========================= */
+            /* LIMPIEZA DEL CELULAR */
+            /* ========================= */
+
+            phoneInput.addEventListener(
+                "input",
+                function () {
+
+                    let value = this.value;
+
+
+                    /*
+                     * Detectar caracteres inválidos.
+                     */
+
+                    if (/[^0-9+ ]/.test(value)) {
+
+                        phoneModal.classList.add("show");
+
+                    }
+
+
+                    /*
+                     * Eliminar letras,
+                     * guiones y otros símbolos.
+                     */
+
+                    value = value.replace(
+                        /[^0-9+ ]/g,
+                        ""
+                    );
+
+
+                    /*
+                     * Si existe +,
+                     * dejar solamente uno.
+                     */
+
+                    if (value.includes("+")) {
+
+                        const numbers =
+                            value.replace(/\+/g, "");
+
+                        value = "+" + numbers;
+
+                    }
+
+
+                    /*
+                     * El + siempre debe
+                     * quedar al inicio.
+                     */
+
+                    if (
+                        value.includes("+") &&
+                        !value.startsWith("+")
+                    ) {
+
+                        value =
+                            "+" +
+                            value.replace(/\+/g, "");
+
+                    }
+
+
+                    this.value = value;
+
+                }
+            );
+
+        }
+
+
+        /* ========================= */
+        /* VALIDACIÓN AL ENVIAR */
+        /* ========================= */
+
+        if (registerForm) {
+
+            registerForm.addEventListener(
+                "submit",
+                function (event) {
+
+
+                    /* ========================= */
+                    /* CELULAR */
+                    /* ========================= */
+
+                    const phone =
+                        phoneInput.value.trim();
+
+
+                    /*
+                     * CELULAR VACÍO
+                     */
+
+                    if (phone === "") {
+
+                        event.preventDefault();
+
+                        phoneModal.classList.add("show");
+
+                        phoneInput.focus();
+
+                        return;
+                    }
+
+
+                    /*
+                     * Solo +, números y espacios.
+                     */
+
+                    if (
+                        !/^\+?[0-9 ]+$/.test(phone)
+                    ) {
+
+                        event.preventDefault();
+
+                        phoneModal.classList.add("show");
+
+                        phoneInput.focus();
+
+                        return;
+                    }
+
+
+                    /*
+                     * El + solamente puede
+                     * estar al inicio.
+                     */
+
+                    if (
+                        phone.includes("+") &&
+                        !phone.startsWith("+")
+                    ) {
+
+                        event.preventDefault();
+
+                        phoneModal.classList.add("show");
+
+                        phoneInput.focus();
+
+                        return;
+                    }
+
+
+                    /* ========================= */
+                    /* CORREO */
+                    /* ========================= */
+
+                    const email =
+                        emailInput.value.trim();
+
+
+                    /*
+                     * CORREO VACÍO
+                     */
+
+                    if (email === "") {
+
+                        event.preventDefault();
+
+                        emailModalMessage.textContent =
+                            "Ingresa un correo válido. Ejemplo: majoreyna432@gmail.com.";
+
+                        emailModal.classList.add("show");
+
+                        emailInput.focus();
+
+                        return;
+                    }
+
+
+                    /*
+                     * CONTAR @
+                     */
+
+                    const atCount =
+                        (
+                            email.match(/@/g) || []
+                        ).length;
+
+
+                    /*
+                     * FALTA @
+                     */
+
+                    if (atCount === 0) {
+
+                        event.preventDefault();
+
+                        emailModalMessage.textContent =
+                            "Error en correo: falta @. Ejemplo: majoreyna432@gmail.com.";
+
+                        emailModal.classList.add("show");
+
+                        emailInput.focus();
+
+                        return;
+                    }
+
+
+                    /*
+                     * MÁS DE UNA @
+                     */
+
+                    if (atCount !== 1) {
+
+                        event.preventDefault();
+
+                        emailModalMessage.textContent =
+                            "El correo debe contener solamente una @. Ejemplo: majoreyna432@gmail.com.";
+
+                        emailModal.classList.add("show");
+
+                        emailInput.focus();
+
+                        return;
+                    }
+
+
+                    /*
+                     * SEPARAR USUARIO Y DOMINIO
+                     */
+
+                    const parts =
+                        email.split("@");
+
+                    const username =
+                        parts[0];
+
+                    const domain =
+                        parts[1];
+
+
+                    /*
+                     * ANTES DE @
+                     *
+                     * Solo letras y números.
+                     */
+
+                    if (
+                        !/^[A-Za-z0-9]+$/.test(username)
+                    ) {
+
+                        event.preventDefault();
+
+                        emailModalMessage.textContent =
+                            "Antes de @ solo se permiten letras y números. Ejemplo: majoreyna432@gmail.com.";
+
+                        emailModal.classList.add("show");
+
+                        emailInput.focus();
+
+                        return;
+                    }
+
+
+                    /*
+                     * DOMINIO VACÍO
+                     */
+
+                    if (!domain) {
+
+                        event.preventDefault();
+
+                        emailModalMessage.textContent =
+                            "Error en correo: falta el dominio. Ejemplo: majoreyna432@gmail.com.";
+
+                        emailModal.classList.add("show");
+
+                        emailInput.focus();
+
+                        return;
+                    }
+
+
+                    /*
+                     * NO PERMITIR NÚMEROS
+                     * DESPUÉS DE @
+                     */
+
+                    if (/[0-9]/.test(domain)) {
+
+                        event.preventDefault();
+
+                        emailModalMessage.textContent =
+                            "Después de @ no se permiten números. Ejemplo: majoreyna432@gmail.com.";
+
+                        emailModal.classList.add("show");
+
+                        emailInput.focus();
+
+                        return;
+                    }
+
+
+                    /*
+                     * DOMINIO VÁLIDO
+                     *
+                     * Ejemplos:
+                     * gmail.com
+                     * outlook.com
+                     * yahoo.com
+                     * miumg.edu.gt
+                     */
+
+                    const domainPattern =
+                        /^[A-Za-z]+(?:\.[A-Za-z]+)+$/;
+
+
+                    if (!domainPattern.test(domain)) {
+
+                        event.preventDefault();
+
+                        emailModalMessage.textContent =
+                            "Después de @ solo se permiten dominios válidos como gmail.com, yahoo.com, outlook.com o miumg.edu.gt.";
+
+                        emailModal.classList.add("show");
+
+                        emailInput.focus();
+
+                        return;
+                    }
+
+
+                    /*
+                     * CORREO CORRECTO
+                     *
+                     * No hacemos nada.
+                     * El formulario continúa normalmente.
+                     */
+
+                }
+            );
+
+        }
+
+    }
+);
+
+</script>
+</body>
+</html>

@@ -457,30 +457,35 @@ Route::middleware([
             [AdminController::class, 'users']
         );
 
-        Route::patch(
-            '/admin/user/{id}/activate',
-            [AdminController::class, 'activateUser']
-        );
+        Route::patch( 
+            '/admin/user/{id}/activate', 
+            [AdminController::class, 'activateUser'] 
+        ); 
 
-        Route::patch(
-            '/admin/user/{id}/suspend',
-            [AdminController::class, 'suspendUser']
-        );
+        Route::patch( 
+            '/admin/user/{id}/suspend', 
+            [AdminController::class, 'suspendUser'] 
+        ); 
 
-        Route::delete(
-            '/admin/user/{id}/delete',
-            [AdminController::class, 'deleteUser']
-        );
+        Route::delete( 
+            '/admin/user/{id}/delete', 
+            [AdminController::class, 'deleteUser'] 
+        ); 
 
-        Route::patch(
-            '/admin/user/{id}/restore',
-            [AdminController::class, 'restoreUser']
+        Route::patch( 
+            '/admin/user/{id}/restore', 
+            [AdminController::class, 'restoreUser'] 
         );
 
         Route::get(
             '/admin/user/{id}/profile-changes',
             [AdminController::class, 'viewProfileChange']
         )->name('admin.user.profile-changes');
+
+        Route::patch(
+            '/admin/users/restore',
+            [AdminController::class, 'restoreUsers']
+        );
 
         /* MODERADORES */
 

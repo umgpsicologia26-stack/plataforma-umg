@@ -7,6 +7,7 @@
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0">
+
     <title>Usuarios | UMG</title>
 
     <link
@@ -32,7 +33,7 @@
             color: #1f2937;
         }
 
-    /*CONTENEDOR*/
+        /*CONTENEDOR*/
         .container {
             width: 100%;
             max-width: 1250px;
@@ -40,7 +41,7 @@
             padding: 35px 20px 50px;
         }
 
-    /*BOTÓN VOLVER*/
+        /*BOTÓN VOLVER*/
         .back-button {
             display: inline-flex;
             align-items: center;
@@ -64,7 +65,7 @@
             transform: translateX(-2px);
         }
 
-    /*ENCABEZADO*/
+        /*ENCABEZADO*/
         .page-header {
             background: #ffffff;
             border-radius: 18px;
@@ -93,7 +94,7 @@
             font-size: 14px;
         }
 
-    /*TARJETA*/
+        /*TARJETA*/
         .card {
             background: #ffffff;
             border-radius: 18px;
@@ -103,7 +104,7 @@
             border: 1px solid #e8edf5;
         }
 
-    /*ENCABEZADO TABLA*/
+        /*ENCABEZADO TABLA*/
         .table-header {
             display: flex;
             align-items: center;
@@ -135,7 +136,7 @@
             font-weight: 700;
         }
 
-    /*TABLA*/
+        /*TABLA*/
         .table-container {
             width: 100%;
             overflow-x: auto;
@@ -188,7 +189,7 @@
             background: #f8fafc;
         }
 
-    /*CÓDIGO ÚNICO*/
+        /*CÓDIGO ÚNICO*/
         .anonymous-code {
             display: inline-flex;
             align-items: center;
@@ -203,7 +204,7 @@
             letter-spacing: .4px;
         }
 
-    /*ESTADOS*/
+        /*ESTADOS*/
         .status {
             display: inline-flex;
             align-items: center;
@@ -256,7 +257,7 @@
             background: #9ca3af;
         }
 
-    /*ACCIONES*/
+        /*ACCIONES*/
         .actions {
             display: flex;
             align-items: center;
@@ -277,13 +278,14 @@
             font-weight: 600;
             transition: all .2s ease;
             white-space: nowrap;
+            cursor: pointer;
         }
 
         .action-button:hover {
             transform: translateY(-1px);
         }
 
-    /*ACTIVAR*/
+        /*ACTIVAR*/
         .activate {
             background: #ecfdf5;
             color: #15803d;
@@ -294,7 +296,7 @@
             background: #dcfce7;
         }
 
-    /*SUSPENDER*/
+        /*SUSPENDER*/
         .suspend {
             background: #fff7ed;
             color: #c2410c;
@@ -305,8 +307,7 @@
             background: #ffedd5;
         }
 
-
-    /*ELIMINAR*/
+        /*ELIMINAR*/
         .delete {
             background: #fef2f2;
             color: #dc2626;
@@ -317,7 +318,7 @@
             background: #fee2e2;
         }
 
-    /*RESTAURAR*/
+        /*RESTAURAR*/
         .restore {
             background: #eff6ff;
             color: #2563eb;
@@ -328,14 +329,92 @@
             background: #dbeafe;
         }
 
-    /*MENSAJE VACÍO*/
+        /*VISUALIZAR*/
+        .view-deleted {
+            background: #f8fafc;
+            color: #374151;
+            border-color: #d1d5db;
+        }
+
+        .view-deleted:hover {
+            background: #f1f5f9;
+        }
+
+        /*BUSCADOR*/
+        .search-container {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 11px 14px 11px 40px;
+            border: 1px solid #dbe3ee;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: all .2s ease;
+            background: #ffffff;
+        }
+
+        .search-box:focus {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.08);
+        }
+
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        /* SELECCIÓN */
+        .select-cell {
+            width: 45px;
+            text-align: center;
+        }
+
+        .user-checkbox {
+            width: 17px;
+            height: 17px;
+            cursor: pointer;
+            accent-color: #2563eb;
+        }
+
+        /* BOTÓN RESTAURAR SELECCIONADOS */
+        .restore-actions {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+        }
+
+        .selected-count {
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* MENSAJE VACÍO */
         .empty {
             text-align: center;
             padding: 35px 20px !important;
             color: #6b7280;
         }
 
-    /*RESPONSIVE*/
+        /*RESPONSIVE*/
         @media (max-width: 700px) {
             .container {
                 padding:
@@ -355,11 +434,15 @@
                 align-items: flex-start;
                 flex-direction: column;
             }
+
+            .restore-actions {
+                align-items: flex-start;
+                flex-direction: column;
+            }
         }
-
-
     </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -387,11 +470,13 @@
 
     <!--LISTADO DE USUARIOS-->
     <div class="card">
+
         <div class="table-header">
             <div class="table-title">
                 <i class="fas fa-user-group"></i>
                 Usuarios registrados
             </div>
+
             <span class="count">
                 {{ $users->count() }}
                 {{ $users->count() == 1
@@ -402,9 +487,12 @@
         </div>
 
         <div class="table-container">
+
             <table>
+
                 <thead>
                     <tr>
+
                         <th>
                             Código único
                         </th>
@@ -439,180 +527,595 @@
 
                     </tr>
                 </thead>
+
                 <tbody>
+
                     @forelse($users as $user)
+
                         <tr>
 
-    <!-- CÓDIGO -->
-        <td>
-            <span class="anonymous-code">
-            <i class="fas fa-fingerprint"></i>
-                {{ $user->anonymous_nickname }}
-            </span>
-        </td>
+                            <!-- CÓDIGO -->
+                            <td>
+                                <span class="anonymous-code">
+                                    <i class="fas fa-fingerprint"></i>
+                                    {{ $user->anonymous_nickname }}
+                                </span>
+                            </td>
 
-    <!-- NOMBRE -->
-        <td>
-            {{ $user->first_name }}
-        </td>
+                            <!-- NOMBRE -->
+                            <td>
+                                {{ $user->first_name }}
+                            </td>
 
-    <!-- APELLIDO -->
-        <td>
-            {{ $user->last_name }}
-        </td>
+                            <!-- APELLIDO -->
+                            <td>
+                                {{ $user->last_name }}
+                            </td>
 
-    <!-- EMAIL -->
-        <td>
-            {{ $user->email }}
-        </td>
+                            <!-- EMAIL -->
+                            <td>
+                                {{ $user->email }}
+                            </td>
 
-    <!-- TELÉFONO -->
-        <td>
-            {{ $user->phone ?? 'No registrado' }}
-        </td>
+                            <!-- TELÉFONO -->
+                            <td>
+                                {{ $user->phone ?? 'No registrado' }}
+                            </td>
 
-    <!-- ESTADO -->
-        <td>
-            @if($user->status === 'Activo')
-                <span class="status active">
-                    <span class="status-dot"></span>
-                    Activo
-                        </span>
+                            <!-- ESTADO -->
+                            <td>
 
-            @elseif($user->status === 'Bloqueado')
-                <span class="status blocked">
-                    <span class="status-dot"></span>
-                    Bloqueado
-                        </span>
+                                @if($user->status === 'Activo')
 
-            @elseif($user->status === 'Pendiente')
-                <span class="status pending">
-                    <span class="status-dot"></span>
-                    Pendiente
-                        </span>
+                                    <span class="status active">
+                                        <span class="status-dot"></span>
+                                        Activo
+                                    </span>
 
-            @else
-                <span class="status unknown">
-                    <span class="status-dot"></span>
-                    {{ $user->status }}
-                        </span>
+                                @elseif($user->status === 'Bloqueado')
 
-            @endif
-                </td>
+                                    <span class="status blocked">
+                                        <span class="status-dot"></span>
+                                        Bloqueado
+                                    </span>
 
-    <!-- FECHA -->
-        <td>
-            {{ $user->created_at
-            ? $user->created_at->format('d/m/Y')
-            : '—'
-            }}
-        </td>
+                                @elseif($user->status === 'Pendiente')
 
-    <!-- ACCIONES -->
-        <td>
-            <div class="actions">
+                                    <span class="status pending">
+                                        <span class="status-dot"></span>
+                                        Pendiente
+                                    </span>
 
-    <form
-        action="/admin/user/{{ $user->uuid  }}/activate"
-        method="POST"
-        style="display:inline;">
+                                @else
 
-        @csrf
-        @method('PATCH')
+                                    <span class="status unknown">
+                                        <span class="status-dot"></span>
+                                        {{ $user->status }}
+                                    </span>
 
-        <button
-            type="submit"
-            class="action-button activate"
-            title="Activar usuario">
+                                @endif
 
-            <i class="fas fa-check"></i>
-            Activar
-        </button>
-    </form>
+                            </td>
 
-    <form
-        action="/admin/user/{{ $user->uuid }}/suspend"
-        method="POST"
-        style="display:inline;">
+                            <!-- FECHA -->
+                            <td>
+                                {{ $user->created_at
+                                    ? $user->created_at->format('d/m/Y')
+                                    : '—'
+                                }}
+                            </td>
 
-        @csrf
-        @method('PATCH')
+                            <!-- ACCIONES -->
+                            <td>
 
-        <button
-            type="submit"
-            class="action-button suspend"
-            title="Suspender usuario">
+                                <div class="actions">
 
-            <i class="fas fa-ban"></i>
-            Suspender
-        </button>
-    </form>
+                                    <form
+                                        action="/admin/user/{{ $user->uuid }}/activate"
+                                        method="POST"
+                                        style="display:inline;">
 
-    <form
-        action="/admin/user/{{ $user->uuid }}/delete"
-        method="POST"
-        style="display:inline;">
+                                        @csrf
+                                        @method('PATCH')
 
-        @csrf
-        @method('DELETE')
+                                        <button
+                                            type="submit"
+                                            class="action-button activate"
+                                            title="Activar usuario">
 
-        <button
-            type="submit"
-            class="action-button delete"
-            title="Eliminar usuario">
+                                            <i class="fas fa-check"></i>
+                                            Activar
 
-            <i class="fas fa-trash"></i>
-            Eliminar
-        </button>
-    </form>
+                                        </button>
 
-    <form
-        action="/admin/user/{{ $user->uuid }}/restore"
-        method="POST"
-        style="display:inline;">
+                                    </form>
 
-        @csrf
-        @method('PATCH')
+                                    <form
+                                        action="/admin/user/{{ $user->uuid }}/suspend"
+                                        method="POST"
+                                        style="display:inline;">
 
-        <button
-            type="submit"
-            class="action-button restore"
-            title="Restaurar usuario">
+                                        @csrf
+                                        @method('PATCH')
 
-            <i class="fas fa-rotate-left"></i>
-            Restaurar
-        </button>
-    </form>
-        <a
-    href="{{ route('admin.user.profile-changes', $user->uuid) }}"
-    class="action-button view"
-    title="Ver último cambio de perfil">
+                                        <button
+                                            type="submit"
+                                            class="action-button suspend"
+                                            title="Suspender usuario">
 
-    <i class="fas fa-eye"></i>
-    Ver cambios
-</a>
+                                            <i class="fas fa-ban"></i>
+                                            Suspender
 
-</div>
-        </td>
-            </tr>
-                @empty
+                                        </button>
+
+                                    </form>
+
+                                    <form
+                                        action="/admin/user/{{ $user->uuid }}/delete"
+                                        method="POST"
+                                        style="display:inline;">
+
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button
+                                            type="submit"
+                                            class="action-button delete"
+                                            title="Eliminar usuario">
+
+                                            <i class="fas fa-trash"></i>
+                                            Eliminar
+
+                                        </button>
+
+                                    </form>
+
+                                    <a
+                                        href="{{ route('admin.user.profile-changes', $user->uuid) }}"
+                                        class="action-button view"
+                                        title="Ver último cambio de perfil">
+
+                                        <i class="fas fa-eye"></i>
+                                        Ver cambios
+
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
                         <tr>
+
                             <td
                                 colspan="8"
                                 class="empty">
+
                                 <i class="fas fa-user-slash"></i>
 
                                 <p>
                                     No hay usuarios registrados.
                                 </p>
+
                             </td>
+
                         </tr>
 
                     @endforelse
+
                 </tbody>
+
             </table>
+
         </div>
+
     </div>
+
+
+    <!-- USUARIOS ELIMINADOS -->
+    <div class="card">
+
+        <div class="table-header">
+
+            <div class="table-title">
+                <i class="fas fa-user-slash"></i>
+                Usuarios eliminados
+            </div>
+
+            <div class="actions">
+
+                <span class="count">
+                    {{ $deletedUsers->count() }}
+                    {{ $deletedUsers->count() == 1
+                        ? 'usuario'
+                        : 'usuarios'
+                    }}
+                </span>
+
+                <button
+                    type="button"
+                    id="toggleDeletedUsers"
+                    class="action-button view-deleted">
+
+                    <i class="fas fa-eye"></i>
+                    Visualizar
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- CONTENIDO OCULTO -->
+        <div id="deletedUsersContent" style="display:none;">
+
+            <!-- BUSCADOR -->
+            <div
+                class="search-container"
+                id="deletedSearch">
+
+                <div class="search-wrapper">
+
+                    <i class="fas fa-search"></i>
+
+                    <input
+                        type="text"
+                        id="userSearch"
+                        class="search-box"
+                        placeholder="Buscar usuario por nombre o apellido...">
+
+                </div>
+
+            </div>
+
+
+            <!-- FORMULARIO DE RESTAURACIÓN -->
+            <form
+                action="/admin/users/restore"
+                method="POST"
+                id="restoreUsersForm">
+
+                @csrf
+                @method('PATCH')
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th class="select-cell">
+                                    <i class="fas fa-check"></i>
+                                </th>
+
+                                <th>
+                                    Código único
+                                </th>
+
+                                <th>
+                                    Nombre
+                                </th>
+
+                                <th>
+                                    Apellido
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Celular
+                                </th>
+
+                                <th>
+                                    Fecha eliminación
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="deletedUsersTable">
+
+                            @forelse($deletedUsers as $user)
+
+                                <tr
+                                    data-name="{{ strtolower($user->first_name . ' ' . $user->last_name) }}">
+
+                                    <td class="select-cell">
+
+                                        <input
+                                            type="checkbox"
+                                            class="user-checkbox"
+                                            name="users[]"
+                                            value="{{ $user->uuid }}">
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="anonymous-code">
+                                            <i class="fas fa-fingerprint"></i>
+                                            {{ $user->anonymous_nickname }}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        {{ $user->first_name }}
+                                    </td>
+
+                                    <td>
+                                        {{ $user->last_name }}
+                                    </td>
+
+                                    <td>
+                                        {{ $user->email }}
+                                    </td>
+
+                                    <td>
+                                        {{ $user->phone ?? 'No registrado' }}
+                                    </td>
+
+                                    <td>
+                                        {{ $user->deleted_at
+                                            ? $user->deleted_at->format('d/m/Y H:i')
+                                            : '—'
+                                        }}
+                                    </td>
+
+                                </tr>
+
+                            @empty
+
+                                <tr>
+
+                                    <td
+                                        colspan="7"
+                                        class="empty">
+
+                                        <i class="fas fa-user-check"></i>
+
+                                        <p>
+                                            No hay usuarios eliminados.
+                                        </p>
+
+                                    </td>
+
+                                </tr>
+
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- ACCIÓN DE RESTAURACIÓN -->
+                <div
+                    class="restore-actions"
+                    id="restoreActions">
+
+                    <span
+                        class="selected-count"
+                        id="selectedCount">
+                        0 usuarios seleccionados
+                    </span>
+
+                    <button
+                        type="submit"
+                        class="action-button restore"
+                        id="restoreButton">
+
+                        <i class="fas fa-rotate-left"></i>
+
+                        Restaurar usuarios
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
 </div>
+
+
+<script>
+
+    const toggleDeletedUsers =
+        document.getElementById('toggleDeletedUsers');
+
+    const deletedUsersContent =
+        document.getElementById('deletedUsersContent');
+
+    const deletedSearch =
+        document.getElementById('deletedSearch');
+
+    const userSearch =
+        document.getElementById('userSearch');
+
+    const restoreActions =
+        document.getElementById('restoreActions');
+
+    const selectedCount =
+        document.getElementById('selectedCount');
+
+    const restoreButton =
+        document.getElementById('restoreButton');
+
+    const checkboxes =
+        document.querySelectorAll('.user-checkbox');
+
+
+    /*
+     * MOSTRAR / OCULTAR USUARIOS ELIMINADOS
+     */
+    toggleDeletedUsers.addEventListener('click', function () {
+
+        const isHidden =
+            deletedUsersContent.style.display === 'none';
+
+        if (isHidden) {
+
+            deletedUsersContent.style.display = 'block';
+
+            deletedSearch.style.display = 'block';
+
+            toggleDeletedUsers.innerHTML =
+                '<i class="fas fa-eye-slash"></i> Ocultar';
+
+            userSearch.focus();
+
+        } else {
+
+            deletedUsersContent.style.display = 'none';
+
+            deletedSearch.style.display = 'none';
+
+            toggleDeletedUsers.innerHTML =
+                '<i class="fas fa-eye"></i> Visualizar';
+
+        }
+
+    });
+
+
+    /*
+     * ACTUALIZAR SELECCIÓN
+     */
+    function updateSelection() {
+
+        const selected =
+            document.querySelectorAll(
+                '.user-checkbox:checked'
+            );
+
+        const total =
+            selected.length;
+
+        if (total === 0) {
+
+            restoreActions.style.display =
+                'none';
+
+            return;
+
+        }
+
+        restoreActions.style.display =
+            'flex';
+
+        selectedCount.textContent =
+            total === 1
+                ? '1 usuario seleccionado'
+                : total + ' usuarios seleccionados';
+
+        restoreButton.innerHTML =
+            total === 1
+                ? '<i class="fas fa-rotate-left"></i> Restaurar usuario'
+                : '<i class="fas fa-rotate-left"></i> Restaurar usuarios';
+
+    }
+
+
+    /*
+     * ESCUCHAR CASILLAS
+     */
+    checkboxes.forEach(function (checkbox) {
+
+        checkbox.addEventListener(
+            'change',
+            updateSelection
+        );
+
+    });
+
+
+    /*
+     * BUSCAR POR NOMBRE O APELLIDO
+     */
+    userSearch.addEventListener('input', function () {
+
+        const search =
+            this.value
+                .toLowerCase()
+                .trim();
+
+        const rows =
+            document.querySelectorAll(
+                '#deletedUsersTable tr[data-name]'
+            );
+
+        rows.forEach(function (row) {
+
+            const name =
+                row.dataset.name;
+
+            if (name.includes(search)) {
+
+                row.style.display = '';
+
+            } else {
+
+                row.style.display = 'none';
+
+            }
+
+        });
+
+    });
+
+
+    /*
+     * CONFIRMAR RESTAURACIÓN
+     */
+    document
+        .getElementById('restoreUsersForm')
+        .addEventListener('submit', function (event) {
+
+            const selected =
+                document.querySelectorAll(
+                    '.user-checkbox:checked'
+                );
+
+            if (selected.length === 0) {
+
+                event.preventDefault();
+
+                return;
+
+            }
+
+            const message =
+                selected.length === 1
+                    ? '¿Deseas restaurar este usuario?'
+                    : '¿Deseas restaurar los ' +
+                      selected.length +
+                      ' usuarios seleccionados?';
+
+            if (!confirm(message)) {
+
+                event.preventDefault();
+
+            }
+
+        });
+
+</script>
+
 </body>
 </html>
