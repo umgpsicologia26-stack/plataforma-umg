@@ -117,7 +117,8 @@
 
             <h1>Crear Cuenta</h1>
             <form method="POST"
-                action="/register">
+                action="/register"
+                novalidate>
                 @csrf
 
                 <div class="input-field">
@@ -159,7 +160,12 @@
                     name="birth_date"
                     id="register_birth_date"
                     autocomplete="off"
+                    min="{{ now()->subYears(100)->format('Y-m-d') }}"
+                    max="{{ now()->subYears(15)->format('Y-m-d') }}"
                     required>
+                    <small id="birthDateError" style="display:none;">
+                        Debes tener entre 15 y 100 años.
+                    </small>
                 </div>
 
                 <div class="input-field">
@@ -291,6 +297,51 @@
         </p>
 
         <button type="button" id="emailModalAccept">
+            Aceptar
+        </button>
+
+    </div>
+
+</div>
+
+<!-- VENTANA DE AVISO FECHA DE NACIMIENTO -->
+<div id="birthDateModal" class="phone-modal">
+
+    <div class="phone-modal-box">
+
+        <div class="phone-modal-icon">
+            <i class="fas fa-calendar-times"></i>
+        </div>
+
+        <h3>Fecha de nacimiento no válida</h3>
+
+        <p id="birthDateModalMessage">
+            Ingresa una fecha de nacimiento real.
+        </p>
+
+        <button type="button" id="birthDateModalAccept">
+            Aceptar
+        </button>
+
+    </div>
+
+</div>
+
+<!-- VENTANA DE AVISO CON TODOS LOS ERRORES -->
+<div id="formErrorsModal" class="phone-modal">
+
+    <div class="phone-modal-box">
+
+        <div class="phone-modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+
+        <h3>Revisa los siguientes datos</h3>
+
+        <ul id="formErrorsList" style="text-align:left; margin: 0; padding-left: 20px;">
+        </ul>
+
+        <button type="button" id="formErrorsAccept">
             Aceptar
         </button>
 
@@ -453,6 +504,35 @@ document.addEventListener(
         const emailModalMessage =
             document.getElementById("emailModalMessage");
 
+        const birthDateInput =
+            document.getElementById("register_birth_date");
+
+        const birthDateModal =
+            document.getElementById("birthDateModal");
+
+        const birthDateModalAccept =
+            document.getElementById("birthDateModalAccept");
+
+        const birthDateModalMessage =
+            document.getElementById("birthDateModalMessage");
+
+        const formErrorsModal =
+            document.getElementById("formErrorsModal");
+
+        const formErrorsList =
+            document.getElementById("formErrorsList");
+
+        const formErrorsAccept =
+            document.getElementById("formErrorsAccept");
+
+        /*
+         * Rango de edad permitido.
+         * Cambia estos valores si
+         * necesitas otro límite.
+         */
+        const EDAD_MINIMA = 15;
+        const EDAD_MAXIMA = 100;
+
 
         /* ========================= */
         /* CERRAR VENTANA CELULAR */
@@ -499,126 +579,20 @@ document.addEventListener(
 
 
         /* ========================= */
-        /* CELULAR - BLOQUEO */
+        /* CERRAR VENTANA FECHA */
         /* ========================= */
 
-        if (phoneInput) {
+        if (birthDateModalAccept) {
 
-            phoneInput.addEventListener(
-                "beforeinput",
-                function (event) {
-
-                    if (
-                        event.inputType === "insertText" &&
-                        event.data
-                    ) {
-
-                        const texto = event.data;
-
-                        /*
-                         * Solo números,
-                         * espacios y signo +.
-                         */
-
-                        if (!/^[0-9+ ]+$/.test(texto)) {
-
-                            event.preventDefault();
-
-                            phoneModal.classList.add("show");
-
-                            return;
-                        }
-
-
-                        /*
-                         * El signo + solamente
-                         * puede estar al inicio.
-                         */
-
-                        if (
-                            texto.includes("+") &&
-                            this.value.length > 0
-                        ) {
-
-                            event.preventDefault();
-
-                            phoneModal.classList.add("show");
-
-                            return;
-                        }
-
-                    }
-
-                }
-            );
-
-
-            /* ========================= */
-            /* LIMPIEZA DEL CELULAR */
-            /* ========================= */
-
-            phoneInput.addEventListener(
-                "input",
+            birthDateModalAccept.addEventListener(
+                "click",
                 function () {
 
-                    let value = this.value;
+                    birthDateModal.classList.remove("show");
 
-
-                    /*
-                     * Detectar caracteres inválidos.
-                     */
-
-                    if (/[^0-9+ ]/.test(value)) {
-
-                        phoneModal.classList.add("show");
-
+                    if (birthDateInput) {
+                        birthDateInput.focus();
                     }
-
-
-                    /*
-                     * Eliminar letras,
-                     * guiones y otros símbolos.
-                     */
-
-                    value = value.replace(
-                        /[^0-9+ ]/g,
-                        ""
-                    );
-
-
-                    /*
-                     * Si existe +,
-                     * dejar solamente uno.
-                     */
-
-                    if (value.includes("+")) {
-
-                        const numbers =
-                            value.replace(/\+/g, "");
-
-                        value = "+" + numbers;
-
-                    }
-
-
-                    /*
-                     * El + siempre debe
-                     * quedar al inicio.
-                     */
-
-                    if (
-                        value.includes("+") &&
-                        !value.startsWith("+")
-                    ) {
-
-                        value =
-                            "+" +
-                            value.replace(/\+/g, "");
-
-                    }
-
-
-                    this.value = value;
 
                 }
             );
@@ -627,7 +601,58 @@ document.addEventListener(
 
 
         /* ========================= */
-        /* VALIDACIÓN AL ENVIAR */
+        /* CERRAR VENTANA DE ERRORES */
+        /* ========================= */
+
+        if (formErrorsAccept) {
+
+            formErrorsAccept.addEventListener(
+                "click",
+                function () {
+
+                    formErrorsModal.classList.remove("show");
+
+                }
+            );
+
+        }
+
+
+        /* ========================= */
+        /* FECHA DE NACIMIENTO */
+        /* VALIDACIÓN */
+        /* ========================= */
+
+        function calcularEdad(fechaTexto) {
+
+            const nacimiento =
+                new Date(fechaTexto + "T00:00:00");
+
+            const hoy = new Date();
+
+            let edad =
+                hoy.getFullYear() -
+                nacimiento.getFullYear();
+
+            const noHaCumplidoAnios =
+                hoy.getMonth() < nacimiento.getMonth() ||
+                (
+                    hoy.getMonth() === nacimiento.getMonth() &&
+                    hoy.getDate() < nacimiento.getDate()
+                );
+
+            if (noHaCumplidoAnios) {
+                edad--;
+            }
+
+            return edad;
+
+        }
+
+
+        /* ========================= */
+        /* VALIDACIÓN COMBINADA */
+        /* (celular + fecha + correo) */
         /* ========================= */
 
         if (registerForm) {
@@ -636,264 +661,399 @@ document.addEventListener(
                 "submit",
                 function (event) {
 
+                    const errores = [];
 
-                    /* ========================= */
-                    /* CELULAR */
-                    /* ========================= */
-
-                    const phone =
-                        phoneInput.value.trim();
+                    let primerCampoInvalido = null;
 
 
                     /*
-                     * CELULAR VACÍO
+                     * ===== CELULAR =====
                      */
 
-                    if (phone === "") {
+                    if (phoneInput) {
 
-                        event.preventDefault();
+                        const phone =
+                            phoneInput.value.trim();
 
-                        phoneModal.classList.add("show");
+                        const cleanPhone =
+                            phone.replace(/\s/g, "");
 
-                        phoneInput.focus();
+                        const nationalPhone =
+                            /^[0-9]{8}$/;
 
-                        return;
+                        const internationalPhone =
+                            /^\+502[0-9]{8}$/;
+
+                        if (phone === "") {
+
+                            errores.push(
+                                "El celular es obligatorio."
+                            );
+
+                            if (!primerCampoInvalido) {
+                                primerCampoInvalido = phoneInput;
+                            }
+
+                        } else if (
+                            !nationalPhone.test(cleanPhone) &&
+                            !internationalPhone.test(cleanPhone)
+                        ) {
+
+                            errores.push(
+                                "El celular no es válido. Debe tener 8 dígitos, con o sin +502 al inicio."
+                            );
+
+                            if (!primerCampoInvalido) {
+                                primerCampoInvalido = phoneInput;
+                            }
+
+                        }
+
                     }
 
 
                     /*
-                     * Solo +, números y espacios.
+                     * ===== CORREO =====
                      */
 
-                    if (
-                        !/^\+?[0-9 ]+$/.test(phone)
-                    ) {
+                    if (emailInput) {
 
-                        event.preventDefault();
+                        const email =
+                            emailInput.value.trim();
 
-                        phoneModal.classList.add("show");
+                        const emailPattern =
+                            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-                        phoneInput.focus();
+                        if (email === "") {
 
-                        return;
+                            errores.push(
+                                "El correo es obligatorio."
+                            );
+
+                            if (!primerCampoInvalido) {
+                                primerCampoInvalido = emailInput;
+                            }
+
+                        } else if (!emailPattern.test(email)) {
+
+                            errores.push(
+                                "El correo no es válido. Ejemplo: juanperez03@gmail.com"
+                            );
+
+                            if (!primerCampoInvalido) {
+                                primerCampoInvalido = emailInput;
+                            }
+
+                        }
+
                     }
 
 
                     /*
-                     * El + solamente puede
-                     * estar al inicio.
+                     * ===== FECHA DE NACIMIENTO =====
                      */
 
-                    if (
-                        phone.includes("+") &&
-                        !phone.startsWith("+")
-                    ) {
+                    if (birthDateInput) {
 
-                        event.preventDefault();
+                        const valor =
+                            birthDateInput.value;
 
-                        phoneModal.classList.add("show");
+                        if (!valor) {
 
-                        phoneInput.focus();
+                            errores.push(
+                                "Debes ingresar tu fecha de nacimiento."
+                            );
 
-                        return;
-                    }
+                            if (!primerCampoInvalido) {
+                                primerCampoInvalido = birthDateInput;
+                            }
 
+                        } else {
 
-                    /* ========================= */
-                    /* CORREO */
-                    /* ========================= */
+                            const nacimiento =
+                                new Date(valor + "T00:00:00");
 
-                    const email =
-                        emailInput.value.trim();
+                            const hoy = new Date();
 
+                            if (nacimiento > hoy) {
 
-                    /*
-                     * CORREO VACÍO
-                     */
+                                errores.push(
+                                    "La fecha de nacimiento no puede ser una fecha futura."
+                                );
 
-                    if (email === "") {
+                                if (!primerCampoInvalido) {
+                                    primerCampoInvalido = birthDateInput;
+                                }
 
-                        event.preventDefault();
+                            } else {
 
-                        emailModalMessage.textContent =
-                            "Ingresa un correo válido. Ejemplo: majoreyna432@gmail.com.";
+                                const edad =
+                                    calcularEdad(valor);
 
-                        emailModal.classList.add("show");
+                                if (
+                                    edad < EDAD_MINIMA ||
+                                    edad > EDAD_MAXIMA
+                                ) {
 
-                        emailInput.focus();
+                                    errores.push(
+                                        "La fecha de nacimiento no es coherente. Debes tener entre " +
+                                        EDAD_MINIMA +
+                                        " y " +
+                                        EDAD_MAXIMA +
+                                        " años."
+                                    );
 
-                        return;
-                    }
+                                    if (!primerCampoInvalido) {
+                                        primerCampoInvalido = birthDateInput;
+                                    }
 
+                                }
 
-                    /*
-                     * CONTAR @
-                     */
+                            }
 
-                    const atCount =
-                        (
-                            email.match(/@/g) || []
-                        ).length;
+                        }
 
-
-                    /*
-                     * FALTA @
-                     */
-
-                    if (atCount === 0) {
-
-                        event.preventDefault();
-
-                        emailModalMessage.textContent =
-                            "Error en correo: falta @. Ejemplo: majoreyna432@gmail.com.";
-
-                        emailModal.classList.add("show");
-
-                        emailInput.focus();
-
-                        return;
                     }
 
 
                     /*
-                     * MÁS DE UNA @
+                     * Si hay uno o más errores,
+                     * se detiene el envío y se
+                     * muestran TODOS juntos.
                      */
 
-                    if (atCount !== 1) {
+                    if (errores.length > 0) {
 
                         event.preventDefault();
 
-                        emailModalMessage.textContent =
-                            "El correo debe contener solamente una @. Ejemplo: majoreyna432@gmail.com.";
+                        formErrorsList.innerHTML = "";
 
-                        emailModal.classList.add("show");
+                        errores.forEach(function (mensaje) {
 
-                        emailInput.focus();
+                            const item =
+                                document.createElement("li");
 
-                        return;
+                            item.textContent = mensaje;
+
+                            formErrorsList.appendChild(item);
+
+                        });
+
+                        formErrorsModal.classList.add("show");
+
+                        if (primerCampoInvalido) {
+                            primerCampoInvalido.focus();
+                        }
+
                     }
-
-
-                    /*
-                     * SEPARAR USUARIO Y DOMINIO
-                     */
-
-                    const parts =
-                        email.split("@");
-
-                    const username =
-                        parts[0];
-
-                    const domain =
-                        parts[1];
-
-
-                    /*
-                     * ANTES DE @
-                     *
-                     * Solo letras y números.
-                     */
-
-                    if (
-                        !/^[A-Za-z0-9]+$/.test(username)
-                    ) {
-
-                        event.preventDefault();
-
-                        emailModalMessage.textContent =
-                            "Antes de @ solo se permiten letras y números. Ejemplo: majoreyna432@gmail.com.";
-
-                        emailModal.classList.add("show");
-
-                        emailInput.focus();
-
-                        return;
-                    }
-
-
-                    /*
-                     * DOMINIO VACÍO
-                     */
-
-                    if (!domain) {
-
-                        event.preventDefault();
-
-                        emailModalMessage.textContent =
-                            "Error en correo: falta el dominio. Ejemplo: majoreyna432@gmail.com.";
-
-                        emailModal.classList.add("show");
-
-                        emailInput.focus();
-
-                        return;
-                    }
-
-
-                    /*
-                     * NO PERMITIR NÚMEROS
-                     * DESPUÉS DE @
-                     */
-
-                    if (/[0-9]/.test(domain)) {
-
-                        event.preventDefault();
-
-                        emailModalMessage.textContent =
-                            "Después de @ no se permiten números. Ejemplo: majoreyna432@gmail.com.";
-
-                        emailModal.classList.add("show");
-
-                        emailInput.focus();
-
-                        return;
-                    }
-
-
-                    /*
-                     * DOMINIO VÁLIDO
-                     *
-                     * Ejemplos:
-                     * gmail.com
-                     * outlook.com
-                     * yahoo.com
-                     * miumg.edu.gt
-                     */
-
-                    const domainPattern =
-                        /^[A-Za-z]+(?:\.[A-Za-z]+)+$/;
-
-
-                    if (!domainPattern.test(domain)) {
-
-                        event.preventDefault();
-
-                        emailModalMessage.textContent =
-                            "Después de @ solo se permiten dominios válidos como gmail.com, yahoo.com, outlook.com o miumg.edu.gt.";
-
-                        emailModal.classList.add("show");
-
-                        emailInput.focus();
-
-                        return;
-                    }
-
-
-                    /*
-                     * CORREO CORRECTO
-                     *
-                     * No hacemos nada.
-                     * El formulario continúa normalmente.
-                     */
 
                 }
             );
 
         }
 
+    /* ========================= */
+/* CELULAR - VALIDACIÓN */
+/* ========================= */
+
+if (phoneInput) {
+
+    /* ========================= */
+    /* BLOQUEO INMEDIATO */
+    /* ========================= */
+
+    phoneInput.addEventListener(
+        "beforeinput",
+        function (event) {
+
+            if (
+                event.inputType === "insertText" &&
+                event.data
+            ) {
+
+                const texto = event.data;
+
+                /*
+                 * Solamente se permiten:
+                 * números
+                 * espacios
+                 * signo +
+                 */
+
+                if (!/^[0-9+ ]+$/.test(texto)) {
+
+                    event.preventDefault();
+
+                    phoneModal.classList.add("show");
+
+                    return;
+                }
+
+                /*
+                 * El signo + solamente puede:
+                 *
+                 * - estar al inicio
+                 * - aparecer una sola vez
+                 */
+
+                if (
+                    texto.includes("+") &&
+                    (
+                        this.selectionStart !== 0 ||
+                        this.value.includes("+")
+                    )
+                ) {
+
+                    event.preventDefault();
+
+                    phoneModal.classList.add("show");
+
+                    return;
+                }
+
+            }
+
+        }
+    );
+
+
+    /* ========================= */
+    /* LIMPIEZA Y FORMATEO */
+    /* ========================= */
+
+    phoneInput.addEventListener(
+        "input",
+        function () {
+
+            let value = this.value;
+
+            /*
+             * Eliminar cualquier carácter
+             * que no sea número, espacio o +.
+             */
+
+            value = value.replace(
+                /[^0-9+ ]/g,
+                ""
+            );
+
+
+            /*
+             * Si existe +:
+             *
+             * - dejar solamente uno
+             * - colocarlo al inicio
+             */
+
+            if (value.includes("+")) {
+
+                value =
+                    "+" +
+                    value.replace(
+                        /\+/g,
+                        ""
+                    );
+
+            }
+
+
+            const hasPlus =
+                value.startsWith("+");
+
+            const body =
+                hasPlus ?
+                    value.substring(1) :
+                    value;
+
+
+            /*
+             * Reconstruir el valor
+             * respetando los espacios
+             * que el propio usuario
+             * escriba (no se le fuerza
+             * ningún formato): solo se
+             * limita a 8 dígitos para
+             * el número, sin contar los
+             * 3 dígitos del código de
+             * país (502) cuando aplica.
+             */
+
+            let result =
+                hasPlus ? "+" : "";
+
+            let countryDigits = "";
+            let countryDone = !hasPlus;
+            let digitCount = 0;
+
+            for (
+                let i = 0;
+                i < body.length;
+                i++
+            ) {
+
+                const ch = body[i];
+
+                if (ch === " ") {
+
+                    result += ch;
+                    continue;
+
+                }
+
+                /*
+                 * Dígito del código
+                 * de país (+502).
+                 */
+
+                if (!countryDone) {
+
+                    countryDigits += ch;
+                    result += ch;
+
+                    if (
+                        countryDigits.length === 3
+                    ) {
+
+                        countryDone = true;
+
+                    }
+
+                    continue;
+
+                }
+
+                /*
+                 * Dígito del número,
+                 * máximo 8.
+                 */
+
+                if (digitCount < 8) {
+
+                    result += ch;
+                    digitCount++;
+
+                }
+
+                /*
+                 * Si ya hay 8 dígitos,
+                 * se ignora todo lo
+                 * que sigan escribiendo.
+                 */
+
+            }
+
+            value = result;
+
+
+            this.value = value;
+
+        }
+    );
+
+}
+
     }
 );
-
 </script>
 </body>
 </html>

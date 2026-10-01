@@ -429,22 +429,7 @@
             </div>
         </div>
 
-        <!-- PENDIENTES -->
-        <div class="stat-card">
-            <div class="stat-top">
-                <span class="stat-title">
-                    Pendientes de aprobación
-                </span>
-                <div class="stat-icon">
-                    <i class="fas fa-hourglass-half"></i>
-                </div>
-            </div>
-            <div class="number">
-                {{ $pendingCases }}
-            </div>
-        </div>
-
-        <!-- USUARIOS -->
+            <!-- USUARIOS -->
         <div class="stat-card">
             <div class="stat-top">
                 <span class="stat-title">

@@ -541,33 +541,89 @@ public function login(Request $request)
             }
 
             /*
-             * Crear sesión Laravel.
-             */
-            Auth::login($user);
+ * ADMIN y MODERATOR requieren
+ * un segundo factor antes de
+ * crear la sesión autenticada.
+ */
+if (in_array($user->role, ['ADMIN', 'MODERATOR'])) {
 
-            /*
-             * Regenerar sesión.
-             */
-            $request->session()->regenerate();
+    /*
+     * Regenerar la sesión antes de
+     * almacenar el estado temporal.
+     */
+    $request->session()->regenerate();
 
-            /*
-             * Eliminar cualquier verificación
-             * administrativa anterior.
-             */
-            $request->session()->forget([
-                'admin_verified',
-                'admin_verified_user'
-            ]);
+    /*
+     * Guardar únicamente el UUID del usuario
+     * pendiente de completar 2FA.
+     *
+     * Todavía NO se crea la sesión autenticada.
+     */
+    $request->session()->put(
+        '2fa_pending_user_uuid',
+        $user->uuid
+    );
 
-            /*
-             * Respuesta al navegador.
-             */
-            return response()->json([
-                'success' => true,
-                'redirect' =>
-                    route('dashboard')
-            ]);
+    /*
+     * Limpiar cualquier verificación
+     * administrativa anterior.
+     */
+    $request->session()->forget([
+        'admin_verified',
+        'admin_verified_user'
+    ]);
 
+    /*
+     * Si no tiene 2FA configurado,
+     * realizar la configuración inicial.
+     */
+    if (!$user->google2fa_enabled) {
+
+        return response()->json([
+            'success' => true,
+            'redirect' =>
+                route('two-factor.setup')
+        ]);
+    }
+
+    /*
+     * Si ya tiene 2FA configurado,
+     * solicitar el código TOTP.
+     */
+    return response()->json([
+        'success' => true,
+        'redirect' =>
+            route('two-factor.verify')
+    ]);
+}
+
+/*
+ * USER no utiliza 2FA.
+ */
+Auth::login($user);
+
+/*
+ * Regenerar sesión.
+ */
+$request->session()->regenerate();
+
+/*
+ * Eliminar estados temporales.
+ */
+$request->session()->forget([
+    'admin_verified',
+    'admin_verified_user',
+    '2fa_pending_user_uuid'
+]);
+
+/*
+ * Respuesta al navegador.
+ */
+return response()->json([
+    'success' => true,
+    'redirect' =>
+        route('dashboard')
+]);
         } catch (\Throwable $e) {
 
             /*
