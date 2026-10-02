@@ -213,15 +213,19 @@ Route::middleware([
         [ForumController::class, 'create']
     )->name('forum.create');
 
-    Route::patch(
-        '/forum/{uuid}/restrict',
-        [ForumController::class, 'restrict']
-    )->name('forum.restrict');
+    Route::middleware(['role:ADMIN,MODERATOR'])->group(function () {
 
-    Route::patch(
-        '/forum/{uuid}/restore',
-        [ForumController::class, 'restore']
-    )->name('forum.restore');
+        Route::patch(
+            '/forum/{uuid}/restrict',
+            [ForumController::class, 'restrict']
+        )->name('forum.restrict');
+
+        Route::patch(
+            '/forum/{uuid}/restore',
+            [ForumController::class, 'restore']
+        )->name('forum.restore');
+
+    });
 
     /* PERFIL */
 
