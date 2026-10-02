@@ -101,7 +101,7 @@ public function update(Request $request, $id)
 
             'role' => [
             'nullable',
-    Rule::in(['USER', 'MODERATOR', 'ADMIN', 'PSYCHOLOGIST']),
+    Rule::in(['USER', 'MODERATOR', 'ADMIN']),
 ],
     ]);
 

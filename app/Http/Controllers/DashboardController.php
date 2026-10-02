@@ -34,12 +34,6 @@ class DashboardController extends Controller
     return redirect()->route('moderator.dashboard');
 }
 
-        //PSICÓLOGO
-        
-        if ($user->role === 'PSYCHOLOGIST') {
-    
-            return redirect('/psychologist');
-        }
 
 
         //ADMINISTRADOR
