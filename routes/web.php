@@ -158,13 +158,6 @@ Route::middleware([
         [CaseController::class, 'tracking']
     )->name('cases.tracking');
 
-    /* RESPONDER A UN CASO */
-
-    Route::post(
-        '/cases/{id}/reply',
-        [CaseController::class, 'replyToCase']
-    )->name('cases.reply');
-
     /* MARCAR NOTIFICACIÓN COMO LEÍDA */
 
     Route::post(
