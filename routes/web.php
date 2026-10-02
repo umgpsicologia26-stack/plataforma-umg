@@ -272,10 +272,14 @@ Route::middleware(['role:USER'])->group(function () {
 
     /* BOTÓN DE PÁNICO */
 
+    Route::middleware(['role:USER'])->group(function () {
+
     Route::get(
         '/panic-button',
         fn () => view('panic')
     );
+
+});
 
     /* CASOS INFORMATIVOS */
 
