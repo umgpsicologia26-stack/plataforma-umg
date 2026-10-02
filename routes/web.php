@@ -153,18 +153,25 @@ Route::middleware([
 
     /* SEGUIMIENTO DE CASOS */
 
+    Route::middleware(['role:USER'])->group(function () {
+
     Route::get(
         '/cases',
         [CaseController::class, 'tracking']
     )->name('cases.tracking');
 
+});
+
     /* MARCAR NOTIFICACIÓN COMO LEÍDA */
+
+Route::middleware(['role:USER'])->group(function () {
 
     Route::post(
         '/cases/notifications/{id}/read',
         [CaseController::class, 'markNotificationAsRead']
     )->name('cases.notification.read');
 
+});
     /* CHAT DEL USUARIO */
 
     Route::get(
@@ -184,6 +191,8 @@ Route::middleware([
 
     /* RELACIÓN DE CASOS */
 
+    Route::middleware(['role:USER'])->group(function () {
+
     Route::post(
         '/cases/suicide',
         [CaseController::class, 'createSuicideCase']
@@ -193,6 +202,8 @@ Route::middleware([
         '/cases/abuse',
         [CaseController::class, 'createAbuseCase']
     )->name('cases.abuse');
+
+});
 
     /* DASHBOARD */
 
