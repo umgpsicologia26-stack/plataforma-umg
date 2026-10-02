@@ -174,6 +174,8 @@ Route::middleware(['role:USER'])->group(function () {
 });
     /* CHAT DEL USUARIO */
 
+    Route::middleware(['role:USER'])->group(function () {
+
     Route::get(
         '/chat',
         [ChatController::class, 'index']
@@ -188,6 +190,8 @@ Route::middleware(['role:USER'])->group(function () {
         '/chat/message',
         [ChatController::class, 'sendMessage']
     )->name('chat.message');
+
+});
 
     /* RELACIÓN DE CASOS */
 
