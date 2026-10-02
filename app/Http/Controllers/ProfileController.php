@@ -127,10 +127,7 @@ $user->anonymous_nickname = $validated['anonymous_nickname'];
 
     foreach ($oldData as $field => $oldValue) {
         if ($oldValue != $newData[$field]) {
-            $changes[$field] = [
-                'before' => $oldValue,
-                'after' => $newData[$field],
-            ];
+            $changes[$field] = 'MODIFICADO';
         }
     }
 
