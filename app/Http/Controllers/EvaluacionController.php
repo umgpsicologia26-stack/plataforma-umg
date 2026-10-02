@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Evaluacion;
 use App\Models\EvaluacionPregunta;
 use App\Models\EvaluacionRespuesta;
+use App\Models\AuditLog;
 use App\Models\EvaluationAttempt;
 use App\Models\ModeratorNotification;
 use Illuminate\Http\Request;
@@ -705,6 +706,17 @@ class EvaluacionController extends Controller
                             : false,
                 ]);
             }
+
+            AuditLog::create([
+                'action' => 'create_evaluation',
+                'performed_by' => Auth::user()->uuid,
+                'target_type' => 'Evaluacion',
+                'target_id' => $evaluacion->uuid,
+                'changes' => [
+                    'status' => $evaluacion->status,
+                    'questions_count' => count($validated['questions']),
+                ],
+            ]);
         });
 
         return redirect()
@@ -821,9 +833,12 @@ class EvaluacionController extends Controller
             ],
         ]);
 
+        $oldStatus = $evaluacion->status;
+
         DB::transaction(function () use (
             $validated,
-            $evaluacion
+            $evaluacion,
+            $oldStatus
         ) {
 
             $evaluacion->update([
@@ -943,6 +958,20 @@ class EvaluacionController extends Controller
                     ]);
                 }
             }
+
+            AuditLog::create([
+                'action' => 'update_evaluation',
+                'performed_by' => Auth::user()->uuid,
+                'target_type' => 'Evaluacion',
+                'target_id' => $evaluacion->uuid,
+                'changes' => [
+                    'status' => [
+                        'before' => $oldStatus,
+                        'after' => $evaluacion->status,
+                    ],
+                    'questions_count' => count($validated['questions']),
+                ],
+            ]);
         });
 
         return redirect()
@@ -972,7 +1001,24 @@ class EvaluacionController extends Controller
             )
             ->firstOrFail();
 
+        $oldStatus = $evaluacion->status;
+
+        $questionsCount = $evaluacion
+            ->preguntas()
+            ->count();
+
         $evaluacion->delete();
+
+        AuditLog::create([
+            'action' => 'delete_evaluation',
+            'performed_by' => Auth::user()->uuid,
+            'target_type' => 'Evaluacion',
+            'target_id' => $evaluacion->uuid,
+            'changes' => [
+                'status' => $oldStatus,
+                'questions_count' => $questionsCount,
+            ],
+        ]);
 
         return redirect()
             ->route(

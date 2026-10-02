@@ -59,9 +59,9 @@ public function store(Request $request)
         'target_id' => $user->uuid,
         'changes' => [
             'created_fields' => [
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'email' => $user->email,
+                'first_name' => 'CREADO',
+                'last_name' => 'CREADO',
+                'email' => 'CREADO',
                 'role' => $user->role,
                 'status' => $user->status,
             ],
@@ -154,10 +154,14 @@ public function update(Request $request, $id)
 
     foreach ($oldData as $field => $oldValue) {
         if ($oldValue != $newData[$field]) {
-            $changes[$field] = [
-                'before' => $oldValue,
-                'after' => $newData[$field],
-            ];
+            if ($field === 'role') {
+                $changes[$field] = [
+                    'before' => $oldValue,
+                    'after' => $newData[$field],
+                ];
+            } else {
+                $changes[$field] = 'MODIFICADO';
+            }
         }
     }
 
@@ -407,6 +411,16 @@ public function resetPassword(Request $request)
         $reset->save();
     });
 
+    AuditLog::create([
+        'action' => 'reset_password',
+        'performed_by' => $user->uuid,
+        'target_type' => 'User',
+        'target_id' => $user->uuid,
+        'changes' => [
+            'password' => 'MODIFICADA_MEDIANTE_RECUPERACION',
+        ],
+    ]);
+
     // Limpiar información de recuperación
     session()->forget([
         'reset_user_uuid',
@@ -461,6 +475,17 @@ public function showChangePassword()
     $user->must_change_password = false;
 
     $user->save();
+
+    AuditLog::create([
+        'action' => 'change_password',
+        'performed_by' => $user->uuid,
+        'target_type' => 'User',
+        'target_id' => $user->uuid,
+        'changes' => [
+            'password' => 'MODIFICADA',
+            'must_change_password' => false,
+        ],
+    ]);
 
     // Regenerar la sesión después del cambio de contraseña
     $request->session()->regenerate();

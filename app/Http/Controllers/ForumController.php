@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ForumMessage;
+use App\Models\AuditLog;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
@@ -250,9 +251,24 @@ class ForumController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        $oldVisibility = $message->visibility_status;
+
         $message->visibility_status = 'HIDDEN';
 
         $message->save();
+
+        AuditLog::create([
+            'action' => 'restrict_forum_message',
+            'performed_by' => $user->uuid,
+            'target_type' => 'ForumMessage',
+            'target_id' => $message->uuid,
+            'changes' => [
+                'visibility_status' => [
+                    'before' => $oldVisibility,
+                    'after' => $message->visibility_status,
+                ],
+            ],
+        ]);
 
 
         /*
@@ -327,9 +343,24 @@ class ForumController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        $oldVisibility = $message->visibility_status;
+
         $message->visibility_status = 'VISIBLE';
 
         $message->save();
+
+        AuditLog::create([
+            'action' => 'restore_forum_message',
+            'performed_by' => $user->uuid,
+            'target_type' => 'ForumMessage',
+            'target_id' => $message->uuid,
+            'changes' => [
+                'visibility_status' => [
+                    'before' => $oldVisibility,
+                    'after' => $message->visibility_status,
+                ],
+            ],
+        ]);
 
 
         /*

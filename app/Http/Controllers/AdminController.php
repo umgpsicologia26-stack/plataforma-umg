@@ -119,12 +119,12 @@ class AdminController extends Controller
             'target_id' => $moderator->uuid, 
             'changes' => [ 
                 'created_fields' => [ 
-                    'first_name' => $moderator->first_name, 
-                    'last_name' => $moderator->last_name, 
-                    'email' => $moderator->email, 
-                    'role' => $moderator->role, 
-                    'phone' => $moderator->phone, 
-                    'status' => $moderator->status, 
+                    'first_name' => 'CREADO',
+                    'last_name' => 'CREADO',
+                    'email' => 'CREADO',
+                    'role' => $moderator->role,
+                    'phone' => 'CREADO',
+                    'status' => $moderator->status,
                 ], 
             ], 
         ]); 
@@ -545,9 +545,24 @@ public function viewProfileChange($id)
     { 
         $user = User::findOrFail($id); 
 
+        $oldStatus = $user->status;
+
         $user->status = 'Activo'; 
 
         $user->save(); 
+
+        AuditLog::create([
+            'action' => 'admin_activate_user',
+            'performed_by' => Auth::user()->uuid,
+            'target_type' => 'User',
+            'target_id' => $user->uuid,
+            'changes' => [
+                'status' => [
+                    'before' => $oldStatus,
+                    'after' => $user->status,
+                ],
+            ],
+        ]);
 
         return back()->with( 
             'success', 
@@ -560,9 +575,24 @@ public function viewProfileChange($id)
     { 
         $user = User::findOrFail($id); 
 
+        $oldStatus = $user->status;
+
         $user->status = 'Bloqueado'; 
 
         $user->save(); 
+
+        AuditLog::create([
+            'action' => 'admin_suspend_user',
+            'performed_by' => Auth::user()->uuid,
+            'target_type' => 'User',
+            'target_id' => $user->uuid,
+            'changes' => [
+                'status' => [
+                    'before' => $oldStatus,
+                    'after' => $user->status,
+                ],
+            ],
+        ]);
 
         return back()->with( 
             'success', 
@@ -575,7 +605,20 @@ public function viewProfileChange($id)
     { 
         $user = User::findOrFail($id); 
 
+        $oldStatus = $user->status;
+
         $user->delete(); 
+
+        AuditLog::create([
+            'action' => 'admin_delete_user',
+            'performed_by' => Auth::user()->uuid,
+            'target_type' => 'User',
+            'target_id' => $user->uuid,
+            'changes' => [
+                'status' => $oldStatus,
+                'deleted' => true,
+            ],
+        ]);
 
         return back()->with( 
             'success', 
@@ -589,17 +632,33 @@ public function viewProfileChange($id)
         $user = User::withTrashed() 
             ->findOrFail($id); 
 
+        $oldStatus = $user->status;
+
         $user->restore(); 
 
         $user->status = 'Activo'; 
 
         $user->save(); 
 
+        AuditLog::create([
+            'action' => 'admin_restore_user',
+            'performed_by' => Auth::user()->uuid,
+            'target_type' => 'User',
+            'target_id' => $user->uuid,
+            'changes' => [
+                'status' => [
+                    'before' => $oldStatus,
+                    'after' => $user->status,
+                ],
+                'restored' => true,
+            ],
+        ]);
+
         return back()->with( 
             'success', 
             'Usuario restaurado correctamente' 
         ); 
-    } 
+    }
     // RESTAURAR USUARIOS SELECCIONADOS  
 public function restoreUsers(Request $request)  
 {  
@@ -629,11 +688,28 @@ public function restoreUsers(Request $request)
         ->get();  
 
     foreach ($users as $user) {  
+
+        $oldStatus = $user->status;
+
         $user->restore();  
         $user->status = 'Activo';  
         $user->save();  
-    }  
 
+        AuditLog::create([
+            'action' => 'admin_restore_user',
+            'performed_by' => Auth::user()->uuid,
+            'target_type' => 'User',
+            'target_id' => $user->uuid,
+            'changes' => [
+                'status' => [
+                    'before' => $oldStatus,
+                    'after' => $user->status,
+                ],
+                'restored' => true,
+                'bulk_restore' => true,
+            ],
+        ]);
+    }
     return back()->with(  
         'success',  
         $users->count() === 1  
@@ -641,6 +717,7 @@ public function restoreUsers(Request $request)
             : 'Usuarios restaurados correctamente'  
     );  
 }
+
 
     // CONFIGURACIÓN 
     public function configuration() 
@@ -680,6 +757,15 @@ public function restoreUsers(Request $request)
             $settings->id = 1; 
         } 
 
+        $oldSettings = [
+            'system_name' => $settings->system_name,
+            'forum_enabled' => $settings->forum_enabled,
+            'panic_enabled' => $settings->panic_enabled,
+            'registration_enabled' => $settings->registration_enabled,
+            'case_creation_enabled' => $settings->case_creation_enabled,
+            'maintenance_mode' => $settings->maintenance_mode,
+        ];
+
         $settings->system_name = 
             $request->system_name; 
 
@@ -700,12 +786,44 @@ public function restoreUsers(Request $request)
 
         $settings->save(); 
 
+        AuditLog::create([
+            'action' => 'admin_update_configuration',
+            'performed_by' => Auth::user()->uuid,
+            'target_type' => 'SystemSetting',
+            'target_id' => (string) $settings->id,
+            'changes' => [
+                'system_name' => [
+                    'before' => $oldSettings['system_name'],
+                    'after' => $settings->system_name,
+                ],
+                'forum_enabled' => [
+                    'before' => $oldSettings['forum_enabled'],
+                    'after' => $settings->forum_enabled,
+                ],
+                'panic_enabled' => [
+                    'before' => $oldSettings['panic_enabled'],
+                    'after' => $settings->panic_enabled,
+                ],
+                'registration_enabled' => [
+                    'before' => $oldSettings['registration_enabled'],
+                    'after' => $settings->registration_enabled,
+                ],
+                'case_creation_enabled' => [
+                    'before' => $oldSettings['case_creation_enabled'],
+                    'after' => $settings->case_creation_enabled,
+                ],
+                'maintenance_mode' => [
+                    'before' => $oldSettings['maintenance_mode'],
+                    'after' => $settings->maintenance_mode,
+                ],
+            ],
+        ]);
+
         return back()->with( 
             'success', 
             'Configuración actualizada correctamente.' 
         ); 
-    } 
-
+    }
     // GENERAR NICKNAME ANÓNIMO 
     private function generateUniqueCode() 
     { 
@@ -782,6 +900,21 @@ public function restoreUsers(Request $request)
         $case = CaseFile::findOrFail($id); 
 
         $this->authorize('delete', $case); 
+
+        $oldStatus = $case->status;
+
+        AuditLog::create([
+            'action' => 'admin_delete_case',
+            'performed_by' => Auth::user()->uuid,
+            'target_type' => 'CaseFile',
+            'target_id' => (string) $case->id,
+            'changes' => [
+                'case_number' => $case->case_number,
+                'type' => $case->type,
+                'status' => $oldStatus,
+                'deleted' => true,
+            ],
+        ]);
 
         $case->delete(); 
 
@@ -881,13 +1014,26 @@ public function finishCase($id)
 
         // Guardar observación 
 
-        CaseComment::create([ 
+        $comment = CaseComment::create([
             'case_id' => $case->id, 
             'user_id' => $user->uuid, 
             'type' => 'OBSERVACION', 
             'comment' => trim($request->comment), 
             'color' => $request->color 
         ]); 
+
+        AuditLog::create([
+            'action' => 'admin_add_case_comment',
+            'performed_by' => $user->uuid,
+            'target_type' => 'CaseFile',
+            'target_id' => (string) $case->id,
+            'changes' => [
+                'case_number' => $case->case_number,
+                'type' => $case->type,
+                'comment_id' => (string) $comment->id,
+                'comment_type' => $comment->type,
+            ],
+        ]);
 
         // Notificar al moderador 
 

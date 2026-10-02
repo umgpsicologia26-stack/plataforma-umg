@@ -390,12 +390,25 @@ class ModeratorController extends BaseController
 
         if ($request->filled('comment')) {
 
-            CaseComment::create([
+            $comment = CaseComment::create([
                 'case_id' => $case->id,
                 'user_id' => $moderatorUuid,
                 'type' => 'OBSERVACION',
                 'comment' => trim($request->comment),
                 'color' => null,
+            ]);
+
+            AuditLog::create([
+                'action' => 'moderator_add_case_comment',
+                'performed_by' => $moderatorUuid,
+                'target_type' => 'CaseFile',
+                'target_id' => (string) $case->id,
+                'changes' => [
+                    'case_number' => $case->case_number,
+                    'type' => $case->type,
+                    'comment_id' => (string) $comment->id,
+                    'comment_type' => $comment->type,
+                ],
             ]);
         }
     });
@@ -808,6 +821,8 @@ class ModeratorController extends BaseController
             abort(404);
         }
 
+        $oldStatus = $chat->status;
+
         DB::table(
             'chat_conversations'
         )
@@ -819,6 +834,22 @@ class ModeratorController extends BaseController
                 'status' => 'CERRADO',
                 'updated_at' => now(),
             ]);
+
+        if ($oldStatus !== 'CERRADO') {
+
+            AuditLog::create([
+                'action' => 'moderator_close_chat',
+                'performed_by' => $moderatorUuid,
+                'target_type' => 'ChatConversation',
+                'target_id' => (string) $id,
+                'changes' => [
+                    'status' => [
+                        'before' => $oldStatus,
+                        'after' => 'CERRADO',
+                    ],
+                ],
+            ]);
+        }
 
         return redirect()
             ->route(

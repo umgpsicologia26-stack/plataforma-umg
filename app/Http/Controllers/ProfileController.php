@@ -169,6 +169,16 @@ $user->anonymous_nickname = $validated['anonymous_nickname'];
 
         $user->save();
 
+        \App\Models\AuditLog::create([
+            'action' => 'update_password',
+            'performed_by' => $user->uuid,
+            'target_type' => 'User',
+            'target_id' => $user->uuid,
+            'changes' => [
+                'password' => 'MODIFICADA',
+            ],
+        ]);
+
         return redirect()
             ->route('profile.edit')
             ->with('password_success', 'Tu contraseña se actualizó correctamente.');
