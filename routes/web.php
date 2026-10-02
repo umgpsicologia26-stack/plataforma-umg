@@ -232,20 +232,24 @@ Route::middleware([
 
     /* EVALUACIONES DEL USUARIO */
 
-    Route::get(
-        '/evaluation',
-        [EvaluacionController::class, 'index']
-    )->name('evaluation.index');
+    Route::middleware(['role:USER'])->group(function () {
 
-    Route::get(
-        '/evaluation/{uuid}',
-        [EvaluacionController::class, 'show']
-    )->name('evaluation.show');
+        Route::get(
+            '/evaluation',
+            [EvaluacionController::class, 'index']
+        )->name('evaluation.index');
 
-    Route::post(
-        '/evaluation/{uuid}',
-        [EvaluacionController::class, 'submit']
-    )->name('evaluation.submit');
+        Route::get(
+            '/evaluation/{uuid}',
+            [EvaluacionController::class, 'show']
+        )->name('evaluation.show');
+
+        Route::post(
+            '/evaluation/{uuid}',
+            [EvaluacionController::class, 'submit']
+        )->name('evaluation.submit');
+
+    });
 
     /* BOTÓN DE PÁNICO */
 
