@@ -18,7 +18,7 @@ class CaseController extends BaseController
 
     public function createSuicideCase(Request $request) 
     { 
-        $this->checkRole(['USER']); 
+        $this->authorize('create', CaseFile::class);
 
         $request->validate([ 
             'description' => [ 
@@ -119,7 +119,7 @@ class CaseController extends BaseController
 
     public function createAbuseCase(Request $request) 
     { 
-        $this->checkRole(['USER']); 
+        $this->authorize('create', CaseFile::class);
 
         $request->validate([ 
             'description' => [ 
