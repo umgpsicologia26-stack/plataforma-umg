@@ -8,103 +8,126 @@ use Illuminate\Support\Facades\DB;
 
 class EncryptSensitiveData extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'app:encrypt-sensitive-data';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Cifra los datos sensibles existentes de la plataforma';
+    protected $description = 'Cifra los datos sensibles existentes de la plataforma sin volver a cifrar datos ya protegidos';
 
     /**
-     * Execute the console command.
+     * Determina si un valor ya está cifrado correctamente
+     * con la APP_KEY actual.
      */
+    private function isEncrypted(string $value): bool
+    {
+        try {
+            Crypt::decryptString($value);
+
+            return true;
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Cifra una columna únicamente cuando el valor
+     * todavía no está cifrado.
+     */
+    private function encryptColumn(
+        string $table,
+        string $column,
+        string $primaryKey
+    ): int {
+        $encrypted = 0;
+
+        $rows = DB::table($table)
+            ->whereNotNull($column)
+            ->where($column, '<>', '')
+            ->get([$primaryKey, $column]);
+
+        foreach ($rows as $row) {
+            $value = $row->{$column};
+
+            if ($this->isEncrypted($value)) {
+                continue;
+            }
+
+            DB::table($table)
+                ->where($primaryKey, $row->{$primaryKey})
+                ->update([
+                    $column => Crypt::encryptString($value),
+                ]);
+
+            $encrypted++;
+        }
+
+        return $encrypted;
+    }
+
     public function handle()
     {
-        $this->info('Iniciando cifrado de datos sensibles...');
+        $this->info('Iniciando verificación de datos sensibles...');
         $this->newLine();
 
-        /*
-         * CASE FILES
-         */
-        $caseFiles = DB::table('case_files')
-            ->whereNotNull('description')
-            ->where('description', '<>', '')
-            ->get();
+        $fields = [
+            [
+                'table' => 'case_files',
+                'column' => 'description',
+                'primaryKey' => 'id',
+            ],
+            [
+                'table' => 'case_comments',
+                'column' => 'comment',
+                'primaryKey' => 'id',
+            ],
+            [
+                'table' => 'chat_messages',
+                'column' => 'message',
+                'primaryKey' => 'id',
+            ],
+            [
+                'table' => 'mensajes_foro',
+                'column' => 'content',
+                'primaryKey' => 'uuid',
+            ],
+            [
+                'table' => 'evaluacion_respuestas',
+                'column' => 'respuesta',
+                'primaryKey' => 'uuid',
+            ],
+            [
+                'table' => 'crisis_reports',
+                'column' => 'description',
+                'primaryKey' => 'uuid',
+            ],
+        ];
 
-        foreach ($caseFiles as $case) {
-            DB::table('case_files')
-                ->where('id', $case->id)
-                ->update([
-                    'description' => Crypt::encryptString($case->description),
-                ]);
+        $totalEncrypted = 0;
+
+        foreach ($fields as $field) {
+            $count = $this->encryptColumn(
+                $field['table'],
+                $field['column'],
+                $field['primaryKey']
+            );
+
+            $this->info(
+                "{$field['table']}.{$field['column']}: {$count} registros cifrados."
+            );
+
+            $totalEncrypted += $count;
         }
-
-        $this->info("case_files.description: {$caseFiles->count()} registros cifrados.");
-
-        /*
-         * CASE COMMENTS
-         */
-        $comments = DB::table('case_comments')
-            ->whereNotNull('comment')
-            ->where('comment', '<>', '')
-            ->get();
-
-        foreach ($comments as $comment) {
-            DB::table('case_comments')
-                ->where('id', $comment->id)
-                ->update([
-                    'comment' => Crypt::encryptString($comment->comment),
-                ]);
-        }
-
-        $this->info("case_comments.comment: {$comments->count()} registros cifrados.");
-
-        /*
-         * CHAT MESSAGES
-         */
-        $chatMessages = DB::table('chat_messages')
-            ->whereNotNull('message')
-            ->where('message', '<>', '')
-            ->get();
-
-        foreach ($chatMessages as $message) {
-            DB::table('chat_messages')
-                ->where('id', $message->id)
-                ->update([
-                    'message' => Crypt::encryptString($message->message),
-                ]);
-        }
-
-        $this->info("chat_messages.message: {$chatMessages->count()} registros cifrados.");
-
-        /*
-         * EVALUATION ANSWERS
-         */
-        $answers = DB::table('evaluacion_respuestas')
-            ->whereNotNull('respuesta')
-            ->where('respuesta', '<>', '')
-            ->get();
-
-        foreach ($answers as $answer) {
-            DB::table('evaluacion_respuestas')
-                ->where('uuid', $answer->uuid)
-                ->update([
-                    'respuesta' => Crypt::encryptString($answer->respuesta),
-                ]);
-        }
-
-        $this->info("evaluacion_respuestas.respuesta: {$answers->count()} registros cifrados.");
 
         $this->newLine();
-        $this->info('Cifrado de datos sensibles completado.');
-        
+
+        if ($totalEncrypted === 0) {
+            $this->info(
+                'Todos los datos sensibles existentes ya estaban cifrados.'
+            );
+        } else {
+            $this->info(
+                "Proceso completado. Registros cifrados: {$totalEncrypted}."
+            );
+        }
+
         return Command::SUCCESS;
     }
 }

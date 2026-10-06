@@ -54,7 +54,7 @@ class SecurityHeaders
         // Política de seguridad de contenido en modo Report-Only.
         // No bloquea recursos; solamente permite detectar posibles incompatibilidades.
         $response->headers->set(
-            'Content-Security-Policy-Report-Only',
+            'Content-Security-Policy',
             "default-src 'self'; " .
             "script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " .
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " .

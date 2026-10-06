@@ -32,6 +32,8 @@ class User extends Authenticatable
         'birth_date',
         'profile_image',
         'status',
+        'failed_login_attempts',
+        'lock_reason',
         'role',
         'must_change_password',
         'google2fa_secret',

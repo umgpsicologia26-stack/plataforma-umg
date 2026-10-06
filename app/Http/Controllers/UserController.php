@@ -179,33 +179,6 @@ public function update(Request $request, $id)
     return back()->with('success', 'Usuario actualizado');
 }
 
-    // DELETE
-public function destroy($id)
-{
-    $this->checkRole(['ADMIN']);
-
-    $user = User::findOrFail($id);
-
-    $userUuid = $user->uuid;
-
-    $user->delete();
-
-    AuditLog::create([
-        'action' => 'delete_user',
-        'performed_by' => Auth::user()->uuid,
-        'target_type' => 'User',
-        'target_id' => $userUuid,
-        'changes' => [
-            'status' => [
-                'before' => $user->status,
-                'after' => 'DELETED',
-            ],
-        ],
-    ]);
-
-    return back()->with('success', 'Usuario eliminado');
-}
-
     //ENVIAR CÓDIGO DE RECUPERACIÓN// 
 public function sendResetCode(Request $request)
 {
@@ -260,14 +233,6 @@ public function sendResetCode(Request $request)
             // El código solamente será válido durante 3 minutos.
             'expires_at' => Carbon::now()->addMinutes(3),
         ]);
-
-        // Limpiar límite de intentos del código anterior.
-        RateLimiter::clear(
-            'password-reset-code:' .
-            $user->uuid .
-            '|' .
-            $request->ip()
-        );
 
         // Enviar código por correo.
         Mail::to($user->email)->send(
@@ -404,12 +369,19 @@ public function resetPassword(Request $request)
             $request->password
         );
 
+        $user->remember_token = null;
+
         $user->save();
 
         // Marcar código como utilizado
         $reset->used_at = now();
         $reset->save();
-    });
+
+    // Revocar las demás sesiones autenticadas
+    DB::table('sessions')
+        ->where('user_id', $user->uuid)
+        ->delete();
+});
 
     AuditLog::create([
         'action' => 'reset_password',
@@ -472,9 +444,17 @@ public function showChangePassword()
         $request->password
     );
 
+    $user->remember_token = null;
+
     $user->must_change_password = false;
 
     $user->save();
+
+    // Revocar las demás sesiones autenticadas
+DB::table('sessions')
+    ->where('user_id', $user->uuid)
+    ->where('id', '!=', $request->session()->getId())
+    ->delete();
 
     AuditLog::create([
         'action' => 'change_password',

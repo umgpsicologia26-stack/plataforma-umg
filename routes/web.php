@@ -15,14 +15,15 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\TwoFactorController;
 
-    /* HOME */
+
+/* HOME */
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 
-    /* LOGIN */
+/* LOGIN */
 
 Route::get(
     '/login',
@@ -53,7 +54,8 @@ Route::post(
     [AuthController::class, 'googleLogin']
 )->name('google.login');
 
-    /* Autenticación de dos factores */
+
+/* Autenticación de dos factores */
 
 Route::middleware('guest')->group(function () {
 
@@ -83,7 +85,8 @@ Route::middleware('guest')->group(function () {
     ])->name('two-factor.cancel');
 });
 
-    /* RECUPERACIÓN DE CONTRASEÑA */
+
+/* RECUPERACIÓN DE CONTRASEÑA */
 
 Route::get(
     '/forgot-password',
@@ -109,7 +112,8 @@ Route::post(
     [UserController::class, 'resetPassword']
 );
 
-    /* CAMBIO DE CONTRASEÑA */
+
+/* CAMBIO DE CONTRASEÑA */
 
 Route::middleware(['auth'])->group(function () {
 
@@ -122,15 +126,16 @@ Route::middleware(['auth'])->group(function () {
         '/change-password',
         [UserController::class, 'changePassword']
     )->name('password.update');
-
 });
 
-    /* USUARIO AUTENTICADO */
+
+/* USUARIO AUTENTICADO */
 
 Route::middleware([
     'auth',
     'must.change.password',
-    'maintenance'
+    'maintenance',
+    'inactivity'
 ])->group(function () {
 
     /* PERFIL */
@@ -155,59 +160,60 @@ Route::middleware([
 
     Route::middleware(['role:USER'])->group(function () {
 
-    Route::get(
-        '/cases',
-        [CaseController::class, 'tracking']
-    )->name('cases.tracking');
+        Route::get(
+            '/cases',
+            [CaseController::class, 'tracking']
+        )->name('cases.tracking');
+    });
 
-});
 
     /* MARCAR NOTIFICACIÓN COMO LEÍDA */
 
-Route::middleware(['role:USER'])->group(function () {
+    Route::middleware(['role:USER'])->group(function () {
 
-    Route::post(
-        '/cases/notifications/{id}/read',
-        [CaseController::class, 'markNotificationAsRead']
-    )->name('cases.notification.read');
+        Route::post(
+            '/cases/notifications/{id}/read',
+            [CaseController::class, 'markNotificationAsRead']
+        )->name('cases.notification.read');
+    });
 
-});
+
     /* CHAT DEL USUARIO */
 
     Route::middleware(['role:USER'])->group(function () {
 
-    Route::get(
-        '/chat',
-        [ChatController::class, 'index']
-    )->name('chat.index');
+        Route::get(
+            '/chat',
+            [ChatController::class, 'index']
+        )->name('chat.index');
 
-    Route::get(
-        '/chat/messages',
-        [ChatController::class, 'messages']
-    )->name('chat.messages');
+        Route::get(
+            '/chat/messages',
+            [ChatController::class, 'messages']
+        )->name('chat.messages');
 
-    Route::post(
-        '/chat/message',
-        [ChatController::class, 'sendMessage']
-    )->name('chat.message');
+        Route::post(
+            '/chat/message',
+            [ChatController::class, 'sendMessage']
+        )->name('chat.message');
+    });
 
-});
 
     /* RELACIÓN DE CASOS */
 
     Route::middleware(['role:USER'])->group(function () {
 
-    Route::post(
-        '/cases/suicide',
-        [CaseController::class, 'createSuicideCase']
-    )->name('cases.suicide');
+        Route::post(
+            '/cases/suicide',
+            [CaseController::class, 'createSuicideCase']
+        )->name('cases.suicide');
 
-    Route::post(
-        '/cases/abuse',
-        [CaseController::class, 'createAbuseCase']
-    )->name('cases.abuse');
+        Route::post(
+            '/cases/abuse',
+            [CaseController::class, 'createAbuseCase']
+        )->name('cases.abuse');
+    });
 
-});
 
     /* DASHBOARD */
 
@@ -215,6 +221,7 @@ Route::middleware(['role:USER'])->group(function () {
         '/dashboard',
         [DashboardController::class, 'index']
     )->name('dashboard');
+
 
     /* FORO */
 
@@ -239,15 +246,8 @@ Route::middleware(['role:USER'])->group(function () {
             '/forum/{uuid}/restore',
             [ForumController::class, 'restore']
         )->name('forum.restore');
-
     });
 
-    /* PERFIL */
-
-    Route::get(
-        '/profile',
-        [UserController::class, 'profile']
-    );
 
     /* EVALUACIONES DEL USUARIO */
 
@@ -267,19 +267,19 @@ Route::middleware(['role:USER'])->group(function () {
             '/evaluation/{uuid}',
             [EvaluacionController::class, 'submit']
         )->name('evaluation.submit');
-
     });
+
 
     /* BOTÓN DE PÁNICO */
 
     Route::middleware(['role:USER'])->group(function () {
 
-    Route::get(
-        '/panic-button',
-        fn () => view('panic')
-    );
+        Route::get(
+            '/panic-button',
+            fn () => view('panic')
+        );
+    });
 
-});
 
     /* CASOS INFORMATIVOS */
 
@@ -292,15 +292,16 @@ Route::middleware(['role:USER'])->group(function () {
         '/casesSuicidio',
         fn () => view('casesSuicidio')
     );
-
 });
 
-    /* MODERADOR */
+
+/* MODERADOR */
 
 Route::middleware([
     'auth',
     'must.change.password',
-    'role:MODERATOR'
+    'role:MODERATOR',
+    'inactivity'
 ])->group(function () {
 
     /* DASHBOARD DEL MODERADOR */
@@ -340,34 +341,29 @@ Route::middleware([
         [EvaluacionController::class, 'destroy']
     )->name('moderator.evaluations.destroy');
 
-    Route::get('/moderator/evaluation-results/user/{userUuid}', 
-    [EvaluacionController::class, 'moderatorUserResults'])
-    ->name('moderator.evaluation-results.user');
+    Route::get(
+        '/moderator/evaluation-results/user/{userUuid}',
+        [EvaluacionController::class, 'moderatorUserResults']
+    )->name('moderator.evaluation-results.user');
 
-    Route::get('/moderator/evaluation-result/{id}', 
-    [ModeratorController::class, 'evaluationResult'])
-    ->name('moderator.evaluation.result');
+    Route::get(
+        '/moderator/evaluation-result/{id}',
+        [ModeratorController::class, 'evaluationResult']
+    )->name('moderator.evaluation.result');
 
-    Route::get('/moderator/evaluation-result/{id}/pdf', 
-    [ModeratorController::class, 'downloadEvaluationResult'])
-    ->name('moderator.evaluation.pdf');
+    Route::get(
+        '/moderator/evaluation-result/{id}/pdf',
+        [ModeratorController::class, 'downloadEvaluationResult']
+    )->name('moderator.evaluation.pdf');
+
 
     /* RESULTADOS DE EVALUACIONES */
-
-    Route::get(
-        '/moderator/evaluation-results/{id}',
-        [ModeratorController::class, 'evaluationResult']
-    )->name('moderator.evaluation-result');
-
-    Route::get(
-        '/moderator/evaluation-results/{id}/pdf',
-        [ModeratorController::class, 'downloadEvaluationResult']
-    )->name('moderator.evaluation-result.pdf');
 
     Route::post(
         '/moderator/notifications/evaluations/{id}/read',
         [ModeratorController::class, 'markEvaluationNotificationAsRead']
     )->name('moderator.evaluation-notifications.read');
+
 
     /* CASOS DEL MODERADOR */
 
@@ -391,6 +387,7 @@ Route::middleware([
         [ModeratorController::class, 'updateCase']
     )->name('moderator.case.update');
 
+
     /* CHATS DEL MODERADOR */
 
     Route::get(
@@ -412,14 +409,15 @@ Route::middleware([
         '/moderator/chat/{id}/close',
         [ModeratorController::class, 'closeChat']
     )->name('moderator.chat.close');
-
 });
 
-    /* ACCESO ADMINISTRATIVO */
+
+/* ACCESO ADMINISTRATIVO */
 
 Route::middleware([
     'auth',
-    'role:ADMIN'
+    'role:ADMIN',
+    'inactivity'
 ])->group(function () {
 
     /* PANTALLA DE ACCESO ADMINISTRATIVO */
@@ -431,6 +429,7 @@ Route::middleware([
         }
     );
 
+
     /* VERIFICAR CONTRASEÑA ADMINISTRATIVA */
 
     Route::post(
@@ -438,20 +437,22 @@ Route::middleware([
         [AdminController::class, 'verifyAdmin']
     );
 
+
     /* ÁREA ADMINISTRATIVA VERIFICADA */
 
     Route::middleware([
         'admin.verified'
     ])->group(function () {
 
-    /* PANEL PRINCIPAL */
+        /* PANEL PRINCIPAL */
 
         Route::get(
             '/admin-panel',
             [AdminController::class, 'panel']
         );
 
-    /* NOTIFICACIONES */
+
+        /* NOTIFICACIONES */
 
         Route::get(
             '/admin/notifications',
@@ -463,12 +464,14 @@ Route::middleware([
             [AdminController::class, 'markNotificationAsRead']
         )->name('admin.notifications.read');
 
+
         /* DASHBOARD ADMIN */
 
         Route::get(
             '/admin',
             [AdminController::class, 'dashboard']
         );
+
 
         /* USUARIOS */
 
@@ -477,25 +480,30 @@ Route::middleware([
             [AdminController::class, 'users']
         );
 
-        Route::patch( 
-            '/admin/user/{id}/activate', 
-            [AdminController::class, 'activateUser'] 
-        ); 
-
-        Route::patch( 
-            '/admin/user/{id}/suspend', 
-            [AdminController::class, 'suspendUser'] 
-        ); 
-
-        Route::delete( 
-            '/admin/user/{id}/delete', 
-            [AdminController::class, 'deleteUser'] 
-        ); 
-
-        Route::patch( 
-            '/admin/user/{id}/restore', 
-            [AdminController::class, 'restoreUser'] 
+        Route::patch(
+            '/admin/user/{id}/activate',
+            [AdminController::class, 'activateUser']
         );
+
+        Route::patch(
+            '/admin/user/{id}/suspend',
+            [AdminController::class, 'suspendUser']
+        );
+
+        Route::delete(
+            '/admin/user/{id}/delete',
+            [AdminController::class, 'deleteUser']
+        );
+
+        Route::patch(
+            '/admin/user/{id}/restore',
+            [AdminController::class, 'restoreUser']
+        );
+
+        Route::post(
+            '/admin/users/{id}/restore-blocked',
+            [AdminController::class, 'restoreBlockedUser']
+        )->name('admin.users.restore-blocked');
 
         Route::get(
             '/admin/user/{id}/profile-changes',
@@ -506,6 +514,7 @@ Route::middleware([
             '/admin/users/restore',
             [AdminController::class, 'restoreUsers']
         );
+
 
         /* MODERADORES */
 
@@ -528,6 +537,7 @@ Route::middleware([
             '/moderator/restore/{id}',
             [AdminController::class, 'restoreModerator']
         );
+
 
         /* CASOS ADMINISTRATIVOS */
 
@@ -566,6 +576,7 @@ Route::middleware([
             [AdminController::class, 'finishCase']
         );
 
+
         /* REPORTES */
 
         Route::get(
@@ -595,21 +606,13 @@ Route::middleware([
             '/admin/configuration/save',
             [AdminController::class, 'saveConfiguration']
         );
-
-        /* ELIMINAR USUARIO */
-
-        Route::delete(
-            '/admin/delete/{id}',
-            [UserController::class, 'destroy']
-        );
-
     });
-
 });
 
-    /* CONTACTO */
+
+/* CONTACTO */
 
 Route::post(
     '/contact',
     [ContactController::class, 'store']
-)->name('contact.store'); 
+)->name('contact.store');

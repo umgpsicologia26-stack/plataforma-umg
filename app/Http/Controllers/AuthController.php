@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\AuditLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
@@ -12,68 +13,55 @@ use Kreait\Firebase\Contract\Auth as FirebaseAuth;
 
 class AuthController extends Controller
 {
-    //MOSTRAR LOGIN
-    
+    // MOSTRAR LOGIN
     public function showLogin()
     {
         return view('auth.login');
     }
 
-
-    //REGISTRO PÚBLICO
-
+    // REGISTRO PÚBLICO
     public function register(Request $request)
     {
         $request->validate([
-
             'first_name' => [
                 'required',
                 'string',
                 'max:150'
             ],
-
             'last_name' => [
                 'required',
                 'string',
                 'max:100'
             ],
-
             'anonymous_nickname' => [
                 'required',
                 'string',
                 'max:80',
                 'unique:users,anonymous_nickname'
             ],
-
             'birth_date' => [
                 'required',
                 'date'
             ],
-
             'phone' => [
                 'required',
                 'string',
                 'max:20'
             ],
-
             'email' => [
                 'required',
                 'email',
                 'max:150',
                 'unique:users,email'
             ],
-
             'password' => [
                 'required',
                 'string',
                 'min:8'
             ],
-
         ]);
 
-
         User::create([
-
             /*
              * UUID principal del usuario
              */
@@ -85,12 +73,15 @@ class AuthController extends Controller
              * para el registro mediante correo.
              */
             'firebase_uid' => (string) Str::uuid(),
+
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'birth_date' => $request->birth_date,
             'email' => $request->email,
+
             'anonymous_nickname' =>
                 $request->anonymous_nickname,
+
             'provider' => 'EMAIL',
 
             /*
@@ -98,6 +89,7 @@ class AuthController extends Controller
              */
             'password_hash' =>
                 Hash::make($request->password),
+
             'phone' => $request->phone,
 
             /*
@@ -107,9 +99,7 @@ class AuthController extends Controller
             'role' => 'USER',
 
             'status' => 'Activo',
-
         ]);
-
 
         return redirect('/login')
             ->with(
@@ -118,212 +108,382 @@ class AuthController extends Controller
             );
     }
 
-public function login(Request $request)
-{
-    /*
-     * Validar formulario
-     */
-    $request->validate([
-
-        'email' => [
-            'required',
-            'email'
-        ],
-
-        'password' => [
-            'required'
-        ],
-
-    ]);
-
-    /*
-     * Clave utilizada para controlar
-     * intentos fallidos.
-     * Se combina email + IP.
-     */
-    $key = Str::lower(
-        $request->email . '|' . $request->ip()
-    );
-
-    /*
-     * Máximo 3 intentos.
-     * El bloqueo dura 5 minutos.
-     */
-    if (RateLimiter::tooManyAttempts($key, 3)) {
-
-        return back()
-            ->with(
-                'error',
-                'Cuenta bloqueada temporalmente por múltiples intentos fallidos.'
-            )
-            ->with(
-                'showRecovery',
-                true
-            );
-    }
-
-    /*
-     * Buscar usuario
-     */
-    $user = User::where(
-        'email',
-        $request->email
-    )->first();
-
-    /*
-     * Verificar credenciales
-     */
-    if (
-        !$user ||
-        !Hash::check(
-            $request->password,
-            $user->password_hash
-        )
-    ) {
-
-        RateLimiter::hit(
-            $key,
-            300
-        );
-
-        $attemptsLeft =
-            3 - RateLimiter::attempts($key);
-
-        return back()->with(
-            'error',
-            'Credenciales inválidas. Intentos restantes: ' .
-            max($attemptsLeft, 0)
-        );
-    }
-
-    /*
-     * Verificar estado de la cuenta
-     */
-    if ($user->status !== 'Activo') {
-
-        return back()->with(
-            'error',
-            'Tu cuenta se encuentra bloqueada. Contacta a un administrador.'
-        );
-    }
-
-    /*
-     * Credenciales correctas.
-     */
-    RateLimiter::clear($key);
-
-    /*
-     * ADMIN y MODERATOR requieren
-     * un segundo factor antes de
-     * crear la sesión autenticada.
-     */
-    if (in_array($user->role, ['ADMIN', 'MODERATOR'])) {
-
+    // LOGIN
+    public function login(Request $request)
+    {
         /*
-         * Regenerar la sesión antes de
-         * almacenar el estado temporal.
+         * Validar formulario
          */
-        $request->session()->regenerate();
+        $request->validate([
+            'email' => [
+                'required',
+                'email'
+            ],
 
-        /*
-         * Guardar únicamente el UUID del usuario
-         * que está pendiente de completar 2FA.
-         *
-         * No se crea todavía una sesión Laravel
-         * autenticada.
-         */
-        $request->session()->put(
-            '2fa_pending_user_uuid',
-            $user->uuid
-        );
-
-        /*
-         * Limpiar cualquier verificación administrativa
-         * anterior.
-         */
-        $request->session()->forget([
-            'admin_verified',
-            'admin_verified_user'
+            'password' => [
+                'required'
+            ],
         ]);
 
         /*
-         * Si todavía no tiene 2FA configurado,
-         * debe realizar la configuración inicial.
+         * Clave utilizada para controlar
+         * intentos fallidos.
+         *
+         * Se combina email + IP.
          */
-        if (!$user->google2fa_enabled) {
+        $key = Str::lower(
+            $request->email . '|' . $request->ip()
+        );
 
-            return redirect()->route(
-                'two-factor.setup'
+        /*
+         * Máximo 3 intentos por email + IP.
+         * El bloqueo temporal dura 5 minutos.
+         */
+        if (RateLimiter::tooManyAttempts($key, 3)) {
+
+            return back()
+                ->with(
+                    'error',
+                    'Cuenta bloqueada temporalmente por múltiples intentos fallidos.'
+                )
+                ->with(
+                    'showRecovery',
+                    true
+                );
+        }
+
+        /*
+         * Buscar usuario
+         */
+        $user = User::where(
+            'email',
+            $request->email
+        )->first();
+
+        /*
+         * Verificar si la cuenta ya se encuentra bloqueada.
+         *
+         * Una cuenta bloqueada no debe continuar con la
+         * validación de contraseña ni incrementar nuevamente
+         * el contador de intentos fallidos.
+         */
+        if ($user && $user->status === 'Bloqueado') {
+
+            return back()
+                ->with(
+                    'accountBlocked',
+                    true
+                );
+        }
+
+        /*
+         * Verificar credenciales
+         */
+        if (
+            !$user ||
+            !Hash::check(
+                $request->password,
+                $user->password_hash
+            )
+        ) {
+
+            /*
+             * Registrar intento fallido temporal
+             * por email + IP.
+             */
+            RateLimiter::hit(
+                $key,
+                300
+            );
+
+            /*
+             * Si el usuario existe, acumular también
+             * el intento a nivel de cuenta.
+             */
+            if ($user) {
+
+                /*
+                 * Guardar los valores anteriores
+                 * antes de incrementar el contador.
+                 */
+                $oldStatus = $user->status;
+
+                $oldFailedAttempts =
+                    $user->failed_login_attempts;
+
+                $oldLockReason =
+                    $user->lock_reason;
+
+                /*
+                 * Incrementar contador de intentos
+                 * fallidos a nivel de cuenta.
+                 */
+                $user->failed_login_attempts =
+                    $user->failed_login_attempts + 1;
+
+                /*
+                 * Bloquear automáticamente la cuenta
+                 * al alcanzar 5 intentos fallidos.
+                 */
+                if ($user->failed_login_attempts >= 5) {
+
+                    $user->status = 'Bloqueado';
+
+                    $user->lock_reason = 'BRUTE_FORCE';
+
+                    /*
+                     * Guardar el bloqueo.
+                     */
+                    $user->save();
+
+                    /*
+                     * Revocar todas las sesiones activas
+                     * de la cuenta bloqueada.
+                     */
+                    \DB::table('sessions')
+                        ->where(
+                            'user_id',
+                            $user->uuid
+                        )
+                        ->delete();
+
+                    /*
+                     * Registrar el bloqueo automático
+                     * en la auditoría.
+                     *
+                     * performed_by es NULL porque
+                     * ningún administrador realizó
+                     * esta acción manualmente.
+                     */
+                    AuditLog::create([
+                        'action' =>
+                            'auto_lock_brute_force',
+
+                        'performed_by' =>
+                            null,
+
+                        'target_type' =>
+                            'User',
+
+                        'target_id' =>
+                            $user->uuid,
+
+                        'changes' => [
+                            'status' => [
+                                'before' =>
+                                    $oldStatus,
+
+                                'after' =>
+                                    $user->status,
+                            ],
+
+                            'failed_login_attempts' => [
+                                'before' =>
+                                    $oldFailedAttempts,
+
+                                'after' =>
+                                    $user->failed_login_attempts,
+                            ],
+
+                            'lock_reason' => [
+                                'before' =>
+                                    $oldLockReason,
+
+                                'after' =>
+                                    $user->lock_reason,
+                            ],
+                        ],
+                    ]);
+
+                    /*
+                     * Mostrar la ventana de cuenta bloqueada.
+                     */
+                    return back()
+                        ->with(
+                            'accountBlocked',
+                            true
+                        );
+                }
+
+                /*
+                 * Guardar el nuevo contador cuando
+                 * todavía no se alcanza el límite.
+                 */
+                $user->save();
+            }
+
+            /*
+             * Mostrar los intentos temporales
+             * restantes para la combinación
+             * email + IP.
+             */
+            $attemptsLeft =
+                3 - RateLimiter::attempts($key);
+
+            return back()->with(
+                'error',
+                'Credenciales inválidas. Intentos restantes: ' .
+                max($attemptsLeft, 0)
             );
         }
 
         /*
-         * Si ya tiene 2FA configurado,
-         * solicitar el código TOTP.
+         * Verificar estado de la cuenta
          */
-        return redirect()->route(
-            'two-factor.verify'
-        );
+        if ($user && $user->status === 'Bloqueado') {
+
+            return back()
+                ->with(
+                    'accountBlocked',
+                    true
+                );
+        }
+
+        /*
+         * Credenciales correctas.
+         *
+         * Reiniciar el contador de intentos fallidos
+         * acumulados a nivel de cuenta.
+         */
+        $user->failed_login_attempts = 0;
+
+        $user->lock_reason = null;
+
+        $user->save();
+
+        /*
+         * Limpiar el límite temporal
+         * de email + IP.
+         */
+        RateLimiter::clear($key);
+
+        /*
+         * ADMIN y MODERATOR requieren
+         * un segundo factor antes de
+         * crear la sesión autenticada.
+         */
+        if (
+            in_array(
+                $user->role,
+                ['ADMIN', 'MODERATOR']
+            )
+        ) {
+
+            /*
+             * Regenerar la sesión antes de
+             * almacenar el estado temporal.
+             */
+            $request->session()->regenerate();
+
+            /*
+             * Guardar únicamente el UUID del usuario
+             * pendiente de completar 2FA.
+             *
+             * No se crea todavía una sesión Laravel
+             * autenticada.
+             */
+            $request->session()->put(
+                '2fa_pending_user_uuid',
+                $user->uuid
+            );
+
+            /*
+             * Limpiar cualquier verificación
+             * administrativa anterior.
+             */
+            $request->session()->forget([
+                'admin_verified',
+                'admin_verified_user',
+            ]);
+
+            /*
+             * Si todavía no tiene 2FA configurado,
+             * debe realizar la configuración inicial.
+             */
+            if (!$user->google2fa_enabled) {
+
+                return redirect()->route(
+                    'two-factor.setup'
+                );
+            }
+
+            /*
+             * Si ya tiene 2FA configurado,
+             * solicitar el código TOTP.
+             */
+            return redirect()->route(
+                'two-factor.verify'
+            );
+        }
+
+        /*
+         * Usuario normal.
+         *
+         * USER no utiliza 2FA.
+         */
+        Auth::login($user);
+
+        /*
+         * Regenerar sesión para evitar
+         * session fixation.
+         */
+        $request->session()->regenerate();
+
+        /*
+         * Eliminar cualquier verificación
+         * administrativa anterior.
+         */
+        $request->session()->forget([
+            'admin_verified',
+            'admin_verified_user',
+            '2fa_pending_user_uuid'
+        ]);
+
+        return redirect('/dashboard');
     }
 
-    /*
-     * Usuario normal.
-     *
-     * USER no utiliza 2FA.
-     */
-    Auth::login($user);
-
-    /*
-     * Regenerar sesión para evitar
-     * session fixation.
-     */
-    $request->session()->regenerate();
-
-    /*
-     * Eliminar cualquier verificación
-     * administrativa anterior.
-     */
-    $request->session()->forget([
-        'admin_verified',
-        'admin_verified_user',
-        '2fa_pending_user_uuid'
-    ]);
-
-    return redirect('/dashboard');
-}
-
-    //LOGOUT
-
+    // LOGOUT
     public function logout(Request $request)
     {
-        //Eliminar la verificación administrativa.
-                $request->session()->forget(
-            'admin_verified'
-        );
+        /*
+         * Eliminar estados temporales
+         * de autenticación.
+         */
+        $request->session()->forget([
+            'admin_verified',
+            'admin_verified_user',
+            'admin_verified_at',
+            '2fa_pending_user_uuid',
+            'last_activity',
+        ]);
 
+        /*
+         * Cerrar sesión Laravel.
+         */
+        Auth::logout();
 
-        //Cerrar sesión Laravel.
-                Auth::logout();
+        /*
+         * Invalidar completamente la sesión.
+         */
+        $request->session()->invalidate();
 
+        /*
+         * Generar nuevo token CSRF.
+         */
+        $request->session()->regenerateToken();
 
-        //Invalidar completamente la sesión.
-                $request->session()->invalidate();
-
-
-        //Generar nuevo token CSRF.
-                $request->session()->regenerateToken();
-
-
-        //Regresar al login.
-                return redirect('/login');
+        /*
+         * Regresar al login.
+         */
+        return redirect('/login');
     }
 
-        // LOGIN CON GOOGLE MEDIANTE FIREBASE
-
+    // LOGIN CON GOOGLE MEDIANTE FIREBASE
     public function googleLogin(
         Request $request,
         FirebaseAuth $firebaseAuth
     ) {
+
         $request->validate([
             'idToken' => [
                 'required',
@@ -355,7 +515,9 @@ public function login(Request $request)
              * del usuario de Firebase.
              */
             $firebaseUser =
-                $firebaseAuth->getUser($firebaseUid);
+                $firebaseAuth->getUser(
+                    $firebaseUid
+                );
 
             /*
              * Google debe proporcionar
@@ -415,7 +577,9 @@ public function login(Request $request)
                  * Obtener nombre de Google.
                  */
                 $displayName =
-                    trim($firebaseUser->displayName ?? '');
+                    trim(
+                        $firebaseUser->displayName ?? ''
+                    );
 
                 $nameParts =
                     preg_split(
@@ -519,10 +683,13 @@ public function login(Request $request)
                     $firebaseUid;
 
                 /*
-                 * Mantener la cuenta activa.
+                 * Mantener la cuenta activa
+                 * únicamente si no tiene estado.
                  */
                 if (!$user->status) {
-                    $user->status = 'Activo';
+
+                    $user->status =
+                        'Activo';
                 }
 
                 $user->save();
@@ -535,95 +702,106 @@ public function login(Request $request)
 
                 return response()->json([
                     'success' => false,
+                    'accountBlocked' => true,
                     'message' =>
                         'Tu cuenta se encuentra bloqueada. Contacta a un administrador.'
                 ], 403);
             }
 
             /*
- * ADMIN y MODERATOR requieren
- * un segundo factor antes de
- * crear la sesión autenticada.
- */
-if (in_array($user->role, ['ADMIN', 'MODERATOR'])) {
+             * ADMIN y MODERATOR requieren
+             * un segundo factor antes de
+             * crear la sesión autenticada.
+             */
+            if (
+                in_array(
+                    $user->role,
+                    ['ADMIN', 'MODERATOR']
+                )
+            ) {
 
-    /*
-     * Regenerar la sesión antes de
-     * almacenar el estado temporal.
-     */
-    $request->session()->regenerate();
+                /*
+                 * Regenerar la sesión antes de
+                 * almacenar el estado temporal.
+                 */
+                $request->session()->regenerate();
 
-    /*
-     * Guardar únicamente el UUID del usuario
-     * pendiente de completar 2FA.
-     *
-     * Todavía NO se crea la sesión autenticada.
-     */
-    $request->session()->put(
-        '2fa_pending_user_uuid',
-        $user->uuid
-    );
+                /*
+                 * Guardar únicamente el UUID del usuario
+                 * pendiente de completar 2FA.
+                 *
+                 * Todavía NO se crea la sesión autenticada.
+                 */
+                $request->session()->put(
+                    '2fa_pending_user_uuid',
+                    $user->uuid
+                );
 
-    /*
-     * Limpiar cualquier verificación
-     * administrativa anterior.
-     */
-    $request->session()->forget([
-        'admin_verified',
-        'admin_verified_user'
-    ]);
+                /*
+                 * Limpiar cualquier verificación
+                 * administrativa anterior.
+                 */
+                $request->session()->forget([
+                    'admin_verified',
+                    'admin_verified_user'
+                ]);
 
-    /*
-     * Si no tiene 2FA configurado,
-     * realizar la configuración inicial.
-     */
-    if (!$user->google2fa_enabled) {
+                /*
+                 * Si no tiene 2FA configurado,
+                 * realizar la configuración inicial.
+                 */
+                if (!$user->google2fa_enabled) {
 
-        return response()->json([
-            'success' => true,
-            'redirect' =>
-                route('two-factor.setup')
-        ]);
-    }
+                    return response()->json([
+                        'success' => true,
+                        'redirect' =>
+                            route(
+                                'two-factor.setup'
+                            )
+                    ]);
+                }
 
-    /*
-     * Si ya tiene 2FA configurado,
-     * solicitar el código TOTP.
-     */
-    return response()->json([
-        'success' => true,
-        'redirect' =>
-            route('two-factor.verify')
-    ]);
-}
+                /*
+                 * Si ya tiene 2FA configurado,
+                 * solicitar el código TOTP.
+                 */
+                return response()->json([
+                    'success' => true,
+                    'redirect' =>
+                        route(
+                            'two-factor.verify'
+                        )
+                ]);
+            }
 
-/*
- * USER no utiliza 2FA.
- */
-Auth::login($user);
+            /*
+             * USER no utiliza 2FA.
+             */
+            Auth::login($user);
 
-/*
- * Regenerar sesión.
- */
-$request->session()->regenerate();
+            /*
+             * Regenerar sesión.
+             */
+            $request->session()->regenerate();
 
-/*
- * Eliminar estados temporales.
- */
-$request->session()->forget([
-    'admin_verified',
-    'admin_verified_user',
-    '2fa_pending_user_uuid'
-]);
+            /*
+             * Eliminar estados temporales.
+             */
+            $request->session()->forget([
+                'admin_verified',
+                'admin_verified_user',
+                '2fa_pending_user_uuid'
+            ]);
 
-/*
- * Respuesta al navegador.
- */
-return response()->json([
-    'success' => true,
-    'redirect' =>
-        route('dashboard')
-]);
+            /*
+             * Respuesta al navegador.
+             */
+            return response()->json([
+                'success' => true,
+                'redirect' =>
+                    route('dashboard')
+            ]);
+
         } catch (\Throwable $e) {
 
             /*

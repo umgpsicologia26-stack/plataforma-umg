@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.verified' => \App\Http\Middleware\AdminVerified::class,
             'must.change.password' => \App\Http\Middleware\MustChangePassword::class,
             'maintenance' => \App\Http\Middleware\MaintenanceMode::class,
+            'inactivity' => \App\Http\Middleware\InactivityLogout::class,
         ]);
 
         $middleware->append(

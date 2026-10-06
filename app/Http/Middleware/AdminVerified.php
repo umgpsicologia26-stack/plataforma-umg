@@ -18,20 +18,44 @@ class AdminVerified
             return redirect('/dashboard')
                 ->with(
                     'error',
-                    'No tienes permisos para acceder al área administrativa.'
+                    'No tienes permisos para acceder a esta sección.'
                 );
         }
 
+        $verifiedAt = session('admin_verified_at');
+        $verifiedUser = session('admin_verified_user');
+
+        /*
+         * La verificación administrativa debe existir,
+         * pertenecer al administrador actual y no haber
+         * superado 15 minutos de INACTIVIDAD.
+         */
         if (
             !session('admin_verified') ||
-            session('admin_verified_user') !== Auth::user()->uuid
+            $verifiedUser !== Auth::user()->uuid ||
+            !$verifiedAt ||
+            now()->timestamp - $verifiedAt > 900
         ) {
+            session()->forget([
+                'admin_verified',
+                'admin_verified_user',
+                'admin_verified_at',
+            ]);
+
             return redirect('/admin-access')
                 ->with(
                     'error',
-                    'Debes verificar la contraseña de administrador.'
+                    'La verificación administrativa expiró por inactividad. Debes verificar nuevamente tu contraseña.'
                 );
         }
+
+        /*
+         * Hubo actividad dentro del área administrativa.
+         * Renovar los 15 minutos.
+         */
+        session([
+            'admin_verified_at' => now()->timestamp,
+        ]);
 
         return $next($request);
     }

@@ -21,6 +21,10 @@ class CrisisReport extends Model
         'assigned_to'
     ];
 
+    protected $casts = [
+        'description' => 'encrypted',
+    ];
+
     public function user()
     {
         return $this->belongsTo(
