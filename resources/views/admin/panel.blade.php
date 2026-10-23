@@ -5,13 +5,14 @@
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0">
-    <title>Panel Administrativo</title>
+            <title>Panel Administrativo</title>
     <link
         rel="stylesheet"
         href="{{ asset('css/admin.css') }}">
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    @vite('resources/js/echo.js')
     </head>
         <body>
 
@@ -64,12 +65,16 @@
 </li>
 
                 <!-- NOTIFICACIONES -->
-                <li>
-                    <a href="{{ url('/admin/notifications') }}">
+                
+<li>
+    <a href="{{ url('/admin/notifications') }}" id="adminNotificationsLink">
         <i class="fas fa-bell"></i>
         <span>Notificaciones</span>
+
         @if($unreadNotifications > 0)
-            <span class="notification-dot"></span>
+            <span class="notification-count">
+                {{ $unreadNotifications }}
+            </span>
         @endif
     </a>
 </li>
@@ -166,7 +171,7 @@
                             </tr>
                         </thead>
 
-                        <tbody>
+                        <tbody id="casesTableBody">
                             @foreach($cases as $case)
                                 <tr>
                                     <td>
@@ -176,8 +181,14 @@
                                         {{ $case->type }}
                                     </td>
                                     <td>
-                                        {{ $case->moderator->first_name }}
-                                        {{ $case->moderator->last_name }}
+                                        
+@if ($case->moderator)
+    {{ $case->moderator->first_name }}
+    {{ $case->moderator->last_name }}
+@else
+    <span>Sin asignar</span>
+@endif
+
                                     </td>
                                     <td>
                                         {{ $case->created_at->format('d/m/Y') }}
@@ -315,5 +326,75 @@
             }
         );
     </script>
+    @include('partials.live-refresh')
+<script>
+umgLive.whenEchoReady(function (echo) {
+    const adminUuid = @json(auth()->user()->uuid);
+    const link = document.getElementById('adminNotificationsLink');
+
+    
+function setCount(count) {
+    if (!link) {
+        return;
+    }
+
+    const unreadCount = Math.max(0, Number(count) || 0);
+
+    // Eliminar el indicador anterior, si existía.
+    link.querySelector('.notification-dot')?.remove();
+
+    let badge = link.querySelector('.notification-count');
+
+    if (unreadCount === 0) {
+        badge?.remove();
+        return;
+    }
+
+    if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'notification-count';
+        link.appendChild(badge);
+    }
+
+    badge.textContent = String(unreadCount);
+    badge.setAttribute(
+        'aria-label',
+        `${unreadCount} notificaciones sin leer`
+    );
+}
+
+
+    // Tabla de casos: se vuelve a pedir al servidor (sin duplicar filas).
+    const refresher = umgLive.createRefresher({
+        apply: function (doc) {
+            umgLive.swapContent('#casesTableBody', doc);
+
+            
+const freshCount = doc.querySelector(
+    '#adminNotificationsLink .notification-count'
+);
+
+setCount(freshCount?.textContent.trim() || 0);
+
+        }
+    });
+
+    // Contador de ESTE administrador (canal privado individual).
+    
+    umgLive.listen(
+        echo,
+        'admin.' + adminUuid,
+        '.admin.notifications.changed',
+        function (event) {
+            setCount(event.unread_count);
+    }
+);
+
+    // Cambios de casos (canal general de administradores, solo señal).
+    umgLive.listen(echo, 'admins', '.case.activity.updated', refresher.trigger);
+
+    umgLive.onReconnect(echo, refresher.trigger);
+});
+</script>
 </body>
 </html>

@@ -35,7 +35,9 @@
             background: linear-gradient(160deg, #eef2ff 0%, #f4f7fb 40%, #f4f7fb 100%);
             background-attachment: fixed;
             color: var(--text);
+            /* 100vh como respaldo; 100dvh evita el salto de la barra del navegador en móviles */
             min-height: 100vh;
+            min-height: 100dvh;
         }
 
         .container {
@@ -68,7 +70,8 @@
 
         .header h1 {
             margin: 0 0 8px;
-            font-size: 26px;
+            /* 26px en escritorio, ~20px en móviles pequeños */
+            font-size: clamp(1.25rem, 1rem + 1.2vw, 1.625rem);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -81,6 +84,7 @@
             padding: 10px;
             border-radius: 12px;
             font-size: 20px;
+            flex-shrink: 0;
         }
 
         .header p {
@@ -127,6 +131,9 @@
             border-radius: 10px;
             padding: 10px 16px;
             font-size: 14px;
+            /* Nombres, correos o nicknames largos se parten dentro de la etiqueta */
+            max-width: 100%;
+            overflow-wrap: anywhere;
         }
 
         .user-pill strong {
@@ -168,20 +175,16 @@
             transition: background 0.15s ease;
         }
 
-        .change-table tbody tr:hover {
-            background: #fafaff;
-        }
-
         .change-table td {
             word-break: break-word;
+            overflow-wrap: anywhere;
             vertical-align: middle;
         }
 
+        /* La celda mantiene su comportamiento de tabla (antes tenía display:flex);
+           el icono se coloca en línea con su separación */
         .field-name {
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .field-name::before {
@@ -190,6 +193,10 @@
             font-weight: 900;
             color: var(--primary);
             font-size: 12px;
+            display: inline-block;
+            vertical-align: middle;
+            /* + el espacio de texto que sigue ≈ 8px, igual que el gap anterior */
+            margin-right: 4px;
         }
 
         .value-badge {
@@ -243,6 +250,7 @@
             padding: 10px 14px;
             border-radius: 10px;
             width: fit-content;
+            max-width: 100%;
         }
 
         .back-button {
@@ -259,9 +267,30 @@
             transition: transform 0.15s ease, background 0.15s ease;
         }
 
-        .back-button:hover {
-            background: #111827;
-            transform: translateY(-1px);
+        /* HOVER (solo dispositivos con puntero)
+           Evita el "hover pegado" en pantallas táctiles */
+        @media (hover: hover) {
+            .change-table tbody tr:hover {
+                background: #fafaff;
+            }
+
+            .back-button:hover {
+                background: #111827;
+                transform: translateY(-1px);
+            }
+        }
+
+        /* FOCO DE TECLADO */
+        .back-button:focus-visible {
+            outline: 3px solid rgba(79, 70, 229, 0.45);
+            outline-offset: 2px;
+        }
+
+        /* PANTALLAS TÁCTILES: iOS ignora el fondo fijo y puede dar saltos al desplazar */
+        @media (pointer: coarse) {
+            body {
+                background-attachment: scroll;
+            }
         }
 
         @media (max-width: 600px) {
@@ -282,6 +311,108 @@
             .change-table td {
                 padding: 10px;
                 font-size: 13px;
+            }
+        }
+
+        /* RESPONSIVE: TABLA EN FORMATO TARJETA (móviles y tablet vertical)
+           Cada cambio se muestra como una tarjeta: campo arriba, y debajo
+           "Antes" y "Después" con su etiqueta. Las etiquetas siguen el orden
+           actual de las 4 columnas (Campo, Antes, flecha, Después);
+           si cambia el orden, hay que actualizarlas aquí.
+           Se declara después del bloque de 600px para que su relleno prevalezca. */
+        @media (max-width: 760px) {
+            .change-table {
+                border: none;
+                border-radius: 0;
+                overflow: visible;
+            }
+
+            .change-table,
+            .change-table tbody {
+                display: block;
+            }
+
+            /* Cabecera oculta visualmente, se mantiene en el DOM */
+            .change-table thead {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+            }
+
+            .change-table tbody tr {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: 2px;
+                padding: 12px 14px;
+                margin-bottom: 12px;
+                border: 1px solid var(--border);
+                border-radius: 12px;
+            }
+
+            .change-table tbody tr:last-child {
+                margin-bottom: 0;
+            }
+
+            .change-table tbody tr td {
+                padding: 6px 0;
+                font-size: 13px;
+            }
+
+            /* Anula el borde entre filas de la tabla de escritorio */
+            .change-table tbody tr:not(:last-child) td {
+                border-bottom: none;
+            }
+
+            .change-table tbody tr td.field-name {
+                font-size: 14px;
+                padding-bottom: 8px;
+            }
+
+            /* Antes / Después: etiqueta + valor */
+            .change-table tbody tr td:nth-child(2),
+            .change-table tbody tr td:nth-child(4) {
+                display: grid;
+                grid-template-columns: 70px minmax(0, 1fr);
+                align-items: center;
+                gap: 8px;
+            }
+
+            .change-table td:nth-child(2)::before,
+            .change-table td:nth-child(4)::before {
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+                color: var(--text-muted);
+            }
+
+            .change-table td:nth-child(2)::before { content: "Antes"; }
+            .change-table td:nth-child(4)::before { content: "Después"; }
+
+            /* Los badges no se estiran al ancho de la celda */
+            .change-table .value-badge {
+                justify-self: start;
+                max-width: 100%;
+            }
+
+            /* La flecha es decorativa: las etiquetas ya indican la dirección */
+            .change-table .arrow-cell {
+                display: none;
+            }
+        }
+
+        /* MOVIMIENTO REDUCIDO */
+        @media (prefers-reduced-motion: reduce) {
+            .change-table tbody tr,
+            .back-button {
+                transition: none;
+            }
+
+            .back-button:hover {
+                transform: none;
             }
         }
     </style>

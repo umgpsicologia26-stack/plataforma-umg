@@ -3,6 +3,8 @@
 
 <head>
 
+            @vite('resources/js/echo.js')
+
     <meta charset="UTF-8">
 
     <meta
@@ -43,7 +45,7 @@
 
             color:white;
 
-            padding:40px;
+            padding:clamp(12px, 3vw, 40px);
         }
 
 
@@ -65,7 +67,7 @@
 
             border-radius:28px;
 
-            padding:40px;
+            padding:clamp(18px, 3.5vw, 40px);
 
             box-shadow:
                 0 20px 50px rgba(0,0,0,0.35);
@@ -112,7 +114,7 @@
 
         .title{
 
-            font-size:48px;
+            font-size:clamp(30px, 4vw, 48px);
 
             font-weight:700;
 
@@ -306,6 +308,8 @@
 
         /* ==============================
            MENSAJES
+           Lista compacta: ancho máximo cómodo para leer y centrada.
+           Cada caja crece solo según su contenido (sin alturas fijas).
         ============================== */
 
         .messages{
@@ -314,19 +318,31 @@
 
             flex-direction:column;
 
-            gap:25px;
+            gap:14px;
+
+            width:100%;
+
+            max-width:920px;
+
+            margin-inline:auto;
+
+            min-width:0;
         }
 
 
         .message-card{
 
+            width:100%;
+
+            min-width:0;
+
             background:rgba(255,255,255,0.06);
 
             border:1px solid rgba(255,255,255,0.08);
 
-            padding:28px;
+            padding:clamp(14px, 2.2vw, 20px) clamp(16px, 2.6vw, 24px);
 
-            border-radius:24px;
+            border-radius:20px;
 
             transition:0.3s;
         }
@@ -334,7 +350,7 @@
 
         .message-card:hover{
 
-            transform:translateY(-5px);
+            transform:translateY(-2px);
 
             background:rgba(125,211,252,0.08);
         }
@@ -348,11 +364,11 @@
 
             align-items:center;
 
-            margin-bottom:18px;
+            margin-bottom:10px;
 
             flex-wrap:wrap;
 
-            gap:10px;
+            gap:8px 10px;
         }
 
 
@@ -362,7 +378,13 @@
 
             font-weight:700;
 
-            font-size:16px;
+            font-size:15px;
+
+            min-width:0;
+
+            overflow-wrap:anywhere;
+
+            text-align:left;
         }
 
 
@@ -372,35 +394,55 @@
 
             color:#7dd3fc;
 
-            padding:8px 14px;
+            padding:6px 12px;
 
             border-radius:12px;
 
-            font-size:13px;
+            font-size:12px;
 
             font-weight:600;
+
+            text-align:left;
         }
 
+
+        /* Solo el cuerpo del mensaje se justifica, en todos los anchos.
+           pre-wrap respeta los saltos de línea que escribe el usuario;
+           por eso el contenido va pegado a las etiquetas en el HTML. */
 
         .message-content{
 
             color:#f1f5f9;
 
-            line-height:1.8;
+            line-height:1.65;
 
             font-size:15px;
 
             white-space:pre-wrap;
+
+            text-align:justify;
+
+            hyphens:auto;
+
+            -webkit-hyphens:auto;
+
+            overflow-wrap:anywhere;
+
+            word-break:normal;
+
+            min-width:0;
         }
 
 
         .message-date{
 
-            margin-top:15px;
+            margin-top:10px;
 
             color:#64748b;
 
             font-size:12px;
+
+            text-align:left;
         }
 
 
@@ -418,9 +460,9 @@
 
         .hidden-warning{
 
-            margin-bottom:15px;
+            margin-bottom:10px;
 
-            padding:12px 15px;
+            padding:10px 14px;
 
             border-radius:12px;
 
@@ -431,6 +473,8 @@
             font-size:13px;
 
             font-weight:600;
+
+            text-align:left;
         }
 
 
@@ -440,11 +484,13 @@
 
         .moderation-actions{
 
-            margin-top:20px;
+            margin-top:12px;
 
             display:flex;
 
             justify-content:flex-end;
+
+            flex-wrap:wrap;
 
             gap:10px;
         }
@@ -458,7 +504,7 @@
 
             color:#fca5a5;
 
-            padding:10px 16px;
+            padding:8px 14px;
 
             border-radius:12px;
 
@@ -490,7 +536,7 @@
 
             color:#86efac;
 
-            padding:10px 16px;
+            padding:8px 14px;
 
             border-radius:12px;
 
@@ -556,25 +602,22 @@
 
         /* ==============================
            RESPONSIVE
+           (padding de body, glass-card y tarjetas ya son fluidos con clamp)
         ============================== */
 
         @media(max-width:768px){
 
-            body{
+            .subtitle{
 
-                padding:20px;
+                font-size:15px;
+
+                margin-bottom:28px;
             }
 
 
-            .title{
+            .forum-form{
 
-                font-size:34px;
-            }
-
-
-            .glass-card{
-
-                padding:25px;
+                margin-bottom:34px;
             }
 
 
@@ -600,6 +643,16 @@
             .restore-btn{
 
                 width:100%;
+            }
+
+        }
+
+
+        @media(max-width:360px){
+
+            .message-content{
+
+                font-size:14px;
             }
 
         }
@@ -766,11 +819,9 @@
         </form>
 
 
-        {{-- ==============================
-             PUBLICACIONES
-        ============================== --}}
+        {{-- PUBLICACIONES --}}
 
-        <div class="messages">
+        <div class="messages" id="forum-messages">
 
 
             @forelse($messages as $message)
@@ -828,13 +879,10 @@
 
 @else
 
-    {{-- CONTENIDO DEL MENSAJE VISIBLE --}}
+    {{-- CONTENIDO DEL MENSAJE VISIBLE
+         (sin espacios ni saltos dentro del div: .message-content usa pre-wrap) --}}
 
-    <div class="message-content">
-
-        {{ $message->content }}
-
-    </div>
+    <div class="message-content">{{ $message->content }}</div>
 
 @endif
 
@@ -954,6 +1002,146 @@
 
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (!window.Echo) {
+        console.error('Laravel Echo no está inicializado.');
+        return;
+    }
+
+    const container = document.getElementById('forum-messages');
+
+    if (!container) {
+        console.error('No se encontró el contenedor de publicaciones.');
+        return;
+    }
+
+    const canModerate = @json(
+        auth()->check() &&
+        in_array(auth()->user()->role, ['ADMIN', 'MODERATOR'])
+    );
+
+    window.Echo.private('forum')
+        .listen('.forum.post.created', function (event) {
+            if (!event || !event.uuid) {
+                return;
+            }
+
+            // Evitar publicaciones duplicadas.
+            if (container.querySelector(
+                '[data-message-uuid="' + event.uuid + '"]'
+            )) {
+                return;
+            }
+
+            // Los usuarios normales solo reciben publicaciones visibles.
+            if (
+                !canModerate &&
+                event.visibility_status !== 'VISIBLE'
+            ) {
+                return;
+            }
+
+            const emptyMessage = container.querySelector('.empty');
+
+            if (emptyMessage) {
+                emptyMessage.remove();
+            }
+
+            const card = document.createElement('div');
+            card.className = 'message-card';
+            card.dataset.messageUuid = event.uuid;
+
+            const header = document.createElement('div');
+            header.className = 'message-header';
+
+            const identity = document.createElement('div');
+            identity.className = 'anonymous';
+            identity.textContent = event.display_name || 'Usuario';
+
+            const category = document.createElement('div');
+            category.className = 'category';
+            category.textContent = event.category || 'GENERAL';
+
+            header.appendChild(identity);
+            header.appendChild(category);
+
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            content.textContent = event.content || '';
+
+            const date = document.createElement('div');
+            date.className = 'message-date';
+            date.textContent = 'Publicado: ' + (event.created_at || '');
+
+            card.appendChild(header);
+            card.appendChild(content);
+            card.appendChild(date);
+
+            // El foro muestra primero las publicaciones más antiguas.
+            container.appendChild(card);
+        });
+
+    // NOTIFICACIONES EXCLUSIVAS DEL FORO PARA MODERADORES
+    const isModerator = @json(
+        auth()->check() &&
+        strtoupper(auth()->user()->role) === 'MODERATOR'
+    );
+
+    const moderatorUuid = @json(auth()->user()->uuid ?? '');
+
+    if (isModerator && moderatorUuid) {
+        window.Echo.private('moderator.' + moderatorUuid)
+            .listen('.forum.notification.created', function (event) {
+                if (!event || !event.message) {
+                    return;
+                }
+
+                // Crear aviso visual sin modificar las notificaciones existentes.
+                const toast = document.createElement('div');
+
+                toast.style.cssText = [
+                    'position:fixed',
+                    'top:20px',
+                    'right:20px',
+                    'z-index:99999',
+                    'max-width:360px',
+                    'padding:16px 20px',
+                    'background:#ffffff',
+                    'color:#222222',
+                    'border-left:5px solid #2563eb',
+                    'border-radius:10px',
+                    'box-shadow:0 5px 20px rgba(0,0,0,.20)',
+                    'font-size:14px',
+                    'line-height:1.5'
+                ].join(';');
+
+                const title = document.createElement('strong');
+                title.textContent = 'Nueva notificación del foro';
+
+                const message = document.createElement('div');
+                message.textContent = event.message;
+                message.style.marginTop = '6px';
+
+                const date = document.createElement('small');
+                date.textContent = event.created_at || '';
+                date.style.display = 'block';
+                date.style.marginTop = '6px';
+                date.style.color = '#666666';
+
+                toast.appendChild(title);
+                toast.appendChild(message);
+                toast.appendChild(date);
+
+                document.body.appendChild(toast);
+
+                window.setTimeout(function () {
+                    toast.remove();
+                }, 7000);
+            });
+    }
+});
+</script>
 
 </body>
 

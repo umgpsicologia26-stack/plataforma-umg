@@ -31,7 +31,9 @@
                     #eef4ff,
                     #f8fbff
                 );
+            /* 100vh como respaldo; 100dvh evita el salto de la barra del navegador en móviles */
             min-height: 100vh;
+            min-height: 100dvh;
             color: #1f2937;
         }
 
@@ -61,11 +63,6 @@
             transition: all .2s ease;
         }
 
-        .back-button:hover {
-            background: #f3f4f6;
-            transform: translateX(-2px);
-        }
-
     /*ENCABEZADO*/
         .page-header {
             background: #ffffff;
@@ -87,6 +84,7 @@
 
         .title i {
             color: #2563eb;
+            flex-shrink: 0;
         }
 
         .subtitle {
@@ -149,7 +147,7 @@
 
         .date-input:focus {
             border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+            box-shadow: 0 0 0 3px rgba(37,99,235,.25);
         }
 
         .filter-btn {
@@ -166,18 +164,13 @@
             transition: all .2s ease;
         }
 
-        .filter-btn:hover {
-            background: #1d4ed8;
-            transform: translateY(-1px);
-        }
-
     /*ESTADÍSTICAS */
         .dashboard {
             display: grid;
             grid-template-columns:
                 repeat(
                     auto-fit,
-                    minmax(210px, 1fr)
+                    minmax(min(100%, 210px), 1fr)
                 );
             gap: 18px;
             margin-bottom: 20px;
@@ -192,15 +185,11 @@
             transition: all .2s ease;
         }
 
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0,0,0,.09);
-        }
-
         .stat-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 12px;
             margin-bottom: 15px;
         }
 
@@ -213,18 +202,22 @@
             justify-content: center;
             background: #eff6ff;
             color: #2563eb;
+            flex-shrink: 0;
         }
 
         .stat-title {
             font-size: 13px;
             color: #6b7280;
             font-weight: 600;
+            min-width: 0;
+            overflow-wrap: break-word;
         }
 
         .number {
             font-size: 32px;
             font-weight: 700;
             color: #1f2937;
+            overflow-wrap: anywhere;
         }
 
     /*GRÁFICA*/
@@ -275,22 +268,66 @@
             border: 1px solid #fecaca;
         }
 
-        .pdf-btn:hover {
-            background: #dc2626;
-            color: white;
-            transform: translateY(-1px);
-        }
-
         .excel-btn {
             background: #ecfdf5;
             color: #15803d;
             border: 1px solid #bbf7d0;
         }
 
-        .excel-btn:hover {
-            background: #16a34a;
-            color: white;
-            transform: translateY(-1px);
+    /*HOVER (solo dispositivos con puntero)
+      Evita el "hover pegado" en pantallas táctiles*/
+        @media (hover: hover) {
+            .back-button:hover {
+                background: #f3f4f6;
+                transform: translateX(-2px);
+            }
+
+            .filter-btn:hover {
+                background: #1d4ed8;
+                transform: translateY(-1px);
+            }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 30px rgba(0,0,0,.09);
+            }
+
+            .pdf-btn:hover {
+                background: #dc2626;
+                color: white;
+                transform: translateY(-1px);
+            }
+
+            .excel-btn:hover {
+                background: #16a34a;
+                color: white;
+                transform: translateY(-1px);
+            }
+        }
+
+    /*FOCO DE TECLADO*/
+        .back-button:focus-visible,
+        .filter-btn:focus-visible,
+        .export-btn:focus-visible {
+            outline: 3px solid rgba(37,99,235,.45);
+            outline-offset: 2px;
+        }
+
+    /*PANTALLAS TÁCTILES: área mínima de 44px*/
+        @media (pointer: coarse) {
+            .back-button,
+            .filter-btn,
+            .export-btn,
+            .date-input {
+                min-height: 44px;
+            }
+        }
+
+    /*TABLETS: 2 columnas (evita 3 tarjetas + 1 sola)*/
+        @media (min-width: 481px) and (max-width: 940px) {
+            .dashboard {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
 
     /*RESPONSIVE*/
@@ -320,8 +357,50 @@
                 width: 100%;
             }
 
+            /* 16px evita el zoom automático de iOS al enfocar el campo de fecha */
+            .date-input {
+                font-size: 16px;
+            }
+
+            .filter-btn {
+                justify-content: center;
+            }
+
+            .export-buttons {
+                flex-direction: column;
+            }
+
+            .export-btn {
+                justify-content: center;
+            }
+
             .chart-wrapper {
                 height: 280px;
+            }
+        }
+
+    /*CELULARES PEQUEÑOS: una columna*/
+        @media (max-width: 480px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    /*MOVIMIENTO REDUCIDO*/
+        @media (prefers-reduced-motion: reduce) {
+            .back-button,
+            .filter-btn,
+            .stat-card,
+            .export-btn {
+                transition: none;
+            }
+
+            .back-button:hover,
+            .filter-btn:hover,
+            .stat-card:hover,
+            .pdf-btn:hover,
+            .excel-btn:hover {
+                transform: none;
             }
         }
     </style>

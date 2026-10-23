@@ -9,9 +9,14 @@ use App\Models\SystemSetting;
 use App\Models\AdminNotification;
 use App\Models\CaseComment;
 use App\Models\AuditLog;
+use App\Events\CaseActivityUpdated;
+use App\Events\AdminNotificationsChanged;
 use App\Exports\ReporteCasosExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Kreait\Firebase\Factory;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -86,6 +91,7 @@ class AdminController extends Controller
         );
     }
 
+    
     // CREAR MODERADOR
     public function createModerator(Request $request)
     {
@@ -93,48 +99,125 @@ class AdminController extends Controller
             'first_name' => 'required|string|max:150',
             'last_name' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8',
+            'password' => 'required|string|min:8',
             'phone' => 'required|string|max:20',
         ]);
 
-        $moderator = User::create([
-            'uuid' => (string) Str::uuid(),
-            'firebase_uid' => (string) Str::uuid(),
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'provider' => 'EMAIL',
-            'password_hash' => Hash::make($request->password),
-            'role' => 'MODERATOR',
-            'phone' => $request->phone,
-            'anonymous_nickname' => $this->generateUniqueCode(),
-            'status' => 'Activo',
-            'must_change_password' => true,
-        ]);
+        $auth = null;
+        $firebaseUid = null;
 
-        // REGISTRAR AUDITORÍA
+        try {
+            // Obtener las credenciales configuradas para Firebase.
+            $credentials = config('firebase.projects.app.credentials');
 
-        AuditLog::create([
-            'action' => 'create_moderator',
-            'performed_by' => Auth::user()->uuid,
-            'target_type' => 'User',
-            'target_id' => $moderator->uuid,
-            'changes' => [
-                'created_fields' => [
-                    'first_name' => 'CREADO',
-                    'last_name' => 'CREADO',
-                    'email' => 'CREADO',
-                    'role' => $moderator->role,
-                    'phone' => 'CREADO',
-                    'status' => $moderator->status,
-                ],
-            ],
-        ]);
+            if (
+                empty($credentials) ||
+                !is_file(base_path($credentials))
+            ) {
+                throw new \RuntimeException(
+                    'No se encontró el archivo de credenciales de Firebase.'
+                );
+            }
 
-        return back()->with(
-            'success',
-            'Moderador creado correctamente'
-        );
+            // Inicializar Firebase Authentication.
+            $auth = (new Factory())
+                ->withServiceAccount(base_path($credentials))
+                ->createAuth();
+
+            // Crear primero la cuenta real en Firebase.
+            $firebaseUser = $auth->createUser([
+                'email' => $request->email,
+                'password' => $request->password,
+                'displayName' => trim(
+                    $request->first_name . ' ' . $request->last_name
+                ),
+                'emailVerified' => false,
+            ]);
+
+            // Guardar el UID real devuelto por Firebase.
+            $firebaseUid = $firebaseUser->uid;
+
+            // Registrar al moderador y la auditoría en una transacción.
+            $moderator = DB::transaction(function () use (
+                $request,
+                $firebaseUid
+            ) {
+                $moderator = User::create([
+                    'uuid' => (string) Str::uuid(),
+                    'firebase_uid' => $firebaseUid,
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'email' => $request->email,
+                    'provider' => 'EMAIL',
+                    'password_hash' => Hash::make($request->password),
+                    'role' => 'MODERATOR',
+                    'phone' => $request->phone,
+                    'anonymous_nickname' => $this->generateUniqueCode(),
+                    'status' => 'Activo',
+                    'must_change_password' => true,
+                ]);
+
+                AuditLog::create([
+                    'action' => 'create_moderator',
+                    'performed_by' => Auth::user()->uuid,
+                    'target_type' => 'User',
+                    'target_id' => $moderator->uuid,
+                    'changes' => [
+                        'created_fields' => [
+                            'first_name' => 'CREADO',
+                            'last_name' => 'CREADO',
+                            'email' => 'CREADO',
+                            'role' => $moderator->role,
+                            'phone' => 'CREADO',
+                            'status' => $moderator->status,
+                        ],
+                    ],
+                ]);
+
+                return $moderator;
+            });
+
+            return back()->with(
+                'success',
+                'Moderador creado correctamente en Firebase y en la plataforma.'
+            );
+
+        } catch (\Throwable $e) {
+            // Si Firebase creó la cuenta pero falló MySQL o la auditoría,
+            // intentar eliminar la cuenta recién creada para evitar
+            // dejar una cuenta huérfana en Firebase.
+            if ($firebaseUid !== null && $auth !== null) {
+                try {
+                    $auth->deleteUser($firebaseUid);
+                } catch (\Throwable $cleanupError) {
+                    Log::error(
+                        'No se pudo eliminar la cuenta de Firebase después '
+                        . 'de un error al crear el moderador.',
+                        [
+                            'firebase_uid' => $firebaseUid,
+                            'error' => $cleanupError->getMessage(),
+                        ]
+                    );
+                }
+            }
+
+            Log::error(
+                'Error al crear un moderador en Firebase o MySQL.',
+                [
+                    'email' => $request->email,
+                    'error' => $e->getMessage(),
+                ]
+            );
+
+            return back()
+                ->withInput($request->except('password'))
+                ->withErrors([
+                    'email' =>
+                        'No se pudo crear el moderador. Verifica si el correo '
+                        . 'ya existe en Firebase Authentication y revisa el '
+                        . 'registro de errores de Laravel.',
+                ]);
+        }
     }
 
     // ELIMINAR MODERADOR
@@ -209,7 +292,6 @@ class AdminController extends Controller
     }
 
     // ACTUALIZAR CASO
-
     public function updateCase(
         Request $request,
         $id
@@ -228,7 +310,7 @@ class AdminController extends Controller
 
         $case->save();
 
-        // REGISTRAR AUDITORÍA SOLAMENTE SI CAMBIÓ EL ESTADO
+    // AUDITORÍA Y NOTIFICACIÓN SOLAMENTE SI CAMBIÓ EL ESTADO
 
         if ($oldStatus !== $case->status) {
 
@@ -246,13 +328,16 @@ class AdminController extends Controller
                     ],
                 ],
             ]);
-        }
 
-        AdminNotification::create([
-            'message' =>
+            AdminNotification::notifyAdmins(
+                $case,
                 'Se actualizó el estado del caso '
-                . $case->case_number
-        ]);
+                    . $case->case_number
+                    . ': de "' . $oldStatus . '" a "' . $case->status . '".'
+            );
+
+            CaseActivityUpdated::emit($case, null, 'case.status.updated');
+        }
 
         return back()->with(
             'success',
@@ -340,25 +425,33 @@ class AdminController extends Controller
     }
 
     // NOTIFICACIONES
-    public function notifications()
-    {
-        $notifications = AdminNotification::latest()
-            ->get();
+    
+public function notifications()
+{
+    $adminUuid = (string) auth()->user()->uuid;
 
-        return view(
-            'admin.notifications',
-            compact('notifications')
-        );
-    }
+    $notifications = AdminNotification::query()
+        ->where('user_uuid', $adminUuid)
+        ->where('read', false)
+        ->latest()
+        ->get();
+
+    return view('admin.notifications', compact('notifications'));
+}
 
     // MARCAR NOTIFICACIÓN COMO LEÍDA
     public function markNotificationAsRead($id)
     {
-        $notification = AdminNotification::findOrFail($id);
+        $adminUuid = (string) auth()->user()->uuid;
 
-        $notification->read = 1;
+        $notification = AdminNotification::query()
+            ->where('user_uuid', $adminUuid)
+            ->findOrFail($id);
 
-        $notification->save();
+        $notification->markAsRead();
+
+        // Mantiene sincronizado el contador en otras pestañas del mismo administrador.
+        AdminNotificationsChanged::emit($adminUuid, 'read');
 
         return back();
     }
@@ -979,8 +1072,11 @@ public function restoreBlockedUser($id)
     // PANEL ADMINISTRATIVO
     public function panel()
     {
+        $adminUuid = (string) Auth::user()->uuid;
+
         $notifications =
-            AdminNotification::orderBy(
+            AdminNotification::where('user_uuid', $adminUuid)
+            ->orderBy(
                 'created_at',
                 'desc'
             )
@@ -988,11 +1084,7 @@ public function restoreBlockedUser($id)
             ->get();
 
         $unreadNotifications =
-            AdminNotification::where(
-                'read',
-                0
-            )
-            ->count();
+            AdminNotification::unreadCountFor($adminUuid);
 
         $cases = CaseFile::with(
             'moderator'
@@ -1090,14 +1182,15 @@ public function restoreBlockedUser($id)
                     ],
                 ],
             ]);
-        }
 
-        AdminNotification::create([
-            'message' =>
-                'El caso '
-                . $case->case_number
-                . ' fue finalizado por el administrador.'
-        ]);
+            AdminNotification::notifyAdmins(
+                $case,
+                'El caso ' . $case->case_number
+                    . ' fue finalizado por el administrador.'
+            );
+
+            CaseActivityUpdated::emit($case, null, 'case.status.updated');
+        }
 
         return back()->with(
             'success',
@@ -1106,74 +1199,76 @@ public function restoreBlockedUser($id)
     }
 
     // AGREGAR COMENTARIO A CASO
-    public function saveComment(
-        Request $request,
-        $id
-    ) {
-        $request->validate([
-            'comment' => [
-                'required',
-                'string',
-                'max:5000'
-            ],
+    // AGREGAR COMENTARIO A CASO
+public function saveComment(
+    Request $request,
+    $id
+) {
+    $request->validate([
+        'comment' => [
+            'required',
+            'string',
+            'max:5000'
+        ],
 
-            'color' => [
-                'nullable',
-                'string',
-                'max:50'
-            ]
-        ]);
+        'color' => [
+            'nullable',
+            'string',
+            'max:50'
+        ]
+    ]);
 
-        $case = CaseFile::findOrFail($id);
+    $case = CaseFile::findOrFail($id);
 
-        $this->authorize('update', $case);
+    $this->authorize('update', $case);
 
-        $user = Auth::user();
+    $user = Auth::user();
 
-        if (!$user) {
-            return back()->with(
-                'error',
-                'Debe iniciar sesión para agregar una observación.'
-            );
-        }
-
-        // Solo el ADMINISTRADOR puede crear observaciones
-
-        if ($user->role !== 'ADMIN') {
-            return back()->with(
-                'error',
-                'Solo el administrador puede agregar observaciones.'
-            );
-        }
-
-        // Guardar observación
-
-        $comment = CaseComment::create([
-            'case_id' => $case->id,
-            'user_id' => $user->uuid,
-            'type' => 'OBSERVACION',
-            'comment' => trim($request->comment),
-            'color' => $request->color
-        ]);
-
-        AuditLog::create([
-            'action' => 'admin_add_case_comment',
-            'performed_by' => $user->uuid,
-            'target_type' => 'CaseFile',
-            'target_id' => (string) $case->id,
-            'changes' => [
-                'case_number' => $case->case_number,
-                'type' => $case->type,
-                'comment_id' => (string) $comment->id,
-                'comment_type' => $comment->type,
-            ],
-        ]);
-
-        // Notificar al moderador
-
+    if (!$user) {
         return back()->with(
-            'success',
-            'Observación agregada correctamente.'
+            'error',
+            'Debe iniciar sesión para agregar una observación.'
         );
     }
+
+    // Solo el ADMINISTRADOR puede crear observaciones
+    if ($user->role !== 'ADMIN') {
+        return back()->with(
+            'error',
+            'Solo el administrador puede agregar observaciones.'
+        );
+    }
+
+    // Guardar observación
+    $comment = CaseComment::create([
+        'case_id' => $case->id,
+        'user_id' => $user->uuid,
+        'type' => 'OBSERVACION',
+        'comment' => trim($request->comment),
+        'color' => $request->color
+    ]);
+
+    // Registrar auditoría
+    AuditLog::create([
+        'action' => 'admin_add_case_comment',
+        'performed_by' => $user->uuid,
+        'target_type' => 'CaseFile',
+        'target_id' => (string) $case->id,
+        'changes' => [
+            'case_number' => $case->case_number,
+            'type' => $case->type,
+            'comment_id' => (string) $comment->id,
+            'comment_type' => $comment->type,
+        ],
+    ]);
+
+    // Señal en tiempo real: llega a administradores y al moderador asignado,
+    // nunca al usuario (la observación del administrador es solo para el moderador).
+    CaseActivityUpdated::emit($case, $comment, 'case.comment.created');
+
+    return back()->with(
+        'success',
+        'Observación agregada correctamente.'
+    );
+}
 }

@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -16,31 +16,75 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
+        /* ================================================================
+           BASE
+           ================================================================ */
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            /* Variables fluidas compartidas */
+            --gutter: clamp(16px, 4vw, 40px);
+            --wave-h: clamp(70px, 12vw, 180px);
+            --chat-edge: clamp(10px, 2vw, 25px);
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
             background: #f8fafc;
+            /* Espacio inferior para que el botón flotante no tape el último contenido */
+            padding-bottom: calc(100px + var(--safe-bottom));
+            /* Red de seguridad: los efectos 3D no deben crear scroll horizontal.
+               "clip" no crea contenedor de scroll; "hidden" queda como respaldo. */
             overflow-x: hidden;
+            overflow-x: clip;
         }
 
-        /* NAVBAR */
+        img,
+        svg {
+            max-width: 100%;
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        textarea:focus-visible {
+            outline: 3px solid #f59e0b;
+            outline-offset: 2px;
+        }
+
+        /* ================================================================
+           NAVBAR
+           Escritorio: marca | enlaces | acciones (una fila)
+           ≤1240px   : marca + acciones arriba, enlaces en segunda fila
+           ≤600px    : todo apilado, enlaces en 2 columnas
+           ================================================================ */
 
         .navbar {
             width: 95%;
             max-width: 1400px;
             margin: 20px auto;
-            padding: 18px 35px;
+            padding: 16px clamp(16px, 2.5vw, 35px);
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             border-radius: 35px;
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
+            gap: 12px 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
             position: relative;
             z-index: 1000;
@@ -50,6 +94,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            flex: 0 0 auto;
         }
 
         .brand h2 {
@@ -60,8 +105,12 @@
 
         .nav-center {
             display: flex;
+            flex: 1 1 auto;
+            flex-wrap: wrap;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            gap: 8px 10px;
+            min-width: 0;
         }
 
         .nav-center a {
@@ -69,7 +118,8 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            padding: 9px 14px;
+            min-height: 40px;
+            padding: 9px clamp(10px, 1vw, 14px);
             background: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 10px;
@@ -77,26 +127,28 @@
             color: #334155;
             font-size: 14px;
             font-weight: 500;
+            line-height: 1.25;
             white-space: nowrap;
-            transition: all .2s ease;
+            transition: background .2s ease, border-color .2s ease, color .2s ease,
+                box-shadow .2s ease;
         }
 
         .nav-center a i {
             font-size: 14px;
         }
 
-        .nav-center a:hover {
-            background: #2563eb;
-            border-color: #2563eb;
-            color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 5px 12px rgba(37, 99, 235, .18);
-        }
-
         .nav-right {
             display: flex;
+            flex: 0 0 auto;
+            flex-wrap: wrap;
             align-items: center;
-            gap: 15px;
+            justify-content: flex-end;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .nav-right form {
+            margin: 0;
         }
 
         .admin-btn {
@@ -105,29 +157,38 @@
                     #1d4ed8);
             color: white;
             text-decoration: none;
+            min-height: 44px;
             padding: 12px 22px;
             border-radius: 15px;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
             font-weight: 700;
+            transition: box-shadow .2s ease, transform .2s ease;
         }
 
         .logout-btn {
             background: #ef4444;
             color: white;
             border: none;
+            min-height: 44px;
             padding: 12px 22px;
             border-radius: 15px;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
             font-weight: 700;
+            font-size: 1rem;
             cursor: pointer;
             font-family: 'Poppins', sans-serif;
+            transition: box-shadow .2s ease, transform .2s ease;
         }
 
-        /* HERO */
+        /* ================================================================
+           HERO
+           ================================================================ */
 
         .hero-section {
             position: relative;
@@ -136,29 +197,33 @@
                     #4f46e5 0%,
                     #7c3aed 50%,
                     #d946ef 100%);
-            border-radius: 0 0 80px 80px;
-            padding: 80px 60px 180px;
+            border-radius: 0 0 clamp(32px, 6vw, 80px) clamp(32px, 6vw, 80px);
+            padding: clamp(40px, 6vw, 80px) clamp(20px, 5vw, 60px) calc(var(--wave-h) + clamp(16px, 3vw, 30px));
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: clamp(24px, 4vw, 60px);
             color: white;
         }
 
         .hero-content {
+            flex: 1 1 0;
             max-width: 650px;
+            min-width: 0;
             z-index: 2;
         }
 
         .hero-content h1 {
             color: white;
-            font-size: 4rem;
+            font-size: clamp(2rem, 1.1rem + 3.6vw, 4rem);
             font-weight: 800;
             line-height: 1.1;
-            margin-bottom: 25px;
+            margin-bottom: clamp(16px, 2.5vw, 25px);
+            overflow-wrap: break-word;
         }
 
         .hero-content p {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, .92rem + .35vw, 1.2rem);
             line-height: 1.8;
             opacity: .95;
         }
@@ -166,15 +231,20 @@
         .hero-buttons {
             display: flex;
             gap: 15px;
-            margin-top: 35px;
+            margin-top: clamp(22px, 3vw, 35px);
             flex-wrap: wrap;
         }
 
         .hero-btn {
-            padding: 15px 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 14px clamp(20px, 2.5vw, 30px);
             border-radius: 15px;
             text-decoration: none;
             font-weight: 700;
+            text-align: center;
             transition: .3s;
         }
 
@@ -189,11 +259,16 @@
         }
 
         .hero-image {
+            flex: 0 1 clamp(200px, 38%, 500px);
             max-width: 500px;
+            min-width: 0;
+            z-index: 1;
         }
 
         .hero-image img {
+            display: block;
             width: 100%;
+            height: auto;
         }
 
         .wave {
@@ -201,67 +276,80 @@
             bottom: -5px;
             left: 0;
             width: 100%;
+            line-height: 0;
         }
 
         .wave svg {
             display: block;
             width: 100%;
-            height: 180px;
+            height: var(--wave-h);
         }
 
-        /* INFORMACIÓN */
+        /* ================================================================
+           INFORMACIÓN
+           ================================================================ */
 
         .info-section {
-            margin-top: -90px;
+            margin-top: calc(var(--wave-h) * -.5);
             position: relative;
             z-index: 3;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            padding: 0 40px 40px;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+            gap: clamp(16px, 2.5vw, 25px);
+            padding: 0 var(--gutter) 40px;
         }
 
         .info-card {
+            min-width: 0;
             background: white;
             border-radius: 25px;
-            padding: 30px;
+            padding: clamp(20px, 3vw, 30px);
             box-shadow: 0 15px 40px rgba(0, 0, 0, .1);
         }
 
         .info-card h3 {
             color: #111827;
             margin-bottom: 15px;
+            overflow-wrap: break-word;
         }
 
         .info-card p {
             color: #4b5563;
             line-height: 1.7;
+            overflow-wrap: break-word;
         }
 
         .info-card i {
+            display: inline-block;
             font-size: 40px;
             color: #7c3aed;
             margin-bottom: 20px;
         }
 
-        /* EMERGENCIA */
+        /* ================================================================
+           EMERGENCIA
+           ================================================================ */
 
         .emergency-bar {
-            margin: 30px 40px;
+            margin: 30px var(--gutter);
             background: white;
             border-radius: 25px;
-            padding: 25px 35px;
+            padding: clamp(20px, 3vw, 25px) clamp(20px, 3vw, 35px);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 12px 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+        }
+
+        .emergency-bar>div {
+            min-width: 0;
         }
 
         .emergency-title {
             color: #111827;
-            font-size: 1.4rem;
+            font-size: clamp(1.15rem, 1rem + .6vw, 1.4rem);
             font-weight: 700;
         }
 
@@ -269,35 +357,33 @@
             color: #4b5563;
         }
 
-        /* SERVICIOS */
+        /* ================================================================
+           SERVICIOS
+           ================================================================ */
 
         .services-section {
-            padding: 50px 40px;
+            padding: clamp(32px, 5vw, 50px) var(--gutter);
         }
 
         .services-title {
             text-align: center;
-            font-size: 2rem;
+            font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
             color: #111827;
-            margin-bottom: 40px;
+            margin-bottom: clamp(24px, 4vw, 40px);
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+            gap: clamp(16px, 2.5vw, 25px);
         }
 
         .feature-card {
+            min-width: 0;
             background: white;
             border-radius: 25px;
-            padding: 30px;
+            padding: clamp(20px, 3vw, 30px);
             box-shadow: 0 15px 40px rgba(0, 0, 0, .08);
-            transition: .3s;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
         }
 
         .feature-icon {
@@ -306,23 +392,27 @@
         }
 
         .feature-title {
-            font-size: 22px;
+            font-size: clamp(1.1rem, 1rem + .4vw, 22px);
             font-weight: 700;
             margin-bottom: 12px;
             color: #111827;
+            overflow-wrap: break-word;
         }
 
         .feature-text {
             color: #4b5563;
             line-height: 1.7;
+            overflow-wrap: break-word;
         }
 
-        /* BOTÓN FLOTANTE */
+        /* ================================================================
+           BOTÓN FLOTANTE
+           ================================================================ */
 
         .chat-floating-button {
             position: fixed;
-            right: 25px;
-            bottom: 25px;
+            right: calc(var(--chat-edge) + var(--safe-right));
+            bottom: calc(25px + var(--safe-bottom));
             width: 70px;
             height: 70px;
             border-radius: 50%;
@@ -335,12 +425,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: .3s ease;
-        }
-
-        .chat-floating-button:hover {
-            transform: scale(1.08);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, .30);
+            transition: transform .3s ease, box-shadow .3s ease;
         }
 
         .chat-floating-button img {
@@ -350,14 +435,24 @@
             border-radius: 50%;
         }
 
-        /* CHAT FLOTANTE */
+        /* ================================================================
+           CHAT FLOTANTE
+           Tamaño: nunca mayor que el ancho/alto visibles.
+           --vvh lo actualiza un pequeño script (visualViewport) para el teclado
+           virtual; si no existe se usa 100dvh y, antes, 100vh como respaldo.
+           ================================================================ */
 
         .floating-chat {
+            --chat-bottom: calc(110px + var(--safe-bottom));
             position: fixed;
-            right: 25px;
-            bottom: 110px;
-            width: 380px;
-            height: 520px;
+            right: calc(var(--chat-edge) + var(--safe-right));
+            bottom: var(--chat-bottom);
+            width: min(380px, calc(100% - (var(--chat-edge) * 2) - var(--safe-left) - var(--safe-right)));
+            height: min(520px, calc(100vh - var(--chat-bottom) - var(--safe-top) - 12px));
+            height: min(520px, calc(var(--vvh, 100dvh) - var(--chat-bottom) - var(--safe-top) - 12px));
+            min-height: 280px;
+            max-height: calc(100vh - 24px);
+            max-height: calc(var(--vvh, 100dvh) - 24px);
             background: #1e293b;
             border: 1px solid #334155;
             border-radius: 18px;
@@ -366,6 +461,7 @@
             display: none;
             flex-direction: column;
             overflow: hidden;
+            transform-origin: bottom right;
         }
 
         .floating-chat.active {
@@ -383,6 +479,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 10px;
             flex-shrink: 0;
         }
 
@@ -390,11 +487,13 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            min-width: 0;
         }
 
         .chat-header-logo {
             width: 42px;
             height: 42px;
+            flex-shrink: 0;
             border-radius: 50%;
             background: white;
             padding: 4px;
@@ -404,6 +503,7 @@
         .chat-header-title {
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
 
         .chat-header-title strong {
@@ -421,8 +521,9 @@
             color: white;
             font-size: 20px;
             cursor: pointer;
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
             border-radius: 50%;
         }
 
@@ -433,9 +534,10 @@
         /* MENSAJES */
 
         .floating-chat-messages {
-            flex: 1;
+            flex: 1 1 auto;
             padding: 18px;
             overflow-y: auto;
+            overscroll-behavior: contain;
             background: #1e293b;
             min-height: 0;
         }
@@ -519,7 +621,7 @@
             width: fit-content;
             margin-top: 3px;
             padding: 0 5px;
-            color: #64748b;
+            color: #94a3b8;
             font-size: 9px;
         }
 
@@ -569,10 +671,10 @@
             margin: 0;
         }
 
-        /* FORMULARIO CHAT */
+        /* FORMULARIO CHAT (siempre visible: flex-shrink 0) */
 
         .floating-chat-form {
-            padding: 10px;
+            padding: 10px 10px calc(10px + var(--safe-bottom));
             background: #172033;
             border-top: 1px solid #334155;
             display: flex;
@@ -582,7 +684,8 @@
         }
 
         .floating-chat-form textarea {
-            flex: 1;
+            flex: 1 1 auto;
+            min-width: 0;
             min-height: 42px;
             max-height: 100px;
             resize: none;
@@ -603,7 +706,7 @@
         }
 
         .floating-chat-form textarea::placeholder {
-            color: #64748b;
+            color: #8294ad;
         }
 
         .floating-send {
@@ -624,13 +727,11 @@
 
         .floating-send:hover {
             background: #1d4ed8;
-            transform: scale(1.05);
         }
 
         .floating-send:disabled {
             opacity: .6;
             cursor: wait;
-            transform: none;
         }
 
         /* SCROLL */
@@ -648,127 +749,109 @@
             border-radius: 10px;
         }
 
-        /* RESPONSIVE */
+        /* ================================================================
+           RESPONSIVE (de mayor a menor, sin reglas contradictorias)
+           ================================================================ */
 
-        @media(max-width: 1100px) {
+        /* Navbar en dos filas: marca + acciones / enlaces */
+        @media (max-width: 1240px) {
 
-            .nav-center {
-                gap: 10px;
-            }
-
-            .nav-center a {
-                padding: 10px 12px;
-                font-size: 12px;
-            }
-
-            .navbar {
-                padding: 15px 20px;
-            }
-
-        }
-
-        @media(max-width: 900px) {
-
-            .navbar {
-                flex-direction: column;
-                gap: 20px;
-                padding: 20px;
-            }
-
-            .nav-center {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 15px;
+            .nav-left {
+                order: 1;
             }
 
             .nav-right {
-                width: 100%;
-                justify-content: center;
+                order: 2;
             }
+
+            .nav-center {
+                order: 3;
+                flex: 1 1 100%;
+            }
+        }
+
+        /* Hero en una columna */
+        @media (max-width: 860px) {
 
             .hero-section {
                 flex-direction: column;
                 text-align: center;
-                padding: 60px 25px 180px;
             }
 
-            .hero-content h1 {
-                font-size: 2.8rem;
+            .hero-content {
+                flex: 0 1 auto;
+                max-width: 100%;
+            }
+
+            .hero-buttons {
+                justify-content: center;
             }
 
             .hero-image {
-                margin-top: 40px;
+                flex: 0 1 auto;
+                width: min(100%, 320px);
             }
-
-            .hero-image img {
-                width: 250px;
-            }
-
         }
 
-        @media(max-width: 600px) {
+        @media (max-width: 600px) {
 
             .navbar {
                 width: 94%;
+                border-radius: 28px;
+                padding: 16px;
+            }
+
+            .nav-left,
+            .nav-right,
+            .nav-center {
+                flex: 1 1 100%;
+            }
+
+            .nav-left {
+                justify-content: center;
             }
 
             .nav-center {
-                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
             }
 
             .nav-center a {
-                flex: 1;
-                justify-content: center;
-                min-width: 130px;
+                white-space: normal;
+                text-align: center;
+                min-height: 44px;
             }
 
             .nav-right {
-                flex-direction: column;
+                justify-content: stretch;
+            }
+
+            .nav-right form {
+                flex: 1 1 140px;
             }
 
             .admin-btn,
             .logout-btn {
+                flex: 1 1 140px;
                 width: 100%;
-                justify-content: center;
-            }
-
-            .hero-content h1 {
-                font-size: 2.2rem;
-            }
-
-            .hero-content p {
-                font-size: 1rem;
-            }
-
-            .info-section {
-                padding-left: 20px;
-                padding-right: 20px;
-            }
-
-            .services-section {
-                padding-left: 20px;
-                padding-right: 20px;
             }
 
             .emergency-bar {
-                margin-left: 20px;
-                margin-right: 20px;
-            }
-
-            .floating-chat {
-                right: 10px;
-                left: 10px;
-                bottom: 95px;
-                width: auto;
-                height: 70vh;
-                max-height: 520px;
+                flex-direction: column;
+                align-items: flex-start;
             }
 
             .chat-floating-button {
-                right: 18px;
-                bottom: 18px;
                 width: 62px;
                 height: 62px;
+                bottom: calc(18px + var(--safe-bottom));
+            }
+
+            .floating-chat {
+                --chat-bottom: calc(92px + var(--safe-bottom));
+                left: calc(10px + var(--safe-left));
+                right: calc(10px + var(--safe-right));
+                width: auto;
             }
 
             .floating-message-wrapper {
@@ -776,140 +859,180 @@
             }
         }
 
-        /* ======================================================= */
-        /* ================  EFECTO 3D (AÑADIDO)  ================= */
-        /* Solo se agregan transformaciones de profundidad y tilt.  */
-        /* No se modifica ningún color ni regla existente arriba.   */
-        /* ======================================================= */
+        @media (max-width: 360px) {
 
-        .info-section,
-        .grid {
-            perspective: 1400px;
+            .hero-btn {
+                flex: 1 1 100%;
+            }
+
+            .floating-chat-messages {
+                padding: 12px;
+            }
         }
 
-        .info-card,
-        .feature-card {
-            transform-style: preserve-3d;
-            will-change: transform;
-            transition: transform .25s ease, box-shadow .25s ease;
+        /* Pantallas táctiles: áreas de toque amplias y sin zoom automático en iOS */
+        @media (pointer: coarse) {
+
+            .chat-close {
+                width: 44px;
+                height: 44px;
+            }
+
+            .floating-send {
+                width: 44px;
+                height: 44px;
+                min-width: 44px;
+            }
+
+            .floating-chat-form textarea {
+                font-size: 16px;
+                min-height: 44px;
+            }
         }
 
-        .info-card:hover,
-        .feature-card:hover {
-            box-shadow: 0 25px 45px rgba(0, 0, 0, .18);
+        /* ================================================================
+           EFECTOS HOVER Y 3D
+           Solo con puntero preciso (ratón) y sin preferencia de movimiento
+           reducido. En táctil o con movimiento reducido no se aplica nada.
+           JS controla únicamente variables (--rx, --ry, --ny); el transform
+           lo compone el CSS, por lo que no hay conflicto con :hover.
+           ================================================================ */
+
+        @media (hover: hover) and (pointer: fine) {
+
+            .nav-center a:hover {
+                background: #2563eb;
+                border-color: #2563eb;
+                color: #fff;
+                box-shadow: 0 5px 12px rgba(37, 99, 235, .18);
+            }
+
+            .floating-send:hover {
+                background: #1d4ed8;
+            }
         }
 
-        .info-card i,
-        .feature-icon,
-        .info-card h3,
-        .feature-title {
-            transform: translateZ(30px);
-            transition: transform .25s ease;
+        @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+
+            .info-section,
+            .grid {
+                perspective: 1400px;
+            }
+
+            .info-card,
+            .feature-card {
+                --rx: 0deg;
+                --ry: 0deg;
+                --lift: 0px;
+                transform: perspective(1000px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift));
+                transform-style: preserve-3d;
+                will-change: transform;
+                transition: transform .25s ease, box-shadow .25s ease;
+            }
+
+            .info-card:hover,
+            .feature-card:hover {
+                --lift: -5px;
+                box-shadow: 0 25px 45px rgba(0, 0, 0, .18);
+            }
+
+            .info-card i,
+            .feature-icon,
+            .info-card h3,
+            .feature-title {
+                transform: translateZ(30px);
+            }
+
+            .info-card p,
+            .feature-text {
+                transform: translateZ(15px);
+            }
+
+            .navbar {
+                --ny: 0deg;
+                transform: perspective(1200px) rotateY(var(--ny));
+                transform-style: preserve-3d;
+                transition: transform .3s ease, box-shadow .3s ease;
+            }
+
+            .hero-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 20px rgba(0, 0, 0, .18);
+            }
+
+            .hero-btn:active {
+                transform: translateY(0);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, .15);
+            }
+
+            .admin-btn:hover,
+            .logout-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 14px 22px rgba(0, 0, 0, .22);
+            }
+
+            .admin-btn:active,
+            .logout-btn:active {
+                transform: translateY(0);
+            }
+
+            .chat-floating-button:hover {
+                transform: scale(1.08);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, .30);
+            }
+
+            .emergency-bar {
+                transition: transform .3s ease, box-shadow .3s ease;
+            }
+
+            .emergency-bar:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 35px rgba(0, 0, 0, .14);
+            }
         }
 
-        .info-card p,
-        .feature-text {
-            transform: translateZ(15px);
-            transition: transform .25s ease;
-        }
+        /* Animaciones automáticas: solo si el usuario no pidió menos movimiento */
+        @media (prefers-reduced-motion: no-preference) {
 
-        .hero-section {
-            perspective: 1600px;
-        }
+            .hero-section {
+                perspective: 1600px;
+            }
 
-        .hero-image {
-            transform-style: preserve-3d;
-            animation: hero3DFloat 6s ease-in-out infinite;
+            .hero-image {
+                transform-style: preserve-3d;
+                animation: hero3DFloat 6s ease-in-out infinite;
+            }
+
+            .floating-chat {
+                animation: chat3DOpen .28s ease both;
+            }
         }
 
         @keyframes hero3DFloat {
             0% {
-                transform: rotateY(-8deg) rotateX(4deg) translateZ(0px);
+                transform: rotateY(-8deg) rotateX(4deg);
             }
+
             50% {
-                transform: rotateY(8deg) rotateX(-2deg) translateZ(25px);
+                transform: rotateY(8deg) rotateX(-2deg);
             }
+
             100% {
-                transform: rotateY(-8deg) rotateX(4deg) translateZ(0px);
+                transform: rotateY(-8deg) rotateX(4deg);
             }
-        }
-
-        .hero-btn,
-        .admin-btn,
-        .logout-btn,
-        .nav-center a {
-            transform-style: preserve-3d;
-        }
-
-        .hero-btn:hover {
-            transform: translateY(-3px) translateZ(10px);
-            box-shadow: 0 12px 20px rgba(0, 0, 0, .18);
-        }
-
-        .hero-btn:active {
-            transform: translateY(0) translateZ(0);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, .15);
-        }
-
-        .admin-btn:hover,
-        .logout-btn:hover {
-            transform: translateY(-3px) translateZ(8px);
-            box-shadow: 0 14px 22px rgba(0, 0, 0, .22);
-        }
-
-        .admin-btn:active,
-        .logout-btn:active {
-            transform: translateY(0) translateZ(0);
-        }
-
-        .navbar {
-            transform-style: preserve-3d;
-            transition: transform .3s ease, box-shadow .3s ease;
-        }
-
-        .chat-floating-button {
-            transform-style: preserve-3d;
-        }
-
-        .chat-floating-button:hover {
-            transform: scale(1.08) translateZ(12px) rotateX(6deg);
-        }
-
-        .floating-chat {
-            transform-origin: bottom right;
-            animation: chat3DOpen .28s ease forwards;
         }
 
         @keyframes chat3DOpen {
             from {
-                transform: perspective(1000px) rotateX(12deg) translateY(20px) scale(.96);
+                transform: translateY(20px) scale(.96);
                 opacity: 0;
             }
+
             to {
-                transform: perspective(1000px) rotateX(0deg) translateY(0) scale(1);
+                transform: translateY(0) scale(1);
                 opacity: 1;
             }
         }
-
-        .floating-bubble {
-            transform-style: preserve-3d;
-            transition: transform .2s ease;
-        }
-
-        .floating-bubble:hover {
-            transform: translateZ(6px);
-        }
-
-        .emergency-bar {
-            transform-style: preserve-3d;
-            transition: transform .3s ease, box-shadow .3s ease;
-        }
-
-        .emergency-bar:hover {
-            transform: translateY(-4px) translateZ(10px);
-            box-shadow: 0 20px 35px rgba(0, 0, 0, .14);
-        }
-
     </style>
 
 </head>
@@ -926,7 +1049,7 @@
 
     {{-- CHAT FLOTANTE --}}
 
-    <div class="floating-chat" id="floatingChat">
+    <div class="floating-chat" id="floatingChat" role="dialog" aria-label="Chat UMG Xela">
 
         {{-- HEADER --}}
 
@@ -958,7 +1081,7 @@
 
         {{-- MENSAJES --}}
 
-        <div class="floating-chat-messages" id="floatingChatMessages">
+        <div class="floating-chat-messages" id="floatingChatMessages" role="log" aria-live="polite">
 
             <div class="chat-welcome" id="chatWelcome">
 
@@ -1004,7 +1127,7 @@
 
     {{-- NAVBAR --}}
 
-    <nav class="navbar">
+    <nav class="navbar" aria-label="Navegación principal">
 
         <div class="nav-left">
 
@@ -1180,7 +1303,7 @@
 
         <div class="wave">
 
-            <svg viewBox="0 0 1440 320">
+            <svg viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true" focusable="false">
 
                 <path fill="#f8fafc"
                     d="M0,256L60,266.7C120,277,240,299,360,293.3C480,288,600,256,720,229.3C840,203,960,181,1080,192C1200,203,1320,245,1380,266.7L1440,288L1440,320L0,320Z">
@@ -1355,7 +1478,7 @@
 
     </div>
 
-    {{-- JAVASCRIPT CHAT --}}
+    {{-- JAVASCRIPT CHAT (lógica original sin cambios) --}}
 
     <script>
 
@@ -1925,19 +2048,31 @@
 
     </script>
 
-    {{-- JAVASCRIPT EFECTO 3D (AÑADIDO) --}}
-    {{-- Tilt de profundidad que sigue el cursor en las tarjetas.  --}}
-    {{-- No toca ni interfiere con el script del chat de arriba.   --}}
+    {{-- JAVASCRIPT EFECTO 3D + VIEWPORT (independiente del chat) --}}
+    {{-- El tilt solo se activa con ratón y sin "movimiento reducido".   --}}
+    {{-- JS solo define variables CSS (--rx, --ry, --ny); no escribe     --}}
+    {{-- "transform", así no choca con las reglas :hover del CSS.        --}}
 
     <script>
 
         document.addEventListener('DOMContentLoaded', function () {
+
+            const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+            function tiltEnabled() {
+                return finePointer.matches && !reduceMotion.matches;
+            }
 
             const tiltCards = document.querySelectorAll('.info-card, .feature-card');
 
             tiltCards.forEach(function (card) {
 
                 card.addEventListener('mousemove', function (event) {
+
+                    if (!tiltEnabled()) {
+                        return;
+                    }
 
                     const rect = card.getBoundingClientRect();
 
@@ -1947,18 +2082,15 @@
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
 
-                    const rotateX = ((y - centerY) / centerY) * -8;
-                    const rotateY = ((x - centerX) / centerX) * 8;
-
-                    card.style.transform =
-                        'perspective(1000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-5px)';
+                    card.style.setProperty('--rx', (((y - centerY) / centerY) * -8) + 'deg');
+                    card.style.setProperty('--ry', (((x - centerX) / centerX) * 8) + 'deg');
 
                 });
 
                 card.addEventListener('mouseleave', function () {
 
-                    card.style.transform =
-                        'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0)';
+                    card.style.setProperty('--rx', '0deg');
+                    card.style.setProperty('--ry', '0deg');
 
                 });
 
@@ -1972,24 +2104,47 @@
 
                 navbar.addEventListener('mousemove', function (event) {
 
+                    if (!tiltEnabled()) {
+                        return;
+                    }
+
                     const rect = navbar.getBoundingClientRect();
 
                     const x = event.clientX - rect.left;
                     const centerX = rect.width / 2;
 
-                    const rotateY = ((x - centerX) / centerX) * 1.5;
-
-                    navbar.style.transform =
-                        'perspective(1200px) rotateY(' + rotateY + 'deg)';
+                    navbar.style.setProperty('--ny', (((x - centerX) / centerX) * 1.5) + 'deg');
 
                 });
 
                 navbar.addEventListener('mouseleave', function () {
 
-                    navbar.style.transform =
-                        'perspective(1200px) rotateY(0deg)';
+                    navbar.style.setProperty('--ny', '0deg');
 
                 });
+
+            }
+
+            // VIEWPORT VISUAL: ajusta la altura máxima del chat cuando aparece
+            // el teclado virtual (solo si no hay zoom de pellizco activo).
+
+            if (window.visualViewport) {
+
+                const root = document.documentElement;
+
+                const updateViewportHeight = function () {
+
+                    if (window.visualViewport.scale <= 1.01) {
+
+                        root.style.setProperty('--vvh', window.visualViewport.height + 'px');
+
+                    }
+
+                };
+
+                updateViewportHeight();
+
+                window.visualViewport.addEventListener('resize', updateViewportHeight);
 
             }
 

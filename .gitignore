@@ -24,3 +24,12 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /storage/app/firebase/
+
+# Respaldos locales que no deben subirse a GitHub
+/backup_notificaciones_20261011_190641/
+
+# Archivos de respaldo locales
+*.bak
+
+# Archivo duplicado local del evento de notificaciones
+/app/Models/AdminNotificationsChanged.php

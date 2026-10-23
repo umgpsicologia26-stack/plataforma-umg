@@ -1,17 +1,18 @@
 <?php 
- 
 namespace App\Http\Controllers; 
- 
+
 use App\Models\CaseFile; 
 use App\Models\CaseComment; 
 use App\Models\CaseNotification; 
+use App\Models\AdminNotification;
 use App\Models\ChatConversation; 
 use App\Models\AuditLog; 
+use App\Events\CaseActivityUpdated;
 use Illuminate\Http\Request; 
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\DB; 
 use Illuminate\Support\Str; 
- 
+
 class CaseController extends BaseController 
 { 
     /* CREAR CASO DE SUICIDIO */ 
@@ -47,13 +48,9 @@ class CaseController extends BaseController
 
         $user = Auth::user(); 
 
-        /* BUSCAR MODERADOR DISPONIBLE */ 
+        /* BUSCAR MODERADOR CON MENOS CASOS PENDIENTES */
 
-        $moderator = DB::table('users') 
-            ->where('role', 'MODERATOR') 
-            ->where('status', 'Activo') 
-            ->orderBy('created_at', 'asc') 
-            ->first(); 
+        $moderator = $this->assignModerator();
 
         /* NÚMERO DE CASO */ 
 
@@ -105,6 +102,9 @@ class CaseController extends BaseController
             } 
         } 
 
+                // NOTIFICAR EN TIEMPO REAL QUE SE CREÓ EL CASO
+        CaseActivityUpdated::emit($case, null, 'case.created');
+
         return redirect() 
             ->route('cases.tracking') 
             ->with( 
@@ -128,6 +128,7 @@ class CaseController extends BaseController
                 'max:5000' 
             ], 
         ]); 
+        
 
         /* VERIFICAR CONFIGURACIÓN */ 
 
@@ -148,13 +149,9 @@ class CaseController extends BaseController
 
         $user = Auth::user(); 
 
-        /* BUSCAR MODERADOR DISPONIBLE */ 
+        /* BUSCAR MODERADOR CON MENOS CASOS PENDIENTES */
 
-        $moderator = DB::table('users') 
-            ->where('role', 'MODERATOR') 
-            ->where('status', 'Activo') 
-            ->orderBy('created_at', 'asc') 
-            ->first(); 
+        $moderator = $this->assignModerator();
 
         /* NÚMERO DE CASO */ 
 
@@ -210,6 +207,13 @@ class CaseController extends BaseController
             } 
         } 
 
+        // NOTIFICAR EN TIEMPO REAL QUE SE CREÓ EL CASO
+            event(new CaseActivityUpdated(
+                $case,
+                null,
+                'case.created'
+            ));
+
         return redirect() 
             ->route('cases.tracking') 
             ->with( 
@@ -260,11 +264,18 @@ class CaseController extends BaseController
 
         /* OBTENER TODOS LOS CASOS DEL USUARIO */ 
 
-        $cases = CaseFile::with([ 
-            'user', 
-            'moderator', 
-            'comments.user' 
-        ]) 
+                $cases = CaseFile::with([
+            'user',
+            'moderator',
+            'comments' => function ($query) {
+                // Las observaciones del administrador solo las ve el moderador.
+                $query->whereNotIn(
+                    'user_id',
+                    DB::table('users')->where('role', 'ADMIN')->select('uuid')
+                )->with('user');
+            },
+        ])
+
             ->where( 
                 'user_uuid', 
                 $userUuid 
@@ -464,6 +475,133 @@ class CaseController extends BaseController
         ); 
     } 
 
+    /* RESPONDER AL SEGUIMIENTO DE UN CASO */
+    public function replyToCase(Request $request, $id)
+    {
+        $this->checkRole(['USER']);
+
+        $request->validate([
+            'message' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $user = Auth::user();
+
+        $case = CaseFile::query()
+            ->where('id', $id)
+            ->where('user_uuid', $user->uuid)
+            ->whereIn('status', ['Abierto', 'En seguimiento'])
+            ->firstOrFail();
+
+        return DB::transaction(function () use ($request, $user, $case) {
+
+            $comment = CaseComment::create([
+                'case_id' => $case->id,
+                'user_id' => $user->uuid,
+                'type' => 'RESPUESTA_USUARIO',
+                'comment' => trim($request->input('message')),
+                'color' => null,
+            ]);
+
+            // Se emite al confirmarse la transacción (lo hace emit()).
+                CaseActivityUpdated::emit($case, $comment, 'case.comment.created');
+
+            if ($case->moderator_uuid) {
+                CaseNotification::create([
+                    'user_uuid' => $user->uuid,
+                    'moderator_uuid' => $case->moderator_uuid,
+                    'case_id' => $case->id,
+                    'comment_id' => $comment->id,
+                    'message' => 'El usuario ha respondido al seguimiento del caso ' .
+                        $case->case_number . '.',
+                    'read_at' => null,
+                ]);
+            }
+
+            AuditLog::create([
+                'action' => 'user_reply_to_case',
+                'performed_by' => $user->uuid,
+                'target_type' => 'CaseFile',
+                'target_id' => (string) $case->id,
+                'changes' => [
+                    'case_number' => $case->case_number,
+                    'comment_id' => $comment->id,
+                    'type' => 'RESPUESTA_USUARIO',
+                ],
+            ]);
+
+                        try {
+                AdminNotification::notifyAdmins(
+                    $case,
+                    'El usuario respondió en el seguimiento del caso '
+                        . $case->case_number . '.',
+                    false
+                );
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
+            return redirect()
+                ->route('cases.tracking')
+                ->with('success', 'Tu respuesta se envió correctamente.');
+        });
+    }
+
+    /**
+     * Asignar casos mediante un turno rotativo entre moderadores activos.
+     */
+    private function assignModerator()
+    {
+        return DB::transaction(function () {
+            // Bloquear el registro para evitar que dos solicitudes
+            // avancen el turno al mismo tiempo.
+            $state = DB::table('moderator_assignment_state')
+                ->where('id', 1)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$state) {
+                throw new \RuntimeException(
+                    'No existe el registro de estado de asignación de moderadores.'
+                );
+            }
+
+            // Obtener únicamente moderadores activos y no eliminados.
+            $moderators = DB::table('users')
+                ->where('role', 'MODERATOR')
+                ->where('status', 'Activo')
+                ->whereNull('deleted_at')
+                ->orderBy('uuid')
+                ->get();
+
+            if ($moderators->isEmpty()) {
+                return null;
+            }
+
+            $lastUuid = $state->last_moderator_uuid;
+
+            // Seleccionar el siguiente moderador después del último turno.
+            $nextModerator = $lastUuid
+                ? $moderators->first(function ($moderator) use ($lastUuid) {
+                    return strcmp($moderator->uuid, $lastUuid) > 0;
+                })
+                : null;
+
+            // Si llegamos al final de la lista, volver al principio.
+            if (!$nextModerator) {
+                $nextModerator = $moderators->first();
+            }
+
+            // Persistir el turno para la próxima asignación.
+            DB::table('moderator_assignment_state')
+                ->where('id', 1)
+                ->update([
+                    'last_moderator_uuid' => $nextModerator->uuid,
+                    'updated_at' => now(),
+                ]);
+
+            return $nextModerator;
+        });
+    }
 
     /* MARCAR NOTIFICACIÓN COMO LEÍDA */ 
 

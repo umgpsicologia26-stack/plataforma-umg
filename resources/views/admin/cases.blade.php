@@ -25,7 +25,9 @@
                 linear-gradient(135deg,
                     #eef4ff,
                     #f8fbff);
+            /* 100vh como respaldo; 100dvh evita el salto de la barra del navegador en móviles */
             min-height: 100vh;
+            min-height: 100dvh;
             color: #1f2937;
         }
 
@@ -53,11 +55,6 @@
             margin-bottom: 20px;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
             transition: all .2s ease;
-        }
-
-        .back-button:hover {
-            background: #f3f4f6;
-            transform: translateX(-2px);
         }
 
         /* ENCABEZADO */
@@ -141,7 +138,8 @@
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            min-width: 850px;
+            /* Respaldo: scroll interno solo si el contenido no cabe (ver vista de tarjetas ≤900px) */
+            min-width: 760px;
         }
 
         th {
@@ -177,10 +175,6 @@
 
         tbody tr {
             transition: background .2s ease;
-        }
-
-        tbody tr:hover td {
-            background: #f8fafc;
         }
 
         /* NÚMERO DE CASO */
@@ -274,6 +268,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .action-btn {
@@ -284,6 +279,7 @@
             justify-content: center;
             border-radius: 9px;
             text-decoration: none;
+            cursor: pointer;
             transition: all .2s ease;
         }
 
@@ -294,12 +290,6 @@
             border: 1px solid #dbeafe;
         }
 
-        .view-btn:hover {
-            background: #2563eb;
-            color: white;
-            transform: translateY(-1px);
-        }
-
         /* EDITAR */
         .edit-btn {
             background: #fffbeb;
@@ -307,23 +297,11 @@
             border: 1px solid #fde68a;
         }
 
-        .edit-btn:hover {
-            background: #f59e0b;
-            color: white;
-            transform: translateY(-1px);
-        }
-
         /* ELIMINAR */
         .delete-btn {
             background: #fef2f2;
             color: #dc2626;
             border: 1px solid #fecaca;
-        }
-
-        .delete-btn:hover {
-            background: #dc2626;
-            color: white;
-            transform: translateY(-1px);
         }
 
 
@@ -342,6 +320,143 @@
 
         .empty p {
             font-size: 14px;
+        }
+
+        /* HOVER (solo dispositivos con puntero)
+           Evita el "hover pegado" en pantallas táctiles */
+        @media (hover: hover) {
+            .back-button:hover {
+                background: #f3f4f6;
+                transform: translateX(-2px);
+            }
+
+            tbody tr:hover td {
+                background: #f8fafc;
+            }
+
+            .view-btn:hover {
+                background: #2563eb;
+                color: white;
+                transform: translateY(-1px);
+            }
+
+            .edit-btn:hover {
+                background: #f59e0b;
+                color: white;
+                transform: translateY(-1px);
+            }
+
+            .delete-btn:hover {
+                background: #dc2626;
+                color: white;
+                transform: translateY(-1px);
+            }
+        }
+
+        /* FOCO DE TECLADO */
+        .back-button:focus-visible,
+        .action-btn:focus-visible {
+            outline: 3px solid rgba(37, 99, 235, .45);
+            outline-offset: 2px;
+        }
+
+        /* PANTALLAS TÁCTILES: área mínima de 44px */
+        @media (pointer: coarse) {
+            .back-button {
+                min-height: 44px;
+            }
+
+            .action-btn {
+                width: 44px;
+                height: 44px;
+            }
+        }
+
+        /* RESPONSIVE: TABLA EN FORMATO TARJETA (tablet vertical y móviles)
+           Cada fila pasa a ser una tarjeta con etiqueta + valor.
+           Las etiquetas siguen el orden actual de las 6 columnas;
+           si se agregan o reordenan columnas, hay que actualizarlas aquí. */
+        @media (max-width: 900px) {
+            table {
+                min-width: 0;
+            }
+
+            table,
+            tbody {
+                display: block;
+            }
+
+            /* Cabecera oculta visualmente, se mantiene en el DOM */
+            thead {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+            }
+
+            tbody tr {
+                display: block;
+                background: #ffffff;
+                border: 1px solid #e5e7eb;
+                border-radius: 14px;
+                padding: 6px 16px;
+                margin-bottom: 12px;
+            }
+
+            tbody tr:last-child {
+                margin-bottom: 0;
+            }
+
+            .table-container td {
+                display: grid;
+                grid-template-columns:
+                    minmax(90px, 34%)
+                    minmax(0, 1fr);
+                align-items: center;
+                gap: 10px;
+                padding: 11px 0;
+                background: transparent;
+                /* Nombres y temas largos se parten dentro de la tarjeta */
+                overflow-wrap: anywhere;
+            }
+
+            .table-container td:last-child {
+                border-bottom: none;
+            }
+
+            .table-container td::before {
+                font-size: 12px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .4px;
+                color: #6b7280;
+            }
+
+            .table-container td:nth-child(1)::before { content: "Número"; }
+            .table-container td:nth-child(2)::before { content: "Tema"; }
+            .table-container td:nth-child(3)::before { content: "Moderador"; }
+            .table-container td:nth-child(4)::before { content: "Fecha"; }
+            .table-container td:nth-child(5)::before { content: "Estado"; }
+            .table-container td:nth-child(6)::before { content: "Acciones"; }
+
+            /* Los badges no se estiran al ancho de la celda */
+            .case-number,
+            .topic,
+            .status {
+                justify-self: start;
+            }
+
+            /* Mensaje de "sin casos": una sola celda sin etiqueta */
+            .table-container td.empty {
+                display: block;
+                border-bottom: none;
+            }
+
+            .table-container td.empty::before {
+                content: none;
+            }
         }
 
         /* RESPONSIVE */
@@ -363,6 +478,22 @@
             .table-header {
                 align-items: flex-start;
                 flex-direction: column;
+            }
+        }
+
+        /* MOVIMIENTO REDUCIDO */
+        @media (prefers-reduced-motion: reduce) {
+            .back-button,
+            .action-btn,
+            tbody tr {
+                transition: none;
+            }
+
+            .back-button:hover,
+            .view-btn:hover,
+            .edit-btn:hover,
+            .delete-btn:hover {
+                transform: none;
             }
         }
     </style>

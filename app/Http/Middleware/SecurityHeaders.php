@@ -53,19 +53,20 @@ class SecurityHeaders
 
         // Política de seguridad de contenido en modo Report-Only.
         // No bloquea recursos; solamente permite detectar posibles incompatibilidades.
-        $response->headers->set(
-            'Content-Security-Policy',
-            "default-src 'self'; " .
-            "script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " .
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " .
-            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; " .
-            "img-src 'self' data: https://images.unsplash.com https://*.googleusercontent.com; " .
-            "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; " .
-            "frame-src 'self' https://*.firebaseapp.com; " .
-            "object-src 'none'; " .
-            "base-uri 'self'; " .
-            "form-action 'self';"
-        );
+        
+$response->headers->set(
+    'Content-Security-Policy',
+    "default-src 'self'; " .
+    "script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " .
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " .
+    "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; " .
+    "img-src 'self' data: https://images.unsplash.com https://*.googleusercontent.com; " .
+    "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com ws://localhost:8080 wss://localhost:8080; " .
+    "frame-src 'self' https://*.firebaseapp.com; " .
+    "object-src 'none'; " .
+    "base-uri 'self'; " .
+    "form-action 'self';"
+);
 
         return $response;
     }

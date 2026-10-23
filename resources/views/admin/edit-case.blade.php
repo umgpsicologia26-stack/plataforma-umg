@@ -29,7 +29,9 @@
                     #eef4ff,
                     #f8fbff
                 );
+            /* 100vh como respaldo; 100dvh evita el salto de la barra del navegador en móviles */
             min-height: 100vh;
+            min-height: 100dvh;
             color: #1f2937;
         }
 
@@ -62,11 +64,6 @@
             transition: all 0.2s ease;
         }
 
-        .back-button:hover {
-            background: #f3f4f6;
-            transform: translateX(-2px);
-        }
-
     /* ENCABEZADO */
         .page-header {
             background: white;
@@ -89,12 +86,14 @@
 
         .title i {
             color: #2563eb;
+            flex-shrink: 0;
         }
 
         .case-number {
             margin-top: 8px;
             color: #6b7280;
             font-size: 14px;
+            overflow-wrap: break-word;
         }
 
         .case-number strong {
@@ -130,7 +129,7 @@
         .info-grid {
             display: grid;
             grid-template-columns:
-                repeat(2, 1fr);
+                repeat(2, minmax(0, 1fr));
             gap: 18px;
         }
 
@@ -139,6 +138,8 @@
             border: 1px solid #e5e7eb;
             border-radius: 12px;
             padding: 15px;
+            /* Nombres y números largos se parten dentro de su celda */
+            overflow-wrap: break-word;
         }
 
         .info-label {
@@ -158,6 +159,8 @@
 
     /* DESCRIPCIÓN */
         .description {
+            /* Ocupa todo el ancho si queda dentro de .info-grid; no tiene efecto fuera de un grid */
+            grid-column: 1 / -1;
             margin-top: 20px;
             padding: 18px;
             background: #f8fafc;
@@ -177,6 +180,8 @@
             line-height: 1.6;
             color: #374151;
             white-space: pre-line;
+            /* Evita que URLs o palabras largas desborden la tarjeta */
+            overflow-wrap: anywhere;
         }
 
     /* ESTADO */
@@ -194,6 +199,7 @@
 
         select {
             width: 100%;
+            min-height: 44px;
             padding: 13px 15px;
             border-radius: 10px;
             border: 1px solid #d1d5db;
@@ -208,7 +214,7 @@
         select:focus {
             border-color: #2563eb;
             box-shadow:
-                0 0 0 3px rgba(37,99,235,.1);
+                0 0 0 3px rgba(37,99,235,.25);
         }
 
     /* BOTÓN GUARDAR */
@@ -234,17 +240,13 @@
             transition: all .2s ease;
         }
 
-        .save-button:hover {
-            background: #1d4ed8;
-            transform: translateY(-1px);
-        }
-
     /* MENSAJES */
         .alert {
             padding: 13px 16px;
             border-radius: 10px;
             margin-bottom: 20px;
             font-size: 14px;
+            overflow-wrap: break-word;
         }
 
         .alert-success {
@@ -257,6 +259,35 @@
             background: #fef2f2;
             color: #b91c1c;
             border: 1px solid #fecaca;
+        }
+
+    /* HOVER (solo dispositivos con puntero)
+       Evita el "hover pegado" en pantallas táctiles */
+        @media (hover: hover) {
+            .back-button:hover {
+                background: #f3f4f6;
+                transform: translateX(-2px);
+            }
+
+            .save-button:hover {
+                background: #1d4ed8;
+                transform: translateY(-1px);
+            }
+        }
+
+    /* FOCO DE TECLADO */
+        .back-button:focus-visible,
+        .save-button:focus-visible {
+            outline: 3px solid rgba(37,99,235,.45);
+            outline-offset: 2px;
+        }
+
+    /* PANTALLAS TÁCTILES: área mínima de 44px */
+        @media (pointer: coarse) {
+            .back-button,
+            .save-button {
+                min-height: 44px;
+            }
         }
 
     /* RESPONSIVE */
@@ -279,12 +310,31 @@
                 font-size: 21px;
             }
 
+            /* 16px evita el zoom automático de iOS al abrir el selector */
+            select {
+                font-size: 16px;
+            }
+
             .actions {
                 justify-content: stretch;
             }
 
             .save-button {
                 width: 100%;
+            }
+        }
+
+    /* MOVIMIENTO REDUCIDO */
+        @media (prefers-reduced-motion: reduce) {
+            .back-button,
+            .save-button,
+            select {
+                transition: none;
+            }
+
+            .back-button:hover,
+            .save-button:hover {
+                transform: none;
             }
         }
     </style>

@@ -146,7 +146,7 @@
 
         </div>
 
-        <h1>Iniciar SesiÃ³n</h1>
+        <h1>Iniciar Sesión</h1>
 
         @if(session('success'))
 
@@ -172,7 +172,7 @@
             </div>
 
             <h3>
-                Inicio de sesiÃ³n
+                Inicio de sesión
             </h3>
 
             <p id="loginErrorModalMessage">
@@ -200,10 +200,10 @@
                 </label>
 
                 <input type="email"
-                       name="email"
-                       id="login_email"
-                       autocomplete="email"
-                       required>
+                        name="email"
+                        id="login_email"
+                        autocomplete="email"
+                        required>
 
             </div>
 
@@ -211,14 +211,14 @@
             <div class="input-field">
 
                 <label for="login_password">
-                    ContraseÃ±a
+                    Contraseña
                 </label>
 
                 <input type="password"
-                       name="password"
-                       id="login_password"
-                       autocomplete="current-password"
-                       required>
+                        name="password"
+                        id="login_password"
+                        autocomplete="current-password"
+                        required>
 
             </div>
 
@@ -226,7 +226,7 @@
             <button type="submit"
                     class="signup-btn">
 
-                Iniciar SesiÃ³n
+                Iniciar Sesión
 
             </button>
 
@@ -234,7 +234,7 @@
             <div class="forgot-password">
 
                 <a href="/forgot-password">
-                    Â¿Olvidaste tu contraseÃ±a?
+                    ¿Olvidaste tu contraseña?
                 </a>
 
                 @if(session('showRecovery') && !session('bruteForceBlocked'))
@@ -242,11 +242,11 @@
                     <div class="recovery-options">
 
                         <a href="/forgot-password-email">
-                            ðŸ“§ Recuperar por Correo
+                                Recuperar por Correo
                         </a>
 
                         <a href="/forgot-password-phone">
-                            ðŸ“± Recuperar por Celular
+                                Recuperar por Celular
                         </a>
 
                     </div>
@@ -298,7 +298,7 @@
     <!-- REGISTRO -->
 
     <div class="register-form"
-         id="registerForm">
+            id="registerForm">
 
         <div class="back-arrow" id="backToLoginButton">
 
@@ -312,8 +312,8 @@
 
 
         <form method="POST"
-              action="/register"
-              novalidate>
+                action="/register"
+                novalidate>
 
             @csrf
 
@@ -325,10 +325,10 @@
                 </label>
 
                 <input type="text"
-                       name="first_name"
-                       id="register_first_name"
-                       autocomplete="given-name"
-                       required>
+                        name="first_name"
+                        id="register_first_name"
+                        autocomplete="given-name"
+                        required>
 
             </div>
 
@@ -340,10 +340,10 @@
                 </label>
 
                 <input type="text"
-                       name="last_name"
-                       id="register_last_name"
-                       autocomplete="family-name"
-                       required>
+                        name="last_name"
+                        id="register_last_name"
+                        autocomplete="family-name"
+                        required>
 
             </div>
 
@@ -355,15 +355,15 @@
                 </label>
 
                 <input type="text"
-                       name="anonymous_nickname"
-                       id="register_nickname"
-                       autocomplete="off"
-                       maxlength="80"
-                       required
-                       placeholder="Elige tu nickname">
+                        name="anonymous_nickname"
+                        id="register_nickname"
+                        autocomplete="off"
+                        maxlength="80"
+                        required
+                        placeholder="Elige tu nickname">
 
                 <small>
-                    Este nickname podrÃ¡ utilizarse de forma anÃ³nima en el foro.
+                    Este nickname podrá utilizarse de forma anónima en el foro.
                 </small>
 
             </div>
@@ -376,17 +376,17 @@
                 </label>
 
                 <input type="date"
-                       name="birth_date"
-                       id="register_birth_date"
-                       autocomplete="off"
-                       min="{{ now()->subYears(100)->format('Y-m-d') }}"
-                       max="{{ now()->subYears(15)->format('Y-m-d') }}"
-                       required>
+                        name="birth_date"
+                        id="register_birth_date"
+                        autocomplete="off"
+                        min="{{ now()->subYears(100)->format('Y-m-d') }}"
+                        max="{{ now()->subYears(15)->format('Y-m-d') }}"
+                        required>
 
                 <small id="birthDateError"
-                       style="display:none;">
+                        style="display:none;">
 
-                    Debes tener entre 15 y 100 aÃ±os.
+                    Debes tener entre 15 y 100 años.
 
                 </small>
 
@@ -400,12 +400,12 @@
                 </label>
 
                 <input type="text"
-                       name="phone"
-                       id="register_phone"
-                       autocomplete="tel"
-                       inputmode="tel"
-                       maxlength="20"
-                       required>
+                        name="phone"
+                        id="register_phone"
+                        autocomplete="tel"
+                        inputmode="tel"
+                        maxlength="20"
+                        required>
 
             </div>
 
@@ -417,15 +417,15 @@
                 </label>
 
                 <input type="email"
-                       name="email"
-                       id="register_email"
-                       autocomplete="email"
-                       required>
+                        name="email"
+                        id="register_email"
+                        autocomplete="email"
+                        required>
 
                 <small id="emailError"
-                       style="display:none;">
+                        style="display:none;">
 
-                    Ingresa un correo vÃ¡lido.
+                    Ingresa un correo válido.
                     Ejemplo: juanperez03@gmail.com
 
                 </small>
@@ -436,14 +436,14 @@
             <div class="input-field">
 
                 <label for="register_password">
-                    ContraseÃ±a
+                    Contraseña
                 </label>
 
                 <input type="password"
-                       name="password"
-                       id="register_password"
-                       autocomplete="new-password"
-                       required>
+                        name="password"
+                        id="register_password"
+                        autocomplete="new-password"
+                        required>
 
             </div>
 
@@ -469,11 +469,11 @@
     <div class="logo-container">
 
         <img src="{{ asset('images/logo1.png') }}"
-             alt="Logo UMG">
+            alt="Logo UMG">
 
         <p class="logo-text">
 
-            â€œA veces, el acto mÃ¡s valiente es hablar de aquello que mÃ¡s te duele.â€
+            A veces, el acto más valiente es hablar de aquello que más te duele.
 
             <br>
             <br>
@@ -504,13 +504,13 @@
     </div>
 
     <h3>
-        Celular no vÃ¡lido
+        Celular no válido
     </h3>
 
     <p>
 
         El celular solo puede contener
-        nÃºmeros, espacios y el signo +.
+        números, espacios y el signo +.
         No se permiten letras ni guiones.
 
         <br>
@@ -557,12 +557,12 @@
     </div>
 
     <h3>
-        Correo no vÃ¡lido
+        Correo no válido
     </h3>
 
     <p id="emailModalMessage">
 
-        Ingresa un correo vÃ¡lido.
+        Ingresa un correo válido.
 
         <br>
 
@@ -599,7 +599,7 @@
     </div>
 
     <h3>
-        Fecha de nacimiento no vÃ¡lida
+        Fecha de nacimiento no válida
     </h3>
 
     <p id="birthDateModalMessage">
@@ -660,7 +660,7 @@
 
 
 
-| {{--                                                                       |
+{{--                                                                       |
 | -------------------------------------------------------------------------- |
 | VENTANA DE CUENTA BLOQUEADA                                                |
 | -------------------------------------------------------------------------- |
@@ -670,12 +670,12 @@
 |                                                                            |
 | session('accountBlocked')                                                  |
 |                                                                            |
-| --}}                                                                       |
+| --}}                                                                       
 
 @if(session('accountBlocked'))
 
 <div class="bruteforce-overlay"
-     id="bruteForceModal">
+    id="bruteForceModal">
 
 
 <div class="bruteforce-modal">

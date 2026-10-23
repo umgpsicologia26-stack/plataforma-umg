@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @vite('resources/js/echo.js')
     <title>Detalle del Caso | UMG</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -467,7 +468,7 @@
         </a>
 
         <!--ENCABEZADO-->
-        <div class="page-header">
+        <div class="page-header" id="case-header">
             <div class="title-row">
                 <div>
                     <div class="title">
@@ -512,7 +513,7 @@
         </div>
 
         <!--INFORMACIÓN DEL CASO-->
-        <div class="card">
+        <div class="card" id="case-info">
             <div class="card-title">
                 <i class="fas fa-circle-info"></i>
                 Información del caso
@@ -595,7 +596,7 @@
         </div>
 
         <!--LÍNEA DE TIEMPO-->
-        <div class="card">
+        <div class="card" id="case-timeline">
             <div class="card-title">
                 <i class="fas fa-clock"></i>
                 Línea de tiempo
@@ -667,64 +668,89 @@
             </form>
         </div>
 
-        <!--HISTORIAL-->
-        <div class="card">
-            <div class="card-title">
-                <i class="fas fa-history"></i>
-                Historial de correcciones
+        
+    <!-- HISTORIAL DE COMENTARIOS Y SEGUIMIENTO -->
+        <div class="card" id="case-history">
+    <div class="card-title">
+        <i class="fas fa-history"></i>
+        Historial de comentarios y seguimiento
+    </div>
+
+    @forelse($comments->sortByDesc('created_at') as $comment)
+
+        @php
+            $commentType = strtoupper(trim((string) $comment->type));
+
+            $typeLabels = [
+                'RESPUESTA_USUARIO' => 'Respuesta del usuario',
+                'OBSERVACION' => 'Observación',
+                'CORRECCION' => 'Corrección',
+                'SEGUIMIENTO' => 'Seguimiento',
+            ];
+
+            $typeLabel = $typeLabels[$commentType] ?? $comment->type;
+
+            $authorName = $comment->user
+                ? (
+                    $comment->user->full_name
+                    ?? trim(
+                        ($comment->user->first_name ?? '') . ' ' .
+                        ($comment->user->last_name ?? '')
+                    )
+                )
+                : (
+                    $commentType === 'RESPUESTA_USUARIO'
+                        ? 'Usuario'
+                        : 'Equipo de seguimiento'
+                );
+
+            if (empty(trim($authorName))) {
+                $authorName = 'Usuario';
+            }
+
+            $commentColor = in_array(
+                $comment->color,
+                ['red', 'yellow', 'green', 'blue'],
+                true
+            ) ? $comment->color : 'blue';
+        @endphp
+
+        <div class="comment-card">
+
+            <div class="comment-top">
+
+                <span class="badge {{ $commentColor }}"></span>
+
+                <strong>{{ $authorName }}</strong>
+
+                <span style="margin-left: auto; font-size: 12px; color: #64748b;">
+                    {{ $typeLabel }}
+                </span>
+
             </div>
 
-            @forelse($comments as $comment)
-                        <div class="comment-card">
-                            <div class="comment-top">
-                                <span class="badge {{ $comment->color }}"></span>
+            <p>{{ $comment->comment }}</p>
 
-                                <strong>
-                                    {{ $comment->user->first_name
-                    ?? 'Administrador'
-                                    }}
-                                </strong>
-                            </div>
+            <small>
+                {{ $comment->created_at
+                    ? $comment->created_at->format('d/m/Y H:i')
+                    : ''
+                }}
+            </small>
 
-                            <p>
-                                {{ $comment->comment }}
-                            </p>
-
-                            <small>
-                                {{ $comment->created_at->format(
-                    'd/m/Y H:i'
-                ) }}
-                            </small>
-
-                        </div>
-            @empty
-                <p style="color:#6b7280;">
-                    No hay correcciones registradas.
-                </p>
-            @endforelse
         </div>
 
-        <!--NOTIFICACIONES-->
-        <div class="card">
-            <div class="card-title">
-                <i class="fas fa-bell"></i>
-                Notificaciones
-            </div>
+    @empty
 
-            @forelse($notifications as $notification)
-                <div class="notification">
-                    <i class="fas fa-circle-info"></i>
-                    {{ $notification->message }}
-                </div>
+        <p style="color:#6b7280;">
+            No hay comentarios ni seguimiento registrados para este caso.
+        </p>
 
-            @empty
-                <p style="color:#6b7280;">
-                    No hay notificaciones.
-                </p>
-            @endforelse
-        </div>
+    @endforelse
 
-    <!--MODAL-->
+</div>
+
+            <!--MODAL-->
     <div id="reviewModal" class="modal">
 
         <div class="modal-content">
@@ -759,6 +785,32 @@
         }
 
     </script>
+    @include('partials.live-refresh')
+<script>
+umgLive.whenEchoReady(function (echo) {
+    const caseId = String(@json($case->id));
+
+    // El formulario de observaciones NO se toca.
+    const refresher = umgLive.createRefresher({
+        apply: function (doc) {
+            ['#case-header', '#case-info', '#case-timeline', '#case-history'].forEach(function (selector) {
+                umgLive.swapContent(selector, doc);
+            });
+        }
+    });
+
+    umgLive.listen(echo, 'admins', '.case.activity.updated', function (event) {
+        // Solo eventos de ESTE caso.
+        if (String(event.case_id) !== caseId) {
+            return;
+        }
+
+        refresher.trigger();
+    });
+
+    umgLive.onReconnect(echo, refresher.trigger);
+});
+</script>
 </body>
 
 </html>

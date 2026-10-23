@@ -31,7 +31,9 @@
                     #eef4ff,
                     #f8fbff
                 );
+            /* 100vh como respaldo; 100dvh evita el salto de la barra del navegador en móviles */
             min-height: 100vh;
+            min-height: 100dvh;
             color: #1f2937;
         }
 
@@ -61,11 +63,6 @@
             transition: all .2s ease;
         }
 
-        .back-button:hover {
-            background: #f3f4f6;
-            transform: translateX(-2px);
-        }
-
     /*ENCABEZADO*/
         .page-header {
             background: #ffffff;
@@ -87,6 +84,7 @@
 
         .title i {
             color: #2563eb;
+            flex-shrink: 0;
         }
 
         .subtitle {
@@ -160,7 +158,7 @@
         .form-group input:focus {
             border-color: #2563eb;
             box-shadow:
-                0 0 0 3px rgba(37,99,235,.10);
+                0 0 0 3px rgba(37,99,235,.25);
         }
 
         .form-group input::placeholder {
@@ -187,15 +185,13 @@
             transition: all .2s ease;
         }
 
-        .setting:hover {
-            background: #f1f5f9;
-            border-color: #dbe3ef;
-        }
-
         .setting-info {
             display: flex;
             align-items: center;
             gap: 14px;
+            /* Ocupa el espacio disponible y deja que el texto se ajuste sin empujar el interruptor */
+            flex: 1;
+            min-width: 0;
         }
 
         .setting-icon {
@@ -211,6 +207,11 @@
             flex-shrink: 0;
         }
 
+
+        .setting-text {
+            min-width: 0;
+            overflow-wrap: break-word;
+        }
 
         .setting-text strong {
             display: block;
@@ -276,10 +277,6 @@
             background: #fffbeb;
         }
 
-        .maintenance:hover {
-            background: #fef3c7;
-        }
-
         .maintenance .setting-icon {
             background: #fef3c7;
             border-color: #fde68a;
@@ -320,11 +317,6 @@
             transition: all .2s ease;
         }
 
-        .save-btn:hover {
-            background: #1d4ed8;
-            transform: translateY(-1px);
-        }
-
     /*MENSAJES*/
         .alert-success {
             display: flex;
@@ -338,6 +330,7 @@
             margin-bottom: 25px;
             font-size: 14px;
             font-weight: 600;
+            overflow-wrap: break-word;
         }
 
         .alert-error {
@@ -352,6 +345,58 @@
             margin-bottom: 25px;
             font-size: 14px;
             font-weight: 600;
+            overflow-wrap: break-word;
+        }
+
+        .alert-success i,
+        .alert-error i {
+            flex-shrink: 0;
+        }
+
+    /*HOVER (solo dispositivos con puntero)
+      Evita el "hover pegado" en pantallas táctiles*/
+        @media (hover: hover) {
+            .back-button:hover {
+                background: #f3f4f6;
+                transform: translateX(-2px);
+            }
+
+            .setting:hover {
+                background: #f1f5f9;
+                border-color: #dbe3ef;
+            }
+
+            .maintenance:hover {
+                background: #fef3c7;
+            }
+
+            .save-btn:hover {
+                background: #1d4ed8;
+                transform: translateY(-1px);
+            }
+        }
+
+    /*FOCO DE TECLADO*/
+        .back-button:focus-visible,
+        .save-btn:focus-visible,
+        .switch input:focus-visible + .slider {
+            outline: 3px solid rgba(37,99,235,.45);
+            outline-offset: 2px;
+        }
+
+    /*PANTALLAS TÁCTILES: área mínima de 44px*/
+        @media (pointer: coarse) {
+            .back-button,
+            .save-btn {
+                min-height: 44px;
+            }
+
+            /* Amplía la zona de toque del interruptor sin cambiar su apariencia */
+            .switch::after {
+                content: "";
+                position: absolute;
+                inset: -9px -6px;
+            }
         }
 
     /*RESPONSIVE*/
@@ -377,10 +422,6 @@
                 align-items: flex-start;
             }
 
-            .setting-text span {
-                font-size: 11px;
-            }
-
 
             .actions {
                 justify-content: stretch;
@@ -388,6 +429,40 @@
 
             .save-btn {
                 width: 100%;
+            }
+        }
+
+    /*CELULARES PEQUEÑOS*/
+        @media (max-width: 420px) {
+            .page-header,
+            .card {
+                padding: 18px 14px;
+            }
+
+            .setting {
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .setting-info {
+                gap: 12px;
+            }
+        }
+
+    /*MOVIMIENTO REDUCIDO*/
+        @media (prefers-reduced-motion: reduce) {
+            .back-button,
+            .setting,
+            .slider,
+            .slider:before,
+            .save-btn,
+            .form-group input {
+                transition: none;
+            }
+
+            .back-button:hover,
+            .save-btn:hover {
+                transform: none;
             }
         }
     </style>

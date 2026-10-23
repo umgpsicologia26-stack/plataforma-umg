@@ -5,53 +5,45 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ForumMessage;
 use App\Models\AuditLog;
+use App\Events\ForumPostCreated;
+use App\Models\ModeratorNotification;
+use App\Events\ForumNotificationCreated;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
 class ForumController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | MOSTRAR FORO
-    |--------------------------------------------------------------------------
-    |
-    | USUARIO:
-    | Puede recibir publicaciones visibles y ocultas.
-    | La vista determina qué contenido puede mostrarse.
-    |
-    | MODERADOR / ADMIN:
-    | Pueden ver publicaciones visibles y ocultas para poder moderarlas.
-    |
-    */
-
     public function index()
     {
         $user = Auth::user();
 
+        
+        // Marcar como leídas las notificaciones del foro
+        // únicamente para el moderador que está revisando las publicaciones.
+        if ($user && strtoupper($user->role) === 'MODERATOR') {
+            ModeratorNotification::where('moderator_uuid', $user->uuid)
+                ->where('read', false)
+                ->where('message', 'Nueva publicación en el foro.')
+                ->update(['read' => true]);
+        }
+
         $query = ForumMessage::with('user')
             ->orderBy('created_at', 'asc');
 
-        /*
-    |--------------------------------------------------------------------------
-    | VISIBILIDAD
-    |--------------------------------------------------------------------------
-    |
-    | USUARIO:
-    | Puede recibir publicaciones visibles y ocultas.
-    | La vista determina qué contenido puede mostrarse.
-    |
-    | MODERADOR / ADMIN:
-    | Pueden ver publicaciones visibles y ocultas para poder moderarlas.
-    |
-    */
+        $isModeratorOrAdmin = $user && in_array(
+            strtoupper($user->role),
+            ['ADMIN', 'MODERATOR'],
+            true
+        );
+
+        if (!$isModeratorOrAdmin) {
+            $query->where('visibility_status', 'VISIBLE');
+        }
+
         $messages = $query->get();
 
-        return view(
-            'forum.index',
-            compact('messages')
-        );
+        return view('forum.index', compact('messages'));
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -80,7 +72,6 @@ class ForumController extends Controller
             ]
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | USUARIO AUTENTICADO
@@ -89,11 +80,9 @@ class ForumController extends Controller
 
         $user = Auth::user();
 
-
         if (!$user) {
             abort(401);
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -101,52 +90,48 @@ class ForumController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        ForumMessage::create([
+        $message = ForumMessage::create([
 
             /*
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             | UUID DE LA PUBLICACIÓN
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             */
 
             'uuid' => (string) Str::uuid(),
 
-
             /*
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             | UUID REAL DEL USUARIO
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             */
 
             'user_uuid' => $user->uuid,
 
-
             /*
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             | CATEGORÍA
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             */
 
             'category' => 'GENERAL',
 
-
             /*
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             | CONTENIDO
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             |
-            | Usamos input() para obtener correctamente el valor enviado
-            | por el formulario.
+            | El modelo ForumMessage aplica el cifrado configurado
+            | mediante su cast de Eloquent.
             |
             */
 
             'content' => $request->input('content'),
 
-
             /*
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             | IDENTIDAD
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             |
             | nickname = publicación anónima
             | name     = nombre real
@@ -156,20 +141,18 @@ class ForumController extends Controller
             'is_anonymous' =>
                 $request->input('identity_type') === 'nickname',
 
-
             /*
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             | IA
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             */
 
             'ai_flagged' => false,
 
-
             /*
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             | VISIBILIDAD
-            |------------------------------------------------------------------
+            |--------------------------------------------------------------------------
             |
             | Toda publicación nueva comienza visible.
             |
@@ -178,6 +161,46 @@ class ForumController extends Controller
             'visibility_status' => 'VISIBLE'
         ]);
 
+        /*
+        |--------------------------------------------------------------------------
+        | EVENTO EN TIEMPO REAL
+        |--------------------------------------------------------------------------
+        |
+        | Se emite después de guardar la publicación para que los
+        | clientes suscritos al canal privado del foro puedan recibirla.
+        |
+        */
+
+        broadcast(
+            new ForumPostCreated($message->load('user'))
+        );
+
+/*
+|--------------------------------------------------------------------------
+| NOTIFICACIONES EXCLUSIVAS DEL FORO
+|--------------------------------------------------------------------------
+| Se guarda una notificación individual para cada moderador.
+| No se modifican las notificaciones de chat ni de casos.
+*/
+
+$moderators = \App\Models\User::query()
+    ->whereRaw('UPPER(role) = ?', ['MODERATOR'])
+    ->get(['uuid']);
+
+foreach ($moderators as $moderator) {
+    $notification = ModeratorNotification::create([
+        'moderator_uuid' => $moderator->uuid,
+        'conversation_id' => null,
+        'evaluacion_uuid' => null,
+        'attempt_uuid' => null,
+        'message' => 'Nueva publicación en el foro.',
+        'read' => false,
+    ]);
+
+    broadcast(
+        new ForumNotificationCreated($notification)
+    );
+}
 
         /*
         |--------------------------------------------------------------------------
@@ -190,7 +213,6 @@ class ForumController extends Controller
             'Mensaje publicado correctamente.'
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -205,7 +227,6 @@ class ForumController extends Controller
     {
         $user = Auth::user();
 
-
         /*
         |--------------------------------------------------------------------------
         | VERIFICAR AUTENTICACIÓN
@@ -215,7 +236,6 @@ class ForumController extends Controller
         if (!$user) {
             abort(401);
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -232,7 +252,6 @@ class ForumController extends Controller
             abort(403);
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | BUSCAR PUBLICACIÓN POR UUID
@@ -243,7 +262,6 @@ class ForumController extends Controller
             'uuid',
             $uuid
         )->firstOrFail();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -270,7 +288,6 @@ class ForumController extends Controller
             ],
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | REGRESAR
@@ -282,7 +299,6 @@ class ForumController extends Controller
             'El mensaje fue restringido correctamente.'
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -297,7 +313,6 @@ class ForumController extends Controller
     {
         $user = Auth::user();
 
-
         /*
         |--------------------------------------------------------------------------
         | VERIFICAR AUTENTICACIÓN
@@ -307,7 +322,6 @@ class ForumController extends Controller
         if (!$user) {
             abort(401);
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -324,7 +338,6 @@ class ForumController extends Controller
             abort(403);
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | BUSCAR PUBLICACIÓN POR UUID
@@ -335,7 +348,6 @@ class ForumController extends Controller
             'uuid',
             $uuid
         )->firstOrFail();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -361,7 +373,6 @@ class ForumController extends Controller
                 ],
             ],
         ]);
-
 
         /*
         |--------------------------------------------------------------------------

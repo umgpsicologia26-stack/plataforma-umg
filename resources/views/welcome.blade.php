@@ -174,28 +174,32 @@
                     'services/Orientación-acompañamiento/Orientación7.jpeg',
                     'services/Orientación-acompañamiento/Orientación8.jpeg',
                     'services/Orientación-acompañamiento/Orientación9.jpeg',
-
                 ],
-
             ],
 
             [
-
                 'title' => 'Información preventiva',
-
                 'description' =>
                     'Información preventiva para reconocer señales de alerta y conocer recursos de apoyo.',
-
                 'images' => [
-
                     'services/Información-preventiva/Preventiva1.png',
-
+                    'services/Información-preventiva/Preventiva2.jpeg',
+                    'services/Información-preventiva/Preventiva3.jpeg',  
+                    'services/Información-preventiva/Preventiva4.jpeg',
+                    'services/Información-preventiva/Preventiva5.jpeg',
+                    'services/Información-preventiva/Preventiva6.jpeg',
+                    'services/Información-preventiva/Preventiva10.jpeg',
+                    'services/Información-preventiva/Preventiva11.jpeg',
+                    'services/Información-preventiva/Preventiva12.jpeg',
+                    'services/Información-preventiva/Preventiva13.jpeg',
                 ],
-
+                'videos' => [
+                    'services/Información-preventiva/Preventiva7.mp4',
+                    'services/Información-preventiva/Preventiva8.mp4',
+                    'services/Información-preventiva/Preventiva9.mp4',
+                ],
             ],
-
         ];
-
     @endphp
 
     {{-- TARJETAS DE SERVICIOS --}}
@@ -362,6 +366,46 @@
 
                 </div>
 
+
+                {{-- VIDEOS --}}
+                @if (!empty($servicio['videos']))
+
+                    <div class="talleres-media-section">
+
+                        <h3>
+                            <i class="fa-solid fa-video"></i>
+                            Videos
+                        </h3>
+
+                        <div class="talleres-videos">
+
+                            @foreach ($servicio['videos'] as $video)
+
+                                <div class="taller-video-item">
+
+                                    <video
+                                        controls
+                                        preload="metadata"
+                                        playsinline>
+
+                                        <source
+                                            src="{{ asset('images/' . $video) }}"
+                                            type="video/mp4">
+
+                                        Tu navegador no soporta la reproducción de videos.
+
+                                    </video>
+
+                                </div>
+
+                            @endforeach
+
+                        </div>
+
+                    </div>
+
+                @endif
+
             </div>
 
         </div>
@@ -427,6 +471,12 @@ function cerrarModalServicio(index)
         document.getElementById('modalServicio' + index);
 
     if (!modal) return;
+
+    /* Pausar videos */
+    modal.querySelectorAll('video').forEach(function(video) {
+        video.pause();
+        video.currentTime = 0;
+    });
 
     modal.classList.remove('activo');
 

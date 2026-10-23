@@ -532,88 +532,93 @@ class ChatController extends Controller
     }
 
 
-    /**
-     * ASIGNAR MODERADOR
-     */
-    private function assignModerator(
-        ChatConversation $conversation
-    ) {
+    
+/**
+ * ASIGNAR MODERADOR EQUITATIVAMENTE
+ */
+private function assignModerator(
+    ChatConversation $conversation
+) {
+    // No cambiar el moderador de una conversación ya asignada.
+    if (!empty($conversation->moderator_uuid)) {
+        return $conversation;
+    }
 
-        /*
-        |--------------------------------------------------------------------------
-        | YA TIENE MODERADOR
-        |--------------------------------------------------------------------------
-        */
 
-        if (
-            !empty(
-                $conversation->moderator_uuid
-            )
-        ) {
+    // Obtener moderadores activos, independientemente
+    // de si el estado está guardado en mayúsculas o minúsculas.
+    $moderators = User::where('role', 'MODERATOR')
+        ->whereRaw('UPPER(status) = ?', ['ACTIVO'])
+        ->get();
 
-            return $conversation;
-        }
 
-        /*
-        |--------------------------------------------------------------------------
-        | BUSCAR MODERADOR ACTIVO
-        |--------------------------------------------------------------------------
-        */
-
-        $moderator = User::where(
-            'role',
-            'MODERATOR'
-        )
-        ->where(
-            'status',
-            'ACTIVO'
-        )
-        ->orderBy(
-            'created_at',
-            'asc'
-        )
-        ->first();
-
-        /*
-        |--------------------------------------------------------------------------
-        | NO HAY MODERADOR
-        |--------------------------------------------------------------------------
-        */
-
-        if (!$moderator) {
-
-            $conversation->update([
-
-                'moderator_uuid' =>
-                    null,
-
-                'status' =>
-                    'ESPERANDO',
-
-            ]);
-
-            return $conversation->fresh();
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | ASIGNAR
-        |--------------------------------------------------------------------------
-        */
-
+    // Si no hay moderadores disponibles, dejar la conversación esperando.
+    if ($moderators->isEmpty()) {
         $conversation->update([
-
-            'moderator_uuid' =>
-                $moderator->uuid,
-
-            'status' =>
-                'ESPERANDO',
-
+            'moderator_uuid' => null,
+            'status' => 'ESPERANDO',
         ]);
 
         return $conversation->fresh();
     }
 
+    // Contar las conversaciones asignadas a cada moderador
+    // durante el mes y año actuales.
+    $startOfMonth = now()->startOfMonth();
+    $startOfNextMonth = now()->addMonth()->startOfMonth();
+
+    $monthlyCounts = \App\Models\ChatConversation::query()
+        ->selectRaw('moderator_uuid, COUNT(*) as total')
+        ->whereIn(
+            'moderator_uuid',
+            $moderators->pluck('uuid')
+        )
+        ->where('created_at', '>=', $startOfMonth)
+        ->where('created_at', '<', $startOfNextMonth)
+        ->groupBy('moderator_uuid')
+        ->pluck('total', 'moderator_uuid');
+
+    // Contar también las conversaciones históricas para desempatar.
+    $totalCounts = \App\Models\ChatConversation::query()
+        ->selectRaw('moderator_uuid, COUNT(*) as total')
+        ->whereIn(
+            'moderator_uuid',
+            $moderators->pluck('uuid')
+        )
+        ->groupBy('moderator_uuid')
+        ->pluck('total', 'moderator_uuid');
+
+    // Elegir primero al que tenga menos conversaciones este mes.
+    // En caso de empate, elegir al que tenga menos en total.
+    $moderator = $moderators->sort(function ($a, $b) use (
+        $monthlyCounts,
+        $totalCounts
+    ) {
+        $monthlyA = (int) ($monthlyCounts[$a->uuid] ?? 0);
+        $monthlyB = (int) ($monthlyCounts[$b->uuid] ?? 0);
+
+        if ($monthlyA !== $monthlyB) {
+            return $monthlyA <=> $monthlyB;
+        }
+
+        $totalA = (int) ($totalCounts[$a->uuid] ?? 0);
+        $totalB = (int) ($totalCounts[$b->uuid] ?? 0);
+
+        if ($totalA !== $totalB) {
+            return $totalA <=> $totalB;
+        }
+
+        return strcmp($a->uuid, $b->uuid);
+    })->first();
+
+    // Asignar la conversación al moderador seleccionado.
+    $conversation->update([
+        'moderator_uuid' => $moderator->uuid,
+        'status' => 'ESPERANDO',
+    ]);
+
+    return $conversation->fresh();
+}
 
     /**
      * RESPUESTA DEL BOT

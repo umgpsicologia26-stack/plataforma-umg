@@ -17,8 +17,7 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-
-    * {
+* {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
@@ -38,7 +37,9 @@
                 #f8fbff
             );
 
+        /* 100vh como respaldo; 100dvh evita el salto de la barra del navegador en móviles */
         min-height: 100vh;
+        min-height: 100dvh;
 
         color: #1f2937;
     }
@@ -81,11 +82,6 @@
             0 3px 10px rgba(0,0,0,0.05);
 
         transition: all .2s ease;
-    }
-
-    .back-button:hover {
-        background: #f3f4f6;
-        transform: translateX(-2px);
     }
 
     /* ENCABEZADO */
@@ -166,13 +162,52 @@
         color: #2563eb;
     }
 
+    /* ALERTAS (mensajes de validación, éxito y error)
+       Reutilizan los colores de .btn-danger y .btn-success */
+
+    .alert {
+        padding: 12px 16px;
+
+        border-radius: 10px;
+
+        border: 1px solid transparent;
+
+        font-size: 14px;
+
+        line-height: 1.5;
+
+        margin-bottom: 18px;
+
+        overflow-wrap: break-word;
+    }
+
+    .alert ul {
+        margin: 6px 0 0 18px;
+    }
+
+    .alert-danger {
+        background: #fee2e2;
+
+        color: #b91c1c;
+
+        border-color: #fecaca;
+    }
+
+    .alert-success {
+        background: #dcfce7;
+
+        color: #15803d;
+
+        border-color: #bbf7d0;
+    }
+
     /* FORMULARIO */
 
     .form-grid {
         display: grid;
 
         grid-template-columns:
-            repeat(2, 1fr);
+            repeat(2, minmax(0, 1fr));
 
         gap: 16px;
     }
@@ -220,7 +255,7 @@
 
         box-shadow:
             0 0 0 3px
-            rgba(37,99,235,.10);
+            rgba(37,99,235,.25);
     }
 
     .form-group input::placeholder {
@@ -273,12 +308,6 @@
         color: #ffffff;
     }
 
-    .btn-primary:hover {
-        background: #1d4ed8;
-
-        transform: translateY(-1px);
-    }
-
     /* BOTÓN ELIMINAR */
 
     .btn-danger {
@@ -289,12 +318,6 @@
         border: 1px solid #fecaca;
     }
 
-    .btn-danger:hover {
-        background: #fecaca;
-
-        color: #991b1b;
-    }
-
     /* BOTÓN RESTAURAR */
 
     .btn-success {
@@ -303,12 +326,6 @@
         color: #15803d;
 
         border: 1px solid #bbf7d0;
-    }
-
-    .btn-success:hover {
-        background: #bbf7d0;
-
-        color: #166534;
     }
 
     /* ENCABEZADO TABLA */
@@ -374,7 +391,8 @@
 
         border-spacing: 0;
 
-        min-width: 850px;
+        /* Respaldo: scroll interno solo si el contenido no cabe (ver vista de tarjetas ≤900px) */
+        min-width: 760px;
     }
 
     th {
@@ -429,10 +447,6 @@
     tbody tr {
         transition:
             background .2s ease;
-    }
-
-    tbody tr:hover td {
-        background: #f8fafc;
     }
 
     /* CÓDIGO ANÓNIMO */
@@ -546,6 +560,171 @@
         font-size: 14px;
     }
 
+    /* HOVER (solo dispositivos con puntero)
+       Evita el "hover pegado" en pantallas táctiles */
+
+    @media (hover: hover) {
+
+        .back-button:hover {
+            background: #f3f4f6;
+            transform: translateX(-2px);
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+
+            transform: translateY(-1px);
+        }
+
+        .btn-danger:hover {
+            background: #fecaca;
+
+            color: #991b1b;
+        }
+
+        .btn-success:hover {
+            background: #bbf7d0;
+
+            color: #166534;
+        }
+
+        tbody tr:hover td {
+            background: #f8fafc;
+        }
+
+    }
+
+    /* FOCO DE TECLADO */
+
+    .back-button:focus-visible,
+    .btn:focus-visible {
+        outline: 3px solid rgba(37,99,235,.45);
+
+        outline-offset: 2px;
+    }
+
+    /* PANTALLAS TÁCTILES: área mínima de 44px */
+
+    @media (pointer: coarse) {
+
+        .back-button,
+        .btn {
+            min-height: 44px;
+        }
+
+    }
+
+    /* RESPONSIVE: TABLA EN FORMATO TARJETA (tablet vertical y móviles)
+       Cada fila pasa a ser una tarjeta con etiqueta + valor.
+       Las etiquetas siguen el orden actual de las 7 columnas;
+       si se agregan o reordenan columnas, hay que actualizarlas aquí. */
+
+    @media (max-width: 900px) {
+
+        table {
+            min-width: 0;
+        }
+
+        table,
+        tbody {
+            display: block;
+        }
+
+        /* Cabecera oculta visualmente, se mantiene en el DOM */
+        thead {
+            position: absolute;
+
+            width: 1px;
+
+            height: 1px;
+
+            overflow: hidden;
+
+            clip: rect(0, 0, 0, 0);
+
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            display: block;
+
+            background: #ffffff;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 14px;
+
+            padding: 6px 16px;
+
+            margin-bottom: 12px;
+        }
+
+        tbody tr:last-child {
+            margin-bottom: 0;
+        }
+
+        .table-container td {
+            display: grid;
+
+            grid-template-columns:
+                minmax(90px, 34%)
+                minmax(0, 1fr);
+
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 11px 0;
+
+            background: transparent;
+
+            /* Correos y nombres largos se parten dentro de la tarjeta */
+            overflow-wrap: anywhere;
+        }
+
+        .table-container td:last-child {
+            border-bottom: none;
+        }
+
+        .table-container td::before {
+            font-size: 12px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: .4px;
+
+            color: #6b7280;
+        }
+
+        .table-container td:nth-child(1)::before { content: "Código único"; }
+        .table-container td:nth-child(2)::before { content: "Nombre"; }
+        .table-container td:nth-child(3)::before { content: "Apellido"; }
+        .table-container td:nth-child(4)::before { content: "Email"; }
+        .table-container td:nth-child(5)::before { content: "Celular"; }
+        .table-container td:nth-child(6)::before { content: "Estado"; }
+        .table-container td:nth-child(7)::before { content: "Acciones"; }
+
+        /* Los badges no se estiran al ancho de la celda */
+        .anonymous-code,
+        .status {
+            justify-self: start;
+        }
+
+        /* Mensaje de "sin moderadores": una sola celda sin etiqueta */
+        .table-container td.empty {
+            display: block;
+
+            border-bottom: none;
+        }
+
+        .table-container td.empty::before {
+            content: none;
+        }
+
+    }
+
     /* RESPONSIVE */
 
     @media (max-width: 700px) {
@@ -573,6 +752,11 @@
             grid-column: auto;
         }
 
+        /* 16px evita el zoom automático de iOS al enfocar un campo */
+        .form-group input {
+            font-size: 16px;
+        }
+
         .btn-primary {
             width: 100%;
         }
@@ -581,6 +765,24 @@
             align-items: flex-start;
 
             flex-direction: column;
+        }
+
+    }
+
+    /* MOVIMIENTO REDUCIDO */
+
+    @media (prefers-reduced-motion: reduce) {
+
+        .back-button,
+        .btn,
+        .form-group input,
+        tbody tr {
+            transition: none;
+        }
+
+        .back-button:hover,
+        .btn-primary:hover {
+            transform: none;
         }
 
     }
@@ -640,6 +842,31 @@
         Agregar Moderador
 
     </div>
+
+    
+@if ($errors->any())
+    <div class="alert alert-danger" role="alert">
+        <strong>No se pudo completar la operación:</strong>
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@if (session('success'))
+    <div class="alert alert-success" role="alert">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if (session('error'))
+    <div class="alert alert-danger" role="alert">
+        {{ session('error') }}
+    </div>
+@endif
+
 
     <form
         action="/moderator/create"

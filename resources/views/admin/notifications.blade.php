@@ -8,11 +8,13 @@
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0">
-    <title>Notificaciones | UMG</title>
+    
+        <title>Notificaciones | UMG</title>
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+        @vite('resources/js/echo.js')
 <style>
         * {
             margin: 0;
@@ -32,7 +34,9 @@
                     #eef4ff,
                     #f8fbff
                 );
+            /* 100vh como respaldo; 100dvh evita el salto de la barra del navegador en móviles */
             min-height: 100vh;
+            min-height: 100dvh;
             color: #1f2937;
         }
 
@@ -62,11 +66,6 @@
             transition: all .2s ease;
         }
 
-        .back-button:hover {
-            background: #f3f4f6;
-            transform: translateX(-2px);
-        }
-
     /*ENCABEZADO*/
         .page-header {
             background: #ffffff;
@@ -88,6 +87,7 @@
 
         .title i {
             color: #2563eb;
+            flex-shrink: 0;
         }
 
         .subtitle {
@@ -105,7 +105,7 @@
             border: 1px solid #e8edf5;
         }
 
-    /*NOTIFICACIÓN*/
+    /*NOTIFICACIÓN (estilo base = estado "leída": fondo normal de la plataforma)*/
         .notification {
             display: flex;
             align-items: center;
@@ -119,14 +119,33 @@
             transition: .2s ease;
         }
 
-        .notification:hover {
-            background: #f8fafc;
-            transform: translateY(-1px);
+    /*NO LEÍDA: fondo rojo con texto blanco (contraste ≈ 6.5:1)*/
+        .notification--unread {
+            background: #b91c1c;
+            border-color: #991b1b;
+            border-left: 4px solid #7f1d1d;
+            color: #ffffff;
         }
 
-        .notification.unread {
-            border-left: 4px solid #2563eb;
-            background: #eff6ff;
+        .notification--unread .notification-icon {
+            background: rgba(255,255,255,.2);
+            color: #ffffff;
+        }
+
+        .notification--unread .notification-text strong,
+        .notification--unread .notification-text span,
+        .notification--unread .notification-date {
+            color: #ffffff;
+        }
+
+        .notification--unread .read-button {
+            background: #ffffff;
+            color: #991b1b;
+        }
+
+    /*LEÍDA: conserva exactamente el estilo normal de la tarjeta*/
+        .notification--read {
+            background: #ffffff;
         }
 
 
@@ -134,6 +153,9 @@
             display: flex;
             align-items: flex-start;
             gap: 14px;
+            /* Ocupa el espacio disponible y deja que el mensaje se ajuste sin empujar el botón */
+            flex: 1;
+            min-width: 0;
         }
 
 
@@ -147,6 +169,12 @@
             background: #eff6ff;
             color: #2563eb;
             flex-shrink: 0;
+        }
+
+        .notification-text {
+            min-width: 0;
+            /* Mensajes con URLs o palabras largas se parten dentro de la tarjeta */
+            overflow-wrap: anywhere;
         }
 
         .notification-text strong {
@@ -164,7 +192,7 @@
 
         .notification-date {
             margin-top: 6px;
-            font-size: 11px;
+            font-size: 12px;
             color: #9ca3af;
         }
 
@@ -176,13 +204,10 @@
             padding: 8px 12px;
             border-radius: 8px;
             cursor: pointer;
+            font-family: inherit;
             font-size: 12px;
             font-weight: 600;
             white-space: nowrap;
-        }
-
-        .read-button:hover {
-            background: #1d4ed8;
         }
 
     /*VACÍO*/
@@ -201,6 +226,51 @@
 
         .empty p {
             font-size: 14px;
+        }
+
+    /*HOVER (solo dispositivos con puntero)
+    Evita el "hover pegado" en pantallas táctiles.
+    Las no leídas conservan su fondo rojo al pasar el cursor.*/
+        @media (hover: hover) {
+            .back-button:hover {
+                background: #f3f4f6;
+                transform: translateX(-2px);
+            }
+
+            .notification:hover {
+                transform: translateY(-1px);
+            }
+
+            .notification--read:hover {
+                background: #f8fafc;
+            }
+
+            .read-button:hover {
+                background: #1d4ed8;
+            }
+
+            .notification--unread .read-button:hover {
+                background: #fee2e2;
+            }
+        }
+
+    /*FOCO DE TECLADO*/
+        .back-button:focus-visible,
+        .read-button:focus-visible {
+            outline: 3px solid rgba(37,99,235,.45);
+            outline-offset: 2px;
+        }
+
+        .notification--unread .read-button:focus-visible {
+            outline-color: #ffffff;
+        }
+
+    /*PANTALLAS TÁCTILES: área mínima de 44px*/
+        @media (pointer: coarse) {
+            .back-button,
+            .read-button {
+                min-height: 44px;
+            }
         }
 
     /*RESPONSIVE*/
@@ -226,8 +296,26 @@
                     column;
             }
 
+            .notification-info,
+            .notification form {
+                width: 100%;
+            }
+
             .read-button {
                 width: 100%;
+            }
+        }
+
+    /*MOVIMIENTO REDUCIDO*/
+        @media (prefers-reduced-motion: reduce) {
+            .back-button,
+            .notification {
+                transition: none;
+            }
+
+            .back-button:hover,
+            .notification:hover {
+                transform: none;
             }
         }
     </style>
@@ -256,11 +344,13 @@
 
     <div class="card">
         @forelse($notifications as $notification)
+            @php($isRead = $notification->isRead())
+
             <div
                 class="notification
-                {{ is_null($notification->read_at)
-                    ? 'unread'
-                    : '' }}">
+                {{ $isRead
+                    ? 'notification--read'
+                    : 'notification--unread' }}">
 
                 <div class="notification-info">
                     <div class="notification-icon">
@@ -285,7 +375,7 @@
                     </div>
                 </div>
 
-                @if(is_null($notification->read_at))
+                @unless($isRead)
                     <form
                         action="{{ route(
                             'admin.notifications.read',
@@ -301,7 +391,7 @@
                             Marcar como leída
                         </button>
                     </form>
-                @endif
+                @endunless
             </div>
         @empty
 
@@ -314,5 +404,22 @@
         @endforelse
     </div>
 </div>
+@include('partials.live-refresh')
+<script>
+umgLive.whenEchoReady(function (echo) {
+    const adminUuid = @json(auth()->user()->uuid);
+
+    // La lista se vuelve a pedir al servidor: solo las no leídas de ESTE
+    // administrador, sin duplicados y sin tocar el botón "Marcar como leída".
+    const refresher = umgLive.createRefresher({
+        apply: function (doc) {
+            umgLive.swapContent('.card', doc);
+        }
+    });
+
+    umgLive.listen(echo, 'admin.' + adminUuid, '.admin.notifications.changed', refresher.trigger);
+    umgLive.onReconnect(echo, refresher.trigger);
+});
+</script>
 </body>
 </html>

@@ -407,7 +407,8 @@
 
 
                 <div
-                    class="message-row {{ $class }}">
+                    class="message-row {{ $class }}"
+                    data-message-id="{{ $message->id }}">
 
                     <div
                         class="message {{ $class }}">
@@ -490,21 +491,132 @@
     </div>
 
 </div>
-
-
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const messagesContainer = document.getElementById('messages');
 
-    const messages =
-        document.getElementById('messages');
-
-    if (messages) {
-
-        messages.scrollTop =
-            messages.scrollHeight;
-
+    if (!messagesContainer) {
+        return;
     }
 
-</script>
+    const messagesUrl = @json(
+        route('moderator.chat.messages', $conversation->id)
+    );
 
+    const seenIds = new Set(
+        Array.from(
+            messagesContainer.querySelectorAll('[data-message-id]')
+        ).map(element => String(element.dataset.messageId))
+    );
+
+    let isFetching = false;
+
+    // Mostrar los mensajes más recientes al abrir el chat.
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    async function refreshMessages() {
+        if (isFetching || document.visibilityState !== 'visible') {
+            return;
+        }
+
+        isFetching = true;
+
+        try {
+            const response = await fetch(messagesUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                cache: 'no-store'
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json();
+
+            if (!data.success || !Array.isArray(data.messages)) {
+                return;
+            }
+
+            let addedMessages = false;
+
+            data.messages.forEach(item => {
+                const messageId = String(item.id);
+
+                // No agregar mensajes que ya estén visibles.
+                if (seenIds.has(messageId)) {
+                    return;
+                }
+
+                seenIds.add(messageId);
+
+                const senderType = String(item.sender_type || '').toUpperCase();
+
+                let messageClass = 'user';
+                let senderLabel = 'Usuario';
+
+                if (senderType === 'MODERATOR') {
+                    messageClass = 'moderator';
+                    senderLabel = 'Tú';
+                } else if (senderType === 'BOT') {
+                    messageClass = 'bot';
+                    senderLabel = 'UMG Cerca';
+                }
+
+                const emptyMessage = messagesContainer.querySelector(
+                    '.empty-messages'
+                );
+
+                if (emptyMessage) {
+                    emptyMessage.remove();
+                }
+
+                const row = document.createElement('div');
+                row.className = 'message-row ' + messageClass;
+                row.dataset.messageId = messageId;
+
+                const bubble = document.createElement('div');
+                bubble.className = 'message ' + messageClass;
+
+                const sender = document.createElement('span');
+                sender.className = 'sender';
+                sender.textContent = senderLabel;
+
+                const time = document.createElement('span');
+                time.className = 'time';
+                time.textContent = item.time || '';
+
+                bubble.appendChild(sender);
+                bubble.appendChild(
+                    document.createTextNode(' ' + (item.message || '') + ' ')
+                );
+                bubble.appendChild(time);
+
+                row.appendChild(bubble);
+                messagesContainer.appendChild(row);
+
+                addedMessages = true;
+            });
+
+            if (addedMessages) {
+                messagesContainer.scrollTop =
+                    messagesContainer.scrollHeight;
+            }
+        } catch (error) {
+            console.error('Error al actualizar los mensajes:', error);
+        } finally {
+            isFetching = false;
+        }
+    }
+
+    // Consultar mensajes nuevos cada 2 segundos.
+    refreshMessages();
+    setInterval(refreshMessages, 2000);
+});
+</script>
 </body>
 </html>

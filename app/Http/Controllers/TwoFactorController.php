@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use PragmaRX\Google2FALaravel\Google2FA;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
+
 class TwoFactorController extends Controller
 {
     /**
@@ -31,6 +32,11 @@ class TwoFactorController extends Controller
             return redirect()->route('login');
         }
 
+        // El moderador debe cambiar su contraseña antes de configurar 2FA.
+        if ($user->role === 'MODERATOR' && $user->must_change_password) {
+            return redirect()->route('password.change');
+        }
+
         $google2fa = app(Google2FA::class);
 
         // Si todavía no existe un secreto, se genera.
@@ -41,22 +47,22 @@ class TwoFactorController extends Controller
             $user->save();
         }
 
-       $qrCodeUrl = $google2fa->getQRCodeUrl(
-    'UMG',
-    $user->email,
-    $user->google2fa_secret
-);
+        $qrCodeUrl = $google2fa->getQRCodeUrl(
+            'UMG',
+            $user->email,
+            $user->google2fa_secret
+        );
 
-$options = new QROptions([
-    'outputBase64' => false,
-]);
+        $options = new QROptions([
+            'outputBase64' => false,
+        ]);
 
-$qrCode = (new QRCode($options))->render($qrCodeUrl);
+        $qrCode = (new QRCode($options))->render($qrCodeUrl);
 
         return view('auth.2fa-setup', [
-    'user' => $user,
-    'qrCode' => $qrCode,
-]);
+            'user' => $user,
+            'qrCode' => $qrCode,
+        ]);
     }
 
     /**
@@ -83,6 +89,15 @@ $qrCode = (new QRCode($options))->render($qrCodeUrl);
             $request->session()->forget('2fa_pending_user_uuid');
 
             return redirect()->route('login');
+        }
+
+        // No permitir configurar 2FA antes del cambio de contraseña inicial.
+        if ($user->role === 'MODERATOR' && $user->must_change_password) {
+            return redirect()->route('password.change');
+        }
+
+        if (!$user->google2fa_secret) {
+            return redirect()->route('two-factor.setup');
         }
 
         $key = '2fa-enable:' . $user->uuid . '|' . $request->ip();
@@ -147,7 +162,12 @@ $qrCode = (new QRCode($options))->render($qrCodeUrl);
             return redirect()->route('login');
         }
 
-        if (!$user->google2fa_enabled) {
+        // El cambio de contraseña inicial tiene prioridad sobre 2FA.
+        if ($user->role === 'MODERATOR' && $user->must_change_password) {
+            return redirect()->route('password.change');
+        }
+
+        if (!$user->google2fa_enabled || !$user->google2fa_secret) {
             return redirect()->route('two-factor.setup');
         }
 
@@ -180,6 +200,11 @@ $qrCode = (new QRCode($options))->render($qrCodeUrl);
             $request->session()->forget('2fa_pending_user_uuid');
 
             return redirect()->route('login');
+        }
+
+        // Impedir completar el inicio de sesión con la contraseña inicial pendiente.
+        if ($user->role === 'MODERATOR' && $user->must_change_password) {
+            return redirect()->route('password.change');
         }
 
         if (!$user->google2fa_enabled || !$user->google2fa_secret) {
@@ -221,10 +246,11 @@ $qrCode = (new QRCode($options))->render($qrCodeUrl);
             '2fa_pending_user_uuid',
             'admin_verified',
             'admin_verified_user',
+            'admin_verified_at',
         ]);
 
-        if ($user->role === 'MODERATOR' && $user->must_change_password) {
-            return redirect()->route('password.change');
+        if ($user->role === 'MODERATOR') {
+            return redirect()->route('moderator.dashboard');
         }
 
         return redirect()->route('dashboard');

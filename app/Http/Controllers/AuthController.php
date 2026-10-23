@@ -709,6 +709,30 @@ class AuthController extends Controller
             }
 
             /*
+ * Primer acceso de un moderador:
+ * cambiar la contraseña antes del 2FA.
+ */
+if (
+    $user->role === 'MODERATOR' &&
+    $user->must_change_password
+) {
+    $request->session()->regenerate();
+
+    $request->session()->put(
+        '2fa_pending_user_uuid',
+        $user->uuid
+    );
+
+    $request->session()->forget([
+        'admin_verified',
+        'admin_verified_user',
+        'admin_verified_at',
+    ]);
+
+    return redirect()->route('password.change');
+}
+
+            /*
              * ADMIN y MODERATOR requieren
              * un segundo factor antes de
              * crear la sesión autenticada.

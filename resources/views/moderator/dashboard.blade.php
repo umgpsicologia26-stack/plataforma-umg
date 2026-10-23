@@ -558,55 +558,81 @@
         </a>
 
 
-        <!-- =================================================
-             MIS CASOS
-        ================================================== -->
+        <!-- MIS CASOS -->
 
         <a
             href="{{ route('moderator.cases') }}"
             class="card"
         >
 
+            {{-- NOTIFICACIÓN DE CASOS NUEVOS --}}
+
+            @if(isset($newCasesCount) && $newCasesCount > 0)
+
+                <div class="new-message-badge">
+                    <i class="fas fa-bell"></i>
+
+                    {{ $newCasesCount }}
+
+                    {{ $newCasesCount == 1
+                        ? 'caso pendiente'
+                        : 'casos pendientes'
+                    }}
+                </div>
+
+            @else
+
+                <div class="no-new-message">
+                    <i class="fas fa-check-circle"></i>
+
+                    Sin casos nuevos
+                </div>
+
+            @endif
+
             <div class="card-icon">
-
                 <i class="fas fa-folder-open"></i>
-
             </div>
-
 
             <h2>
                 Mis casos
             </h2>
 
-
             <p>
-
                 Consulta los casos asignados, revisa la
                 información proporcionada por el usuario
                 y realiza el seguimiento correspondiente.
-
             </p>
 
-
             <div class="card-link">
-
                 Ver mis casos
 
                 <i class="fas fa-arrow-right"></i>
-
             </div>
 
         </a>
 
-
-        <!-- =================================================
-             FORO
-        ================================================== -->
+        <!-- FORO -->
 
         <a
             href="{{ route('forum.index') }}"
             class="card"
         >
+
+        
+@if(isset($forumNotificationsCount) && $forumNotificationsCount > 0)
+    <div
+        class="new-message-badge"
+        id="forum-new-message-badge"
+        data-count="{{ $forumNotificationsCount }}"
+    >
+        <i class="fas fa-bell"></i>
+        <span id="forum-new-message-count">
+            Nuevas publicaciones: {{ $forumNotificationsCount }}
+        </span>
+    </div>
+@endif
+
 
             <div class="card-icon">
 
@@ -707,6 +733,165 @@
 </main>
 
 
+@vite('resources/js/app.js')
+
+<script>
+window.addEventListener('load', function () {
+    if (!window.Echo) {
+        console.error('Echo no está disponible en el panel del moderador.');
+        return;
+    }
+
+    const moderatorUuid = @json(auth()->user()->uuid);
+    const forumUrl = @json(route('forum.index'));
+    const initialCount = @json((int) ($forumNotificationsCount ?? 0));
+
+    const forumCard = Array.from(
+        document.querySelectorAll('a.card')
+    ).find(card => card.getAttribute('href') === forumUrl);
+
+    if (!forumCard) {
+        console.error('No se encontró la tarjeta Foro.');
+        return;
+    }
+
+    // Evita registrar más de una escucha en esta página.
+    if (forumCard.dataset.forumListenerAttached === 'true') {
+        return;
+    }
+
+    forumCard.dataset.forumListenerAttached = 'true';
+
+    window.Echo
+        .private('moderator.' + moderatorUuid)
+        .listen('.forum.notification.created', function (event) {
+            let badge = document.getElementById('forum-new-message-badge');
+            let countElement = document.getElementById('forum-new-message-count');
+
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.id = 'forum-new-message-badge';
+                badge.className = 'new-message-badge';
+                badge.innerHTML = `
+                    <i class="fas fa-bell"></i>
+                    <span id="forum-new-message-count"></span>
+                `;
+
+                forumCard.insertBefore(badge, forumCard.firstChild);
+                countElement = badge.querySelector('#forum-new-message-count');
+                badge.dataset.count = '0';
+            }
+
+            const currentCount = Number(badge.dataset.count ?? initialCount);
+            const newCount = currentCount + 1;
+
+            badge.dataset.count = String(newCount);
+            countElement.textContent =
+                'Nuevas publicaciones: ' + newCount;
+        });
+});
+</script>
+<script>
+window.addEventListener('load', function () {
+    if (!window.Echo) {
+        return; // el script del foro ya registra este error
+    }
+
+    const moderatorUuid = @json(auth()->user()->uuid);
+    const casesUrl = @json(route('moderator.cases'));
+    const countersUrl = @json(route('moderator.dashboard.counters'));
+
+    const casesCard = Array.from(
+        document.querySelectorAll('a.card')
+    ).find(function (card) {
+        return card.getAttribute('href') === casesUrl;
+    });
+
+    if (!casesCard) {
+        console.error('No se encontró la tarjeta Mis casos.');
+        return;
+    }
+
+    function renderCasesBadge(count) {
+        const badge = document.createElement('div');
+        const icon = document.createElement('i');
+
+        if (count > 0) {
+            badge.className = 'new-message-badge';
+            icon.className = 'fas fa-bell';
+            badge.appendChild(icon);
+            badge.appendChild(document.createTextNode(
+                ' ' + count + ' ' + (count === 1 ? 'caso pendiente' : 'casos pendientes')
+            ));
+        } else {
+            badge.className = 'no-new-message';
+            icon.className = 'fas fa-check-circle';
+            badge.appendChild(icon);
+            badge.appendChild(document.createTextNode(' Sin casos nuevos'));
+        }
+
+        const current = casesCard.querySelector('.new-message-badge, .no-new-message');
+
+        if (current) {
+            current.replaceWith(badge);
+        } else {
+            casesCard.insertBefore(badge, casesCard.firstChild);
+        }
+    }
+
+    // El número lo calcula el servidor con la MISMA consulta que dashboard().
+    async function refreshCounters() {
+        try {
+            const response = await fetch(countersUrl, {
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                renderCasesBadge(Number(data.new_cases_count) || 0);
+            }
+        } catch (error) {
+            console.error('Error al actualizar casos pendientes:', error);
+        }
+    }
+
+    let timer = null;
+
+    function schedule() {
+        clearTimeout(timer);
+        timer = setTimeout(refreshCounters, 250);
+    }
+
+    window.Echo
+        .private('moderator.' + moderatorUuid)
+        .listen('.case.activity.updated', schedule);
+
+    const pusher = window.Echo.connector && window.Echo.connector.pusher;
+
+    if (pusher && pusher.connection) {
+        let wasDown = false;
+
+        pusher.connection.bind('state_change', function (states) {
+            if (['unavailable', 'failed', 'disconnected'].indexOf(states.current) !== -1) {
+                wasDown = true;
+            } else if (states.current === 'connected' && wasDown) {
+                wasDown = false;
+                schedule();
+            }
+        });
+    }
+});
+</script>
 </body>
 
 </html>

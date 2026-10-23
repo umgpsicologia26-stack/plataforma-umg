@@ -9,10 +9,10 @@
     <title>Verificación de seguridad - UMG</title>
 
     <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <link rel="stylesheet"
-          href="{{ asset('css/style.css') }}">
+            href="{{ asset('css/style.css') }}">
 
     <style>
         .two-factor-card {
