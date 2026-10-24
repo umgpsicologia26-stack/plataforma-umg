@@ -1139,18 +1139,24 @@ body.modal-open {
 }
 
 #modalMaterial {
-    overflow: hidden !important;
+    overflow-y: auto;
+    overflow-x: hidden;
+    align-items: flex-start;
 }
 
 #modalMaterial .talleres-modal-content {
     position: relative;
-    overflow: hidden !important;
+    overflow-y: auto;
+    overflow-x: hidden;
     width: min(900px, 92vw);
     max-width: 900px;
     height: 85vh;
     max-height: 85vh;
+    margin: auto 0;
     padding: 28px;
     box-sizing: border-box;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
 }
 
 #modalMaterial .talleres-modal-header {
