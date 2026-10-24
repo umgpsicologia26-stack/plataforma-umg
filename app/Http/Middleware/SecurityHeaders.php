@@ -57,7 +57,7 @@ class SecurityHeaders
 $response->headers->set(
     'Content-Security-Policy',
     "default-src 'self'; " .
-    "script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " .
+    "script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " .
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " .
     "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; " .
     "img-src 'self' data: https://images.unsplash.com https://*.googleusercontent.com; " .
