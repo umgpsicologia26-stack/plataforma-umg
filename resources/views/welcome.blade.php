@@ -86,7 +86,8 @@
         <div class="hero-text">
 
             <h1>
-                Plataforma Informática Preventiva y de Orientación
+                Plataforma Informática Preventiva y de Orientación -
+                <span class="vitasafe">VitaSafe</span>
             </h1>
 
             <p>
