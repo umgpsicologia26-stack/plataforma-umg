@@ -1280,3 +1280,34 @@ body.modal-open {
         padding: 22px 14px;
     }
 }
+.hero-text h1 .vitasafe {
+    color: #a5b4fc; /* cambia el color a tu gusto */
+}
+#modalMaterial .talleres-modal-content {
+    height: 85vh !important;
+    max-height: 85vh !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #6366f1 #f1f3f7 !important;
+}
+
+#modalMaterial .talleres-modal-content::-webkit-scrollbar {
+    display: block !important;
+    width: 10px !important;
+}
+
+#modalMaterial .talleres-modal-content::-webkit-scrollbar-track {
+    background: #f1f3f7;
+    border-radius: 10px;
+}
+
+#modalMaterial .talleres-modal-content::-webkit-scrollbar-thumb {
+    background: #6366f1;
+    border-radius: 10px;
+}
+
+#materialContenido {
+    height: auto !important;
+    overflow: visible !important;
+}
