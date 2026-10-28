@@ -5,45 +5,68 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>UMG</title>
+    <title>VitaSafe | Prevención del suicidio y orientación psicológica en Quetzaltenango, Guatemala</title>
+
+    <link rel="canonical" href="https://vitasafe.org">
+
+    <meta property="og:title" content="VitaSafe | Prevención y orientación en Quetzaltenango, Guatemala">
+    <meta property="og:description" content="Plataforma informática preventiva y de orientación. Recursos sobre prevención del suicidio y apoyo ante abuso sexual.">
+    <meta property="og:image" content="https://vitasafe.org/images/logo1.png">
+    <meta property="og:url" content="https://vitasafe.org">
+    <meta property="og:type" content="website">
 
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link
-        rel="stylesheet"
-        href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 
-    <link
-        rel="stylesheet"
-        href="{{ asset('css/home.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+
+    {{-- DATOS ESTRUCTURADOS PARA GOOGLE --}}
+    @verbatim
+    <script type="application/ld+json">
+    {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "VitaSafe",
+    "url": "https://vitasafe.org",
+    "logo": "https://vitasafe.org/images/logo1.png",
+        "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "6ta. calle 22-39 Zona 3",
+        "addressLocality": "Quetzaltenango",
+        "addressCountry": "GT"
+    }
+    }
+    </script>
+    @endverbatim
 
 </head>
 
 <body class="home-body">
 
+    {{-- PANTALLA DE INTRODUCCIÓN (se muestra una vez por sesión) --}}
+    @include('partials.splash')
+
     {{-- NAVBAR --}}
 
-<nav class="navbar">
+    <nav class="navbar">
 
-    <div class="nav-left">
+        <div class="nav-left">
 
-        <img
-            src="{{ asset('images/logo1.png') }}"
-            alt="Logo UMG"
-            class="nav-logo">
+            <img
+                src="{{ asset('images/logo1.png') }}"
+                alt="Logo VitaSafe"
+                class="nav-logo">
 
-        <div class="brand">
-            <h2>UMG</h2>
+            <div class="brand">
+                <h2>VitaSafe</h2>
+            </div>
+
         </div>
-
-    </div>
-
 
     <div class="nav-center">
 
