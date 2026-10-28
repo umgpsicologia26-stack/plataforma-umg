@@ -18,7 +18,7 @@ class PasswordResetCodeMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Recuperación de contraseña - UMG')
+        return $this->subject('Recuperación de contraseña - VitaSafe - UMG')
                     ->view('emails.password-reset');
     }
 }
