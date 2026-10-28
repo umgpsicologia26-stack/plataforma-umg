@@ -17,103 +17,116 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 
-/*
-|--------------------------------------------------------------------------
-| GOOGLE LOGIN
-|--------------------------------------------------------------------------
-*/
+  /* GOOGLE LOGIN */
+
+async function completarInicioSesionGoogle(user) {
+    const idToken = await user.getIdToken();
+
+    const urlMeta = document.querySelector(
+        'meta[name="google-login-url"]'
+    );
+
+    const csrfMeta = document.querySelector(
+        'meta[name="csrf-token"]'
+    );
+
+    if (!urlMeta || !csrfMeta) {
+        throw new Error(
+            'No se encontró la configuración necesaria para iniciar sesión.'
+        );
+    }
+
+    const response = await fetch(urlMeta.getAttribute('content'), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfMeta.getAttribute('content')
+        },
+        body: JSON.stringify({
+            idToken: idToken
+        })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            'No fue posible iniciar sesión con Google.'
+        );
+    }
+
+    if (data.success && data.redirect) {
+        window.location.href = data.redirect;
+    } else {
+        throw new Error(
+            'No se recibió una dirección válida para continuar.'
+        );
+    }
+}
 
 async function googleLogin() {
-
-    const provider =
-        new firebase.auth.GoogleAuthProvider();
+    const provider = new firebase.auth.GoogleAuthProvider();
 
     provider.setCustomParameters({
         prompt: 'select_account'
     });
 
+    const esMovil =
+        /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+        (
+            navigator.platform === 'MacIntel' &&
+            navigator.maxTouchPoints > 1
+        );
+
     try {
-
-        const result =
-            await firebase
-                .auth()
-                .signInWithPopup(provider);
-
-        const user =
-            result.user;
-
-        const idToken =
-            await user.getIdToken();
-
-        const response =
-            await fetch(
-                document.querySelector('meta[name="google-login-url"]').getAttribute('content'),
-                {
-                    method: 'POST',
-
-                    headers: {
-
-                        'Content-Type':
-                            'application/json',
-
-                        'Accept':
-                            'application/json',
-
-                        'X-CSRF-TOKEN':
-                            document
-                                .querySelector(
-                                    'meta[name="csrf-token"]'
-                                )
-                                .getAttribute('content')
-                    },
-
-                    body: JSON.stringify({
-                        idToken: idToken
-                    })
-                }
-            );
-
-        const data =
-            await response.json();
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                'No fue posible iniciar sesiÃ³n con Google.'
-            );
-
+        if (esMovil) {
+            await firebase.auth().signInWithRedirect(provider);
+            return;
         }
 
-        if (data.success) {
+        const result = await firebase
+            .auth()
+            .signInWithPopup(provider);
 
-            window.location.href =
-                data.redirect;
-
+        if (result.user) {
+            await completarInicioSesionGoogle(result.user);
         }
-
     } catch (error) {
-
         console.error(
-            'Error en inicio de sesiÃ³n con Google:',
+            'Error en inicio de sesión con Google:',
             error
         );
 
         alert(
             error.message ||
-            'No fue posible iniciar sesiÃ³n con Google.'
+            'No fue posible iniciar sesión con Google.'
         );
-
     }
-
 }
 
+    /* PROCESAR EL REGRESO DESDE GOOGLE EN DISPOSITIVOS MÓVILES */
 
-/*
-|--------------------------------------------------------------------------
-| MOSTRAR REGISTRO
-|--------------------------------------------------------------------------
-*/
+firebase.auth().getRedirectResult()
+    .then(async function (result) {
+        if (result && result.user) {
+            await completarInicioSesionGoogle(result.user);
+        }
+    })
+    .catch(function (error) {
+        console.error(
+            'Error al regresar del inicio de sesión con Google:',
+            error
+        );
+
+        alert(
+            error.message ||
+            'No fue posible completar el inicio de sesión con Google.'
+        );
+    });
+
+    /* MOSTRAR REGISTRO */
 
 function toggleRegisterForm() {
 
@@ -133,12 +146,7 @@ function toggleRegisterForm() {
 
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| REGRESAR LOGIN
-|--------------------------------------------------------------------------
-*/
+    /* REGRESAR LOGIN */
 
 function backToLogin() {
 
@@ -158,12 +166,7 @@ function backToLogin() {
 
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| VALIDACIONES
-|--------------------------------------------------------------------------
-*/
+    /* VALIDACIONES */
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -270,11 +273,7 @@ if (loginErrorModalAccept) {
         const EDAD_MAXIMA = 100;
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | CERRAR MODALES
-        |--------------------------------------------------------------------------
-        */
+        /* CERRAR MODALES */
 
         if (phoneModalAccept) {
 
@@ -291,7 +290,6 @@ if (loginErrorModalAccept) {
 
         }
 
-
         if (emailModalAccept) {
 
             emailModalAccept.addEventListener(
@@ -306,7 +304,6 @@ if (loginErrorModalAccept) {
             );
 
         }
-
 
         if (birthDateModalAccept) {
 
@@ -323,7 +320,6 @@ if (loginErrorModalAccept) {
 
         }
 
-
         if (formErrorsAccept) {
 
             formErrorsAccept.addEventListener(
@@ -337,12 +333,7 @@ if (loginErrorModalAccept) {
 
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CALCULAR EDAD
-        |--------------------------------------------------------------------------
-        */
+        /* CALCULAR EDAD */
 
         function calcularEdad(fechaTexto) {
 
@@ -380,12 +371,7 @@ if (loginErrorModalAccept) {
 
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDACIÃ“N DEL REGISTRO
-        |--------------------------------------------------------------------------
-        */
+        /* VALIDACIÓN DEL REGISTRO */
 
         if (registerForm) {
 
@@ -397,12 +383,7 @@ if (loginErrorModalAccept) {
 
                     let primerCampoInvalido = null;
 
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | CELULAR
-                    |--------------------------------------------------------------------------
-                    */
+                /* CELULAR */
 
                     if (phoneInput) {
 
@@ -417,7 +398,6 @@ if (loginErrorModalAccept) {
 
                         const internationalPhone =
                             /^\+502[0-9]{8}$/;
-
 
                         if (phone === "") {
 
@@ -445,12 +425,7 @@ if (loginErrorModalAccept) {
 
                     }
 
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | CORREO
-                    |--------------------------------------------------------------------------
-                    */
+                    /* CORREO */
 
                     if (emailInput) {
 
@@ -486,18 +461,12 @@ if (loginErrorModalAccept) {
 
                     }
 
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | FECHA DE NACIMIENTO
-                    |--------------------------------------------------------------------------
-                    */
+                /* FECHA DE NACIMIENTO */
 
                     if (birthDateInput) {
 
                         const valor =
                             birthDateInput.value;
-
 
                         if (!valor) {
 
@@ -519,7 +488,6 @@ if (loginErrorModalAccept) {
                             const hoy =
                                 new Date();
 
-
                             if (nacimiento > hoy) {
 
                                 errores.push(
@@ -534,7 +502,6 @@ if (loginErrorModalAccept) {
 
                                 const edad =
                                     calcularEdad(valor);
-
 
                                 if (
                                     edad < EDAD_MINIMA ||
@@ -560,12 +527,7 @@ if (loginErrorModalAccept) {
 
                     }
 
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | MOSTRAR ERRORES
-                    |--------------------------------------------------------------------------
-                    */
+                /* MOSTRAR ERRORES */
 
                     if (errores.length > 0) {
 
@@ -604,12 +566,7 @@ if (loginErrorModalAccept) {
 
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CELULAR
-        |--------------------------------------------------------------------------
-        */
+        /* CELULAR */
 
         if (phoneInput) {
 
@@ -657,7 +614,6 @@ if (loginErrorModalAccept) {
 
                 }
             );
-
 
             phoneInput.addEventListener(
                 "input",
@@ -763,12 +719,7 @@ if (loginErrorModalAccept) {
 
 );
 
-
-/*
-|--------------------------------------------------------------------------
-| CERRAR VENTANA DE BLOQUEO
-|--------------------------------------------------------------------------
-*/
+    /* CERRAR VENTANA DE BLOQUEO */
 
 function closeBruteForceModal() {
 
@@ -784,7 +735,6 @@ function closeBruteForceModal() {
     }
 
 }
-
 
 document.addEventListener('DOMContentLoaded', function () {
 
