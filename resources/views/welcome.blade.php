@@ -13,7 +13,7 @@
 
     <meta property="og:title" content="VitaSafe | Prevención y orientación en Quetzaltenango, Guatemala">
     <meta property="og:description" content="Plataforma informática preventiva y de orientación. Recursos sobre prevención del suicidio y apoyo ante abuso sexual.">
-    <meta property="og:image" content="https://vitasafe.org/images/logo1.png">
+    <meta property="og:image" content="https://vitasafe.org/images/VitaSafe_icono_original.png">
     <meta property="og:url" content="https://vitasafe.org">
     <meta property="og:type" content="website">
 
@@ -33,7 +33,7 @@
     "@type": "Organization",
     "name": "VitaSafe",
     "url": "https://vitasafe.org",
-    "logo": "https://vitasafe.org/images/logo1.png",
+    "logo": "https://vitasafe.org/images/VitaSafe_icono_original.png",
         "address": {
         "@type": "PostalAddress",
         "streetAddress": "6ta. calle 22-39 Zona 3",
@@ -58,7 +58,7 @@
         <div class="nav-left">
 
             <img
-                src="{{ asset('images/logo1.png') }}"
+                src="{{ asset('images/VitaSafe_icono_original.png') }}"
                 alt="Logo VitaSafe"
                 class="nav-logo">
 
@@ -132,8 +132,8 @@
         <div class="hero-logo-side">
 
             <img
-                src="{{ asset('images/logo1.png') }}"
-                alt="Logo UMG">
+                src="{{ asset('images/VitaSafe_icono_original.png') }}"
+                alt="Logo VitaSafe">
 
             <p class="logo-text">
 

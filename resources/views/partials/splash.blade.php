@@ -144,7 +144,7 @@
     <div class="vs-caja">
 
         <div class="vs-aro">
-            <img src="{{ asset('images/logo1.png') }}" alt="Logo VitaSafe">
+            <img src="{{ asset('images/VitaSafe_icono_original.png') }}" alt="Logo VitaSafe">
         </div>
 
         <h1 id="vs-titulo">VitaSafe</h1>
