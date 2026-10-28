@@ -25,7 +25,7 @@
                 text-align:center;
                 color:#1f2937;
                 font-size:28px;">
-                UMG
+                VitaSafe - UMG
             </h1>
 
             <p style="
@@ -41,7 +41,7 @@
                 font-size:16px;
                 line-height:1.6;">
                 Hemos recibido una solicitud para recuperar la contraseña de tu
-                cuenta en UMG.
+                cuenta en VitaSafe - UMG.
             </p>
 
             <p style="
@@ -93,7 +93,7 @@
                 text-align:center;
                 color:#9ca3af;
                 font-size:12px;">
-                © {{ date('Y') }} UMG
+                © {{ date('Y') }} VitaSafe - UMG. Todos los derechos reservados.
             </p>
         </div>
     </div>
