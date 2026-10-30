@@ -828,15 +828,21 @@ if (
 
         } catch (\Throwable $e) {
 
-            /*
-             * No mostrar detalles internos
-             * de Firebase al usuario.
-             */
-            return response()->json([
-                'success' => false,
-                'message' =>
-                    'No fue posible iniciar sesión con Google.'
-            ], 401);
-        }
+    /*
+     * Registrar la excepción para diagnóstico.
+     * Laravel la enviará a los logs del servidor.
+     */
+    report($e);
+
+    /*
+     * No mostrar detalles internos
+     * de Firebase al usuario.
+     */
+    return response()->json([
+        'success' => false,
+        'message' =>
+            'No fue posible iniciar sesión con Google.'
+    ], 401);
+    }
     }
 }
