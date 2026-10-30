@@ -1,15 +1,17 @@
 <?php
 
 declare(strict_types=1);
+
 $firebaseCredentialsBase64 = env('FIREBASE_CREDENTIALS_BASE64');
 
 $firebaseCredentials = $firebaseCredentialsBase64
-    ? base64_decode($firebaseCredentialsBase64, true)
+    ? trim(base64_decode($firebaseCredentialsBase64, true) ?: '')
     : env('FIREBASE_CREDENTIALS', env('GOOGLE_APPLICATION_CREDENTIALS'));
 
-if ($firebaseCredentialsBase64 && $firebaseCredentials === false) {
-    throw new \RuntimeException('Las credenciales Firebase en Base64 no son válidas.');
+if ($firebaseCredentialsBase64 && $firebaseCredentials === '') {
+    throw new \RuntimeException('Firebase Base64 credentials are invalid.');
 }
+
 return [
     /*
      * ------------------------------------------------------------------------
