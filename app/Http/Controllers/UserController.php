@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UserRegistered;
 use App\Models\PasswordResetCode;
 use App\Mail\PasswordResetCodeMail;
 use App\Models\User;
@@ -67,7 +68,7 @@ class UserController extends BaseController
                 ],
             ],
         ]);
-
+                UserRegistered::emit($user->uuid);
         return back()->with('success', 'Usuario creado');
     }
 

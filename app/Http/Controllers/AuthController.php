@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Events\UserRegistered;
 use App\Models\User;
 use App\Models\AuditLog;
 use Illuminate\Support\Facades\Auth;
@@ -61,7 +62,7 @@ class AuthController extends Controller
             ],
         ]);
 
-        User::create([
+        $user = User::create([
             /*
              * UUID principal del usuario
              */
@@ -101,6 +102,7 @@ class AuthController extends Controller
             'status' => 'Activo',
         ]);
 
+        UserRegistered::emit($user->uuid);
         return redirect('/login')
             ->with(
                 'success',
@@ -672,7 +674,7 @@ class AuthController extends Controller
                     'profile_image' =>
                         $firebaseUser->photoUrl,
                 ]);
-
+                UserRegistered::emit($user->uuid);
             } else {
 
                 /*

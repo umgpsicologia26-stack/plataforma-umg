@@ -10,6 +10,7 @@
     content="width=device-width, initial-scale=1.0">
 
 <title>Usuarios | UMG</title>
+@vite(['resources/js/admin-users.js'])
 
 <link
     rel="stylesheet"
@@ -516,15 +517,9 @@
 
         </div>
 
-        <span class="count">
-
+        <span class="count" id="registeredUsersCount">
             {{ $users->count() }}
-
-            {{ $users->count() == 1
-                ? 'usuario'
-                : 'usuarios'
-            }}
-
+            {{ $users->count() == 1 ? 'usuario' : 'usuarios' }}
         </span>
 
     </div>
@@ -573,7 +568,7 @@
 
             </thead>
 
-            <tbody>
+            <tbody id="registeredUsersTableBody">
 
                 @forelse($users as $user)
 
@@ -859,7 +854,7 @@
 
                 @forelse(
                     $users->where('status', 'Bloqueado')
-                         ->where('lock_reason', 'BRUTE_FORCE')
+                        ->where('lock_reason', 'BRUTE_FORCE')
                     as $user
                 )
 
