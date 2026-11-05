@@ -117,3 +117,42 @@ negociar el handshake WebSocket con un backend compatible. No probó el
 intercambio posterior de tramas WebSocket, autenticación Pusher/Reverb,
 Laravel Echo, conexiones privadas ni el proxy frontal de DigitalOcean.
 Tampoco prueba que el entorno real de App Platform permita el mismo flujo.
+
+## Auditoría de integración Laravel Echo y canales
+
+Revisión estática de la rama de pruebas:
+
+- `resources/js/app.js` importa `./bootstrap` y
+  `resources/js/bootstrap.js` importa `./echo`: Echo sí se carga en el
+  bundle principal.
+- `bootstrap/app.php` registra `routes/channels.php` mediante
+  `withRouting(channels: ...)`.
+- Los canales privados `moderator.{uuid}`, `user.{uuid}`,
+  `admin.{uuid}` y `admins` aplican comprobaciones de rol/UUID.
+  El canal `forum` permite a cualquier usuario autenticado.
+- `config/broadcasting.php` usa `BROADCAST_CONNECTION`; si no se define,
+  el valor predeterminado es `null`. Por tanto, una prueba real debe
+  establecerlo explícitamente como `reverb`.
+- Echo toma sus valores del build mediante `VITE_REVERB_APP_KEY`,
+  `VITE_REVERB_HOST`, `VITE_REVERB_PORT` y
+  `VITE_REVERB_SCHEME`. Cambiar esos valores requiere reconstruir los
+  recursos Vite. El host debe ser el nombre DNS, sin protocolo.
+- El servidor Reverb usa `REVERB_SERVER_HOST` y
+  `REVERB_SERVER_PORT`; el backend Laravel usa `REVERB_HOST`,
+  `REVERB_PORT` y `REVERB_SCHEME` para publicar eventos.
+
+### Observación de seguridad pendiente
+
+`config/reverb.php` conserva `allowed_origins => ['*']`. Antes de producción
+debe limitarse al dominio autorizado. No se cambió en esta rama porque esta
+etapa es una auditoría y no una modificación de configuración funcional.
+
+### Estado de la prueba integrada
+
+La inspección estática confirma que el bundle carga Echo y que Laravel registra
+los canales. No se puede declarar completada una prueba integrada de conexión,
+autenticación ni emisión/recepción de eventos: la rama no está desplegada en
+un entorno de ensayo y no se inició un servidor real de Reverb. Para probarlo
+sin afectar producción hace falta un entorno de ensayo aislado con su propia
+base de datos, credenciales de Reverb y URL HTTPS/WSS. No se deben reutilizar
+las credenciales ni la base de datos productivas.
