@@ -156,3 +156,56 @@ un entorno de ensayo y no se inició un servidor real de Reverb. Para probarlo
 sin afectar producción hace falta un entorno de ensayo aislado con su propia
 base de datos, credenciales de Reverb y URL HTTPS/WSS. No se deben reutilizar
 las credenciales ni la base de datos productivas.
+
+
+## Preparar una prueba local aislada (Windows/XAMPP)
+
+Se agregó `.env.testing.example` con valores locales de demostración. No contiene
+claves productivas ni apunta a DigitalOcean. Para usarlo desde la copia local:
+
+1. En la raíz del proyecto, copia `deploy/reverb/.env.testing.example` como
+   `.env.testing`. No reemplaces ni edites tu archivo `.env` habitual.
+2. Crea el archivo vacío `database/database.reverb-testing.sqlite`.
+3. En una terminal situada en la raíz del proyecto ejecuta:
+
+   ```powershell
+   php artisan key:generate --env=testing
+   php artisan migrate --env=testing
+   ```
+
+   Revisa primero que las migraciones de esta rama sean compatibles con SQLite.
+   Si alguna requiere funciones exclusivas de MySQL, detente; no cambies tu
+   base habitual para hacerla pasar.
+4. Compila los recursos usando el modo de prueba:
+
+   ```powershell
+   npm run build -- --mode testing
+   ```
+
+5. Abre dos terminales en la raíz del proyecto. En la primera inicia Reverb:
+
+   ```powershell
+   php artisan reverb:start --host=127.0.0.1 --port=6001 --env=testing
+   ```
+
+   En la segunda inicia Laravel:
+
+   ```powershell
+   php artisan serve --host=127.0.0.1 --port=8000 --env=testing
+   ```
+
+6. Abre `http://127.0.0.1:8000` y revisa la consola del navegador y la
+   terminal de Reverb. Para probar autenticación y eventos hay que iniciar
+   sesión con usuarios de prueba creados únicamente en esta base SQLite y
+   ejecutar una acción de la aplicación que emita un evento broadcast.
+
+**Importante:** esta plantilla solo prepara la configuración local. Los valores
+de ejemplo de Reverb no son credenciales seguras para Internet. No copies
+`.env.testing` a DigitalOcean, no uses datos reales y no ejecutes estos pasos
+si tu terminal no está situada en la copia de trabajo correcta. Si una migración
+no es compatible con SQLite, la alternativa será preparar un esquema de prueba
+MySQL local separado; nunca apuntar a la base productiva.
+
+La prueba local usa WebSocket sin TLS en `127.0.0.1:6001`. No demuestra WSS
+público, el proxy de Apache ni el comportamiento de App Platform. Esas partes
+siguen pendientes de una prueba en un staging HTTPS independiente.
