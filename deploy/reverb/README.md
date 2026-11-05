@@ -99,3 +99,21 @@ Esto confirma la sintaxis de las reglas en Apache 2.4.68 y el uso de argumentos
 PHP. No confirma todavía el proxy en ejecución, el handshake WebSocket real,
 la compatibilidad del proxy frontal de App Platform ni el comportamiento
 integrado con el proceso real de Reverb.
+
+## Prueba local de proxy HTTP y handshake WebSocket
+
+Se ejecutó Apache local en un puerto temporal, con un backend Python simulado
+en loopback (no Laravel Reverb y no DigitalOcean). Resultados:
+
+- `apache2 -t`: `Syntax OK`.
+- Solicitud HTTP a `/apps`: llegó al backend y devolvió
+  `HTTP_BACKEND_OK /apps`.
+- Solicitud WebSocket a `/app`: Apache devolvió
+  `HTTP/1.1 101 Switching Protocols` y el encabezado
+  `Sec-WebSocket-Accept` esperado.
+
+La prueba confirma que las reglas actuales de Apache pueden reenviar HTTP y
+negociar el handshake WebSocket con un backend compatible. No probó el
+intercambio posterior de tramas WebSocket, autenticación Pusher/Reverb,
+Laravel Echo, conexiones privadas ni el proxy frontal de DigitalOcean.
+Tampoco prueba que el entorno real de App Platform permita el mismo flujo.
