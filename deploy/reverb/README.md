@@ -49,11 +49,23 @@ Servidor Reverb dentro del contenedor:
 - `REVERB_SERVER_HOST=127.0.0.1`
 - `REVERB_SERVER_PORT=6001`
 
-Dirección pública para clientes:
+Destino interno para que Laravel publique eventos hacia Reverb:
 
-- `REVERB_HOST=vitasafe.org`
-- `REVERB_PORT=443`
-- `REVERB_SCHEME=https`
+- `REVERB_HOST=127.0.0.1`
+- `REVERB_PORT=6001`
+- `REVERB_SCHEME=http`
+
+Dirección pública para el navegador (valores Vite incorporados al build):
+
+- `VITE_REVERB_HOST=vitasafe.org`
+- `VITE_REVERB_PORT=443`
+- `VITE_REVERB_SCHEME=https`
+- `VITE_REVERB_APP_KEY` debe coincidir con `REVERB_APP_KEY`
+
+No se debe confundir el destino interno de publicación del backend con el
+destino público del navegador. `config/broadcasting.php` utiliza
+`REVERB_HOST/PORT/SCHEME`, mientras que `resources/js/echo.js` utiliza
+`VITE_REVERB_HOST/PORT/SCHEME`.
 
 Las claves `REVERB_APP_ID`, `REVERB_APP_KEY` y `REVERB_APP_SECRET`
 deben ser valores secretos configurados de forma segura; nunca deben
