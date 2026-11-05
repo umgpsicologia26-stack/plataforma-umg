@@ -58,7 +58,7 @@ fi
 
 # The existing Heroku PHP launcher continues to supervise Apache and PHP-FPM.
 # This wrapper supervises that launcher together with Reverb.
-"$APP_ROOT/vendor/bin/heroku-php-apache2" -C deploy/reverb/apache-reverb.conf public/ &
+"$APP_ROOT/vendor/bin/heroku-php-apache2" -C "$APP_ROOT/deploy/reverb/apache-reverb.conf" public/ &
 WEB_PID=$!
 
 # If either long-running service exits, terminate the other and fail the container.
