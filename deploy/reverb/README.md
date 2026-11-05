@@ -165,7 +165,7 @@ claves productivas ni apunta a DigitalOcean. Para usarlo desde la copia local:
 
 1. En la raíz del proyecto, copia `deploy/reverb/.env.testing.example` como
    `.env.testing`. No reemplaces ni edites tu archivo `.env` habitual.
-2. Crea el archivo vacío `database/database.reverb-testing.sqlite`.
+2. Crea el archivo vacío `database/database.reverb-testing.sqlite` (la plantilla ya usa la ruta relativa `database.reverb-testing.sqlite`, que Laravel resuelve dentro de la carpeta `database`).
 3. En una terminal situada en la raíz del proyecto ejecuta:
 
    ```powershell
