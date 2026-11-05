@@ -83,3 +83,19 @@ se hicieron estas comprobaciones:
 Estas pruebas validan la lógica básica del wrapper, no el funcionamiento real
 de Laravel Reverb, Apache, PHP-FPM ni el soporte WebSocket de DigitalOcean.
 La configuración sigue siendo experimental y no está aprobada para producción.
+
+## Validación local de Apache y del sondeo de disponibilidad
+
+En una configuración temporal local de Apache 2.4.68, sin tocar el servidor
+DigitalOcean, se cargaron los módulos `mod_proxy`, `mod_proxy_http` y
+`mod_proxy_wstunnel`, se incluyó el archivo candidato dentro de un
+`VirtualHost` y `apache2 -t` devolvió `Syntax OK`.
+
+También se comprobó el paso de argumentos del sondeo PHP usado por el wrapper:
+`$argv[1]` recibe `127.0.0.1` y `$argv[2]` recibe `6001`, por lo que
+esa comprobación no tiene el problema de índices que se había considerado.
+
+Esto confirma la sintaxis de las reglas en Apache 2.4.68 y el uso de argumentos
+PHP. No confirma todavía el proxy en ejecución, el handshake WebSocket real,
+la compatibilidad del proxy frontal de App Platform ni el comportamiento
+integrado con el proceso real de Reverb.
