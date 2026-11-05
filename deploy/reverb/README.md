@@ -68,3 +68,18 @@ copiar secretos al prefijo `VITE_`.
 Estos archivos no instalan servicios, no modifican dependencias, no cambian
 variables de DigitalOcean y no despliegan nada. Son propuestas para revisión
 técnica, no instrucciones para activar la configuración en producción.
+
+## Validación preliminar del lanzador
+
+En un entorno local aislado (sin conectar con DigitalOcean ni con la aplicación real)
+se hicieron estas comprobaciones:
+
+- `bash -n`: sintaxis válida.
+- Simulación con procesos falsos: cuando el lanzador web termina con error,
+  el wrapper detecta la salida y detiene el proceso Reverb simulado.
+- Simulación de señal `SIGTERM`: el wrapper termina con código 143 y detiene
+  el proceso Reverb simulado.
+
+Estas pruebas validan la lógica básica del wrapper, no el funcionamiento real
+de Laravel Reverb, Apache, PHP-FPM ni el soporte WebSocket de DigitalOcean.
+La configuración sigue siendo experimental y no está aprobada para producción.
