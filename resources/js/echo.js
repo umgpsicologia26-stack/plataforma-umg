@@ -16,7 +16,16 @@ if (reverbKey && reverbHost) {
         wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
         forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
         enabledTransports: ['ws', 'wss'],
-    });
+        authEndpoint: '/broadcasting/auth',
+
+    auth: {
+        headers: {
+            'X-CSRF-TOKEN':
+                document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    },
+});
 } else {
     console.warn(
         'Reverb no está configurado. Las funciones en tiempo real están desactivadas.'
