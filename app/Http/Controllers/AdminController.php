@@ -106,22 +106,43 @@ class AdminController extends Controller
         $auth = null;
         $firebaseUid = null;
 
-        try {
+                try {
             // Obtener las credenciales configuradas para Firebase.
             $credentials = config('firebase.projects.app.credentials');
 
-            if (
-                empty($credentials) ||
-                !is_file(base_path($credentials))
-            ) {
+            if (empty($credentials)) {
                 throw new \RuntimeException(
-                    'No se encontró el archivo de credenciales de Firebase.'
+                    'No están configuradas las credenciales de Firebase.'
                 );
             }
 
             // Inicializar Firebase Authentication.
+            // Acepta tanto contenido JSON como una ruta a un archivo JSON.
+            if (is_string($credentials) && str_starts_with(ltrim($credentials), '{')) {
+                $serviceAccount = json_decode($credentials, true);
+
+                if (
+                    !is_array($serviceAccount) ||
+                    json_last_error() !== JSON_ERROR_NONE
+                ) {
+                    throw new \RuntimeException(
+                        'El contenido JSON de las credenciales de Firebase no es válido.'
+                    );
+                }
+            } else {
+                $credentialsPath = base_path($credentials);
+
+                if (!is_file($credentialsPath)) {
+                    throw new \RuntimeException(
+                        'No se encontró el archivo de credenciales de Firebase.'
+                    );
+                }
+
+                $serviceAccount = $credentialsPath;
+            }
+
             $auth = (new Factory())
-                ->withServiceAccount(base_path($credentials))
+                ->withServiceAccount($serviceAccount)
                 ->createAuth();
 
             // Crear primero la cuenta real en Firebase.
