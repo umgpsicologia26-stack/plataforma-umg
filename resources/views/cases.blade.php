@@ -452,7 +452,6 @@ button { font-family: 'Poppins', sans-serif; }
 @endif
 <div id="live-cases">
     
-</div>
 
 {{-- ESTADISTICAS --}}
 @php

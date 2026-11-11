@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
+use App\Events\ChatMessageCreated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -463,6 +464,13 @@ class ChatController extends Controller
         */
 
         $conversation->refresh();
+
+        // Avisar al moderador asignado para actualizar su contador en vivo.
+        if ($conversation->moderator_uuid) {
+            ChatMessageCreated::emit(
+                (string) $conversation->moderator_uuid
+            );
+        }
 
         /*
         |--------------------------------------------------------------------------

@@ -61,7 +61,10 @@ $response->headers->set(
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " .
     "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; " .
     "img-src 'self' data: https://images.unsplash.com https://*.googleusercontent.com; " .
-    "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com ws://localhost:8080 wss://localhost:8080; " .
+    "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com " .
+(app()->environment('testing')
+    ? 'ws://localhost:8080 wss://localhost:8080 ws://127.0.0.1:8081 wss://127.0.0.1:8081; '
+    : 'ws://localhost:8080 wss://localhost:8080; ') .
     "frame-src 'self' https://*.firebaseapp.com; " .
     "object-src 'none'; " .
     "base-uri 'self'; " .

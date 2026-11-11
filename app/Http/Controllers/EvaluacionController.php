@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\EvaluationPublished;
+use App\Events\EvaluationCompleted;
 use App\Models\Evaluacion;
 use App\Models\EvaluacionPregunta;
 use App\Models\EvaluacionRespuesta;
@@ -54,7 +56,7 @@ class EvaluacionController extends Controller
     }
 
     /**
-     * Mostrar una evaluación específica.
+     * Mostrar una evaluaciÃƒÂ³n especÃƒÂ­fica.
      */
     public function show(string $uuid)
     {
@@ -88,7 +90,7 @@ class EvaluacionController extends Controller
                 ->route('evaluation.index')
                 ->with(
                     'error',
-                    'Ya has completado esta evaluación.'
+                    'Ya has completado esta evaluaciÃƒÂ³n.'
                 );
         }
 
@@ -99,7 +101,7 @@ class EvaluacionController extends Controller
     }
 
     /**
-     * Guardar respuestas de una evaluación.
+     * Guardar respuestas de una evaluaciÃƒÂ³n.
      */
     public function submit(Request $request, string $uuid)
     {
@@ -133,7 +135,7 @@ class EvaluacionController extends Controller
                 ->route('evaluation.index')
                 ->with(
                     'error',
-                    'Ya has completado esta evaluación.'
+                    'Ya has completado esta evaluaciÃƒÂ³n.'
                 );
         }
 
@@ -180,6 +182,10 @@ class EvaluacionController extends Controller
                 $user,
                 $respuestas
             ) {
+		// Bloquear la evaluaciÃƒÂ³n mientras se procesa el envÃƒÂ­o.
+		Evaluacion::where('uuid', $evaluacion->uuid)
+		->lockForUpdate()
+		->firstOrFail();
 
                 $yaCompletada = EvaluationAttempt::where(
                         'evaluacion_uuid',
@@ -247,7 +253,7 @@ class EvaluacionController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | NOTIFICACIÓN AL MODERADOR
+                | NOTIFICACIÃƒâ€œN AL MODERADOR
                 |--------------------------------------------------------------------------
                 */
 
@@ -271,20 +277,34 @@ class EvaluacionController extends Controller
                         $nombreUsuario = 'Un usuario';
                     }
 
-                    ModeratorNotification::create([
+                    $notification = ModeratorNotification::create([
                         'moderator_uuid' => $evaluacion->created_by,
                         'conversation_id' => null,
                         'evaluacion_uuid' => $evaluacion->uuid,
                         'attempt_uuid' => $attempt->uuid,
                         'message' =>
                             $nombreUsuario .
-                            ' ha completado la evaluación "' .
+                            ' ha completado la evaluaciÃƒÂ³n "' .
                             $evaluacion->title .
                             '".',
                         'read' => false,
                     ]);
+
+                    DB::afterCommit(function () use ($notification) {
+                        try {
+                            broadcast(new EvaluationCompleted(
+                                (int) $notification->id,
+                                (string) $notification->moderator_uuid,
+                                (string) $notification->message,
+                                $notification->created_at->toIso8601String()
+                            ));
+                        } catch (\Throwable $e) {
+                            report($e);
+                        }
+                    });
                 }
             });
+
 
         } catch (\RuntimeException $e) {
 
@@ -292,12 +312,11 @@ class EvaluacionController extends Controller
                 $e->getMessage() ===
                 'EVALUACION_YA_COMPLETADA'
             ) {
-
                 return redirect()
                     ->route('evaluation.index')
                     ->with(
                         'error',
-                        'Ya has completado esta evaluación.'
+                        'Ya has completado esta evaluaciÃƒÂ³n.'
                     );
             }
 
@@ -305,19 +324,18 @@ class EvaluacionController extends Controller
 
         } catch (QueryException $e) {
 
-            if (
-                $e->getCode() === '23000' ||
-                str_contains(
-                    strtolower($e->getMessage()),
-                    'duplicate'
-                )
-            ) {
+            $mensaje = strtolower($e->getMessage());
 
+            $esDuplicado =
+                str_contains($mensaje, 'duplicate entry') ||
+                str_contains($mensaje, 'unique constraint');
+
+            if ($esDuplicado) {
                 return redirect()
                     ->route('evaluation.index')
                     ->with(
                         'error',
-                        'Ya has completado esta evaluación.'
+                        'Ya has completado esta evaluaciÃƒÂ³n.'
                     );
             }
 
@@ -328,7 +346,7 @@ class EvaluacionController extends Controller
             ->route('evaluation.index')
             ->with(
                 'success',
-                'Evaluación completada correctamente.'
+                'EvaluaciÃƒÂ³n completada correctamente.'
             );
     }
 
@@ -341,7 +359,7 @@ class EvaluacionController extends Controller
     /**
      * Lista de evaluaciones del moderador.
      *
-     * También carga las notificaciones de resultados de evaluaciones
+     * TambiÃƒÂ©n carga las notificaciones de resultados de evaluaciones
      * creadas exclusivamente por el moderador autenticado.
      */
     public function moderatorIndex()
@@ -367,10 +385,10 @@ class EvaluacionController extends Controller
         | Solamente se obtienen notificaciones que:
         |
         | 1. Pertenecen al moderador autenticado.
-        | 2. Corresponden a una evaluación.
+        | 2. Corresponden a una evaluaciÃƒÂ³n.
         | 3. Tienen un intento asociado.
-        | 4. La evaluación fue creada por este moderador.
-        | 5. El intento está completado.
+        | 4. La evaluaciÃƒÂ³n fue creada por este moderador.
+        | 5. El intento estÃƒÂ¡ completado.
         |
         */
 
@@ -418,7 +436,7 @@ class EvaluacionController extends Controller
         | RESULTADOS PENDIENTES
         |--------------------------------------------------------------------------
         |
-        | El contador representa usuarios pendientes de revisión,
+        | El contador representa usuarios pendientes de revisiÃƒÂ³n,
         | no cantidad de notificaciones.
         |
         */
@@ -445,7 +463,7 @@ class EvaluacionController extends Controller
 
     /**
      * Mostrar los resultados de las evaluaciones completadas
-     * por un usuario específico.
+     * por un usuario especÃƒÂ­fico.
      */
     public function moderatorUserResults(string $userUuid)
     {
@@ -507,7 +525,7 @@ class EvaluacionController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | MARCAR COMO LEÍDAS
+        | MARCAR COMO LEÃƒÂDAS
         |--------------------------------------------------------------------------
         |
         | Al entrar a los resultados de este usuario, las notificaciones
@@ -547,7 +565,7 @@ class EvaluacionController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | RESULTADOS ÚNICOS
+        | RESULTADOS ÃƒÅ¡NICOS
         |--------------------------------------------------------------------------
         */
 
@@ -572,7 +590,7 @@ class EvaluacionController extends Controller
     }
 
     /**
-     * Formulario para crear una evaluación.
+     * Formulario para crear una evaluaciÃƒÂ³n.
      */
     public function create()
     {
@@ -582,7 +600,7 @@ class EvaluacionController extends Controller
     }
 
     /**
-     * Guardar una nueva evaluación.
+     * Guardar una nueva evaluaciÃƒÂ³n.
      */
     public function store(Request $request)
     {
@@ -638,8 +656,11 @@ class EvaluacionController extends Controller
             ],
         ]);
 
+        $evaluacion = null;
+
         DB::transaction(function () use (
-            $validated
+            $validated,
+            &$evaluacion
         ) {
 
             $evaluacion = Evaluacion::create([
@@ -719,18 +740,33 @@ class EvaluacionController extends Controller
             ]);
         });
 
+        // Publicar el evento despuÃƒÂ©s de confirmar la transacciÃƒÂ³n.
+        if (
+            $evaluacion &&
+            $evaluacion->status === 'ACTIVA'
+        ) {
+            try {
+                broadcast(new EvaluationPublished(
+                    (string) $evaluacion->uuid,
+                    (string) $evaluacion->title
+                ));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
         return redirect()
             ->route(
                 'moderator.evaluations'
             )
             ->with(
                 'success',
-                'Evaluación creada correctamente.'
+                'EvaluaciÃƒÂ³n creada correctamente.'
             );
     }
 
     /**
-     * Mostrar formulario de edición.
+     * Mostrar formulario de ediciÃƒÂ³n.
      */
     public function edit(string $uuid)
     {
@@ -756,7 +792,7 @@ class EvaluacionController extends Controller
     }
 
     /**
-     * Actualizar evaluación.
+     * Actualizar evaluaciÃƒÂ³n.
      */
     public function update(
         Request $request,
@@ -837,8 +873,7 @@ class EvaluacionController extends Controller
 
         DB::transaction(function () use (
             $validated,
-            $evaluacion,
-            $oldStatus
+            $evaluacion
         ) {
 
             $evaluacion->update([
@@ -965,68 +1000,74 @@ class EvaluacionController extends Controller
                 'target_type' => 'Evaluacion',
                 'target_id' => $evaluacion->uuid,
                 'changes' => [
-                    'status' => [
-                        'before' => $oldStatus,
-                        'after' => $evaluacion->status,
-                    ],
+                    'status' => $evaluacion->status,
                     'questions_count' => count($validated['questions']),
                 ],
             ]);
         });
 
+        // Publicar el evento solamente cuando cambia de INACTIVA a ACTIVA.
+        if (
+            $oldStatus !== 'ACTIVA' &&
+            $evaluacion->status === 'ACTIVA'
+        ) {
+            try {
+                broadcast(new EvaluationPublished(
+                    (string) $evaluacion->uuid,
+                    (string) $evaluacion->title
+                ));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
         return redirect()
             ->route(
                 'moderator.evaluations'
             )
             ->with(
                 'success',
-                'Evaluación actualizada correctamente.'
+                'EvaluaciÃƒÂ³n actualizada correctamente.'
             );
     }
 
-    /**
-     * Eliminar una evaluación.
-     */
-    public function destroy(string $uuid)
-    {
-        $moderatorUuid = Auth::user()->uuid;
+    /* Eliminar una evaluaciÃƒÂ³n */
 
-        $evaluacion = Evaluacion::where(
-                'uuid',
-                $uuid
-            )
-            ->where(
-                'created_by',
-                $moderatorUuid
-            )
-            ->firstOrFail();
+public function destroy(string $uuid)
+{
+    $moderatorUuid = Auth::user()->uuid;
 
-        $oldStatus = $evaluacion->status;
+    $evaluacion = Evaluacion::where('uuid', $uuid)
+        ->where('created_by', $moderatorUuid)
+        ->firstOrFail();
 
-        $questionsCount = $evaluacion
-            ->preguntas()
-            ->count();
+    $oldStatus = $evaluacion->status;
+    $questionsCount = $evaluacion->preguntas()->count();
+    $evaluacionUuid = $evaluacion->uuid;
 
+    DB::transaction(function () use (
+        $evaluacion,
+        $moderatorUuid,
+        $oldStatus,
+        $questionsCount,
+        $evaluacionUuid
+    ) {
         $evaluacion->delete();
 
         AuditLog::create([
             'action' => 'delete_evaluation',
-            'performed_by' => Auth::user()->uuid,
+            'performed_by' => $moderatorUuid,
             'target_type' => 'Evaluacion',
-            'target_id' => $evaluacion->uuid,
+            'target_id' => $evaluacionUuid,
             'changes' => [
                 'status' => $oldStatus,
                 'questions_count' => $questionsCount,
             ],
         ]);
+    });
 
-        return redirect()
-            ->route(
-                'moderator.evaluations'
-            )
-            ->with(
-                'success',
-                'Evaluación eliminada correctamente.'
-            );
-    }
+    return redirect()
+        ->route('moderator.evaluations')
+        ->with('success', 'EvaluaciÃƒÂ³n eliminada correctamente.');
+}
 }

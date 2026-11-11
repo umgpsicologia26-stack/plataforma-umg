@@ -734,6 +734,7 @@
 
 
 @vite('resources/js/app.js')
+@vite('resources/js/echo.js')
 
 <script>
 window.addEventListener('load', function () {
@@ -799,6 +800,7 @@ window.addEventListener('load', function () {
 
     const moderatorUuid = @json(auth()->user()->uuid);
     const casesUrl = @json(route('moderator.cases'));
+    const chatsUrl = @json(route('moderator.chats'));
     const countersUrl = @json(route('moderator.dashboard.counters'));
 
     const casesCard = Array.from(
@@ -811,6 +813,13 @@ window.addEventListener('load', function () {
         console.error('No se encontró la tarjeta Mis casos.');
         return;
     }
+
+    const chatCard = Array.from(
+        document.querySelectorAll('a.card')
+    ).find(function (card) {
+        return card.getAttribute('href') === chatsUrl;
+    });
+
 
     function renderCasesBadge(count) {
         const badge = document.createElement('div');
@@ -840,6 +849,34 @@ window.addEventListener('load', function () {
     }
 
     // El número lo calcula el servidor con la MISMA consulta que dashboard().
+    function renderChatBadge(count) {
+        if (!chatCard) return;
+
+        const badge = document.createElement('div');
+        const icon = document.createElement('i');
+
+        if (count > 0) {
+            badge.className = 'new-message-badge';
+            icon.className = 'fas fa-bell';
+            badge.appendChild(icon);
+            badge.appendChild(document.createTextNode(
+                ' ' + count + ' ' + (count === 1 ? 'mensaje nuevo' : 'mensajes nuevos')
+            ));
+        } else {
+            badge.className = 'no-new-message';
+            icon.className = 'fas fa-check-circle';
+            badge.appendChild(icon);
+            badge.appendChild(document.createTextNode(' Sin mensajes nuevos'));
+        }
+
+        const current = chatCard.querySelector('.new-message-badge, .no-new-message');
+        if (current) {
+            current.replaceWith(badge);
+        } else {
+            chatCard.insertBefore(badge, chatCard.firstChild);
+        }
+    }
+
     async function refreshCounters() {
         try {
             const response = await fetch(countersUrl, {
@@ -859,6 +896,7 @@ window.addEventListener('load', function () {
 
             if (data.success) {
                 renderCasesBadge(Number(data.new_cases_count) || 0);
+                renderChatBadge(Number(data.new_conversations_count) || 0);
             }
         } catch (error) {
             console.error('Error al actualizar casos pendientes:', error);
@@ -875,6 +913,9 @@ window.addEventListener('load', function () {
     window.Echo
         .private('moderator.' + moderatorUuid)
         .listen('.case.activity.updated', schedule);
+    window.Echo
+        .private('moderator.' + moderatorUuid)
+        .listen('.chat.message.created', schedule);
 
     const pusher = window.Echo.connector && window.Echo.connector.pusher;
 

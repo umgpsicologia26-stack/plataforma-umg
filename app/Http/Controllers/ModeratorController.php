@@ -82,33 +82,7 @@ class ModeratorController extends BaseController
 
         /* MENSAJES NUEVOS DEL CHAT */
 
-        $newConversationsCount = DB::table('chat_messages')
-            ->join(
-                'chat_conversations',
-                'chat_messages.conversation_id',
-                '=',
-                'chat_conversations.id'
-            )
-            ->where(
-                'chat_conversations.moderator_uuid',
-                $moderatorUuid
-            )
-            ->where(
-                'chat_messages.sender_type',
-                'USER'
-            )
-            ->where(function ($query) {
-                $query->whereNull(
-                    'chat_conversations.moderator_last_read_at'
-                )
-                    ->orWhereColumn(
-                        'chat_messages.created_at',
-                        '>',
-                        'chat_conversations.moderator_last_read_at'
-                    );
-            })
-            ->distinct()
-            ->count('chat_conversations.id');
+        $newConversationsCount = $this->newConversationsCount($moderatorUuid);
 
         return view(
             'moderator.dashboard',
@@ -186,6 +160,32 @@ class ModeratorController extends BaseController
 
     /* CONTADORES DEL DASHBOARD (JSON, solo del moderador autenticado) */
 
+    /**
+     * Cantidad de conversaciones asignadas con mensajes del usuario sin leer.
+     */
+    private function newConversationsCount(string $moderatorUuid): int
+    {
+        return DB::table('chat_messages')
+            ->join(
+                'chat_conversations',
+                'chat_messages.conversation_id',
+                '=',
+                'chat_conversations.id'
+            )
+            ->where('chat_conversations.moderator_uuid', $moderatorUuid)
+            ->where('chat_messages.sender_type', 'USER')
+            ->where(function ($query) {
+                $query->whereNull('chat_conversations.moderator_last_read_at')
+                    ->orWhereColumn(
+                        'chat_messages.created_at',
+                        '>',
+                        'chat_conversations.moderator_last_read_at'
+                    );
+            })
+            ->distinct()
+            ->count('chat_conversations.id');
+    }
+
     public function dashboardCounters()
     {
         $this->checkRole(['MODERATOR']);
@@ -193,6 +193,9 @@ class ModeratorController extends BaseController
         return response()->json([
             'success' => true,
             'new_cases_count' => $this->pendingCasesCount(
+                Auth::user()->uuid
+            ),
+            'new_conversations_count' => $this->newConversationsCount(
                 Auth::user()->uuid
             ),
         ]);

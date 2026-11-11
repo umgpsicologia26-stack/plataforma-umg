@@ -35,6 +35,17 @@ Broadcast::channel('user.{userUuid}', function (
 
 /*
 |--------------------------------------------------------------------------
+| Canal privado de publicación de evaluaciones
+|--------------------------------------------------------------------------
+| Permite que los usuarios autenticados reciban evaluaciones nuevas.
+*/
+
+Broadcast::channel('evaluations', function (User $user): bool {
+    return !empty($user->uuid);
+});
+
+/*
+|--------------------------------------------------------------------------
 | Canal del foro
 |--------------------------------------------------------------------------
 | Todas las personas autenticadas pueden escuchar las publicaciones
